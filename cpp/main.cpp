@@ -11,10 +11,12 @@ enum class GameState
     GameOver
 };
 
-void resetGame(Map &map,Player *&player, Inventory &inventory, sf::RenderWindow &window, bool &gameover)
+void resetGame(Map &map, Player *&player, Inventory &inventory, sf::RenderWindow &window, bool &gameover, Boss *&boss)
 {
-    player = new Player(sf::Vector2f(500, 500),gameover);
+    player = new Player(sf::Vector2f(500, 500), gameover);
     map.resetEntities(player->place);
+    boss=new Boss(window.getSize(),gameover);
+    boss->playerBounds=&player->place;
     inventory.reset(player);
     gameover = false;
 }
@@ -26,15 +28,19 @@ int main()
     window.setFramerateLimit(60);
 
     std::vector<std::string> cutSceneImages = {
-        
+
     };
     bool gameOver = false;
-    Player *player = new Player(sf::Vector2f(500, 500),gameOver);
+    Player *player = new Player(sf::Vector2f(500, 500), gameOver);
     CutScene cutScene(cutSceneImages, window.getSize());
-    Map map("../map.mib", window,gameOver);
+    Map map("../map.mib", window, gameOver);
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
     Inventory inventory(map, player, window);
+    Boss *boss=new Boss(window.getSize(),gameOver);
+    Sprite background;
+    background.scale(0.6,0.6);
+    background.loadTexture("../imgs/background3.jpg");
 
     GameState currentState = GameState::Menu;
     sf::Clock clock;
@@ -58,7 +64,7 @@ int main()
         case GameState::Menu:
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
             {
-                resetGame(map,player, inventory, window, gameOver);
+                resetGame(map, player, inventory, window, gameOver,boss);
                 currentState = GameState::CutScene;
                 clock.restart();
             }
@@ -83,9 +89,16 @@ int main()
                 map.updateEntities(deltaTime, window.getSize());
                 player->update(deltaTime, map, window.getSize());
                 inventory.update();
+                boss->update(deltaTime,map,window.getSize());
+
+                sf::View originalView = window.getView();
+                window.setView(window.getDefaultView());
+                background.draw(window);
+                window.setView(originalView);
 
                 map.draw();
                 map.drawEntities(window);
+                boss->draw(window);
                 player->draw(window);
                 inventory.draw();
             }

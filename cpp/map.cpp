@@ -48,7 +48,7 @@ void Map::addEntity(int x, int y, const std::string &entityType)
     sf::Vector2f position(x, y);
 
     // Create the entity
-    std::unique_ptr<Entity> newEntity(EntityFactory::createEntity(entityType, position, *gameOver));
+    std::unique_ptr<Entity> newEntity(EntityFactory::createEntity(entityType, position,*this));
 
     if (newEntity)
     {
@@ -122,7 +122,7 @@ void Map::Object::draw(sf::RenderWindow &window)
 
 Map::Map(sf::RenderWindow &wndref, bool &gameover)
     : mx(0), my(0), np(1), wndref(wndref), gameOver(&gameover),
-      menu({"../imgs/player.png", "../imgs/pacman.png", "../imgs/capybaraa.png", "../imgs/arrow.png", "../imgs/pengu.png"},
+      menu({/*"../imgs/player.png", */"../imgs/poketIkeaman.png","../imgs/pacman.png", "../imgs/capybaraa.png", "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png", "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png"},
            {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png"},
            wndref)
 {
@@ -131,10 +131,11 @@ Map::Map(sf::RenderWindow &wndref, bool &gameover)
 
 Map::Map(std::string fname, sf::RenderWindow &wndref, bool &gameover)
     : mx(0), my(0), np(1), wndref(wndref), gameOver(&gameover),
-      menu({"../imgs/player.png", "../imgs/pacman.png", "../imgs/capybaraa.png", "../imgs/arrow.png", "../imgs/pengu.png"},
+      menu({/*"../imgs/player.png",*/"../imgs/poketIkeaman.png", "../imgs/pacman.png", "../imgs/capybaraa.png", "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png", "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png"},
            {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png"},
            wndref)
 {
+    std::cout<<"\n x  y\n";
     this->view.setSize(wndref.getSize().x, wndref.getSize().y);
     if (std::filesystem::exists(fname))
     {
@@ -180,8 +181,7 @@ Map::Map(std::string fname, sf::RenderWindow &wndref, bool &gameover)
             file.read((char *)&y, sizeof(float));
 
             // Create the entity
-            std::unique_ptr<Entity> newEntity(EntityFactory::createEntity(entityType, sf::Vector2f(x, y), *gameOver));
-
+            std::unique_ptr<Entity> newEntity(EntityFactory::createEntity(entityType, sf::Vector2f(x, y), *this));
             if (newEntity)
             {
                 // Load entity properties
@@ -387,6 +387,7 @@ void Map::removeEntity(int index)
 void Map::resetEntities(sf::FloatRect &playerBounds)
 {
     activeEntities.clear();
+    allItems.clear();
     spawnEntities(playerBounds);
 }
 
@@ -398,7 +399,7 @@ void Map::spawnEntities(sf::FloatRect &playerBounds)
         const std::string &type = placedEntity->type;
 
         // Create a new instance of the entity
-        std::unique_ptr<Entity> entity(EntityFactory::createEntity(type, position, *gameOver));
+        std::unique_ptr<Entity> entity(EntityFactory::createEntity(type, position, *this,true));
 
         if (entity)
         {
@@ -514,7 +515,6 @@ void Map::PropertyEditor::updateForEntity(Map::PlacedEntity *entity, sf::Font &f
     inputBoxes.clear();
     inputTexts.clear();
     selectedInputBox = -1;
-    // std::cout<<"ffffff";
     if (!entity)
         return;
 
@@ -525,7 +525,6 @@ void Map::PropertyEditor::updateForEntity(Map::PlacedEntity *entity, sf::Font &f
         sf::Text label(prop.first + ":", font, 14);
         label.setPosition(834, yOffset);
         labels.push_back(label);
-        std::cout << (std::string)label.getString();
 
         sf::Text inputText(prop.second, font, 14);
         inputText.setPosition(838, yOffset + 22);
@@ -671,6 +670,15 @@ void Map::Menu::draw()
         sf::View originalView = window.getView();
         window.setView(window.getDefaultView());
 
+        const float itemSize = 64.0f;
+        const float itemSpacing = 10.0f;
+        const float startX = 50.0f;
+        const float startY = 50.0f;
+        const float windowWidth = static_cast<float>(window.getSize().x);
+
+        float currentX = startX;
+        float currentY = startY;
+
         size_t totalItems = entityTextures.size() + textures.size();
         for (size_t i = 0; i < totalItems; i++)
         {
@@ -683,20 +691,32 @@ void Map::Menu::draw()
             {
                 sprite.setTexture(textures[i - entityTextures.size()]);
             }
-            sprite.setPosition(50.0f + i * 100.0f, 50.0f);
-            sprite.setScale(64.0f / sprite.getTexture()->getSize().x, 64.0f / sprite.getTexture()->getSize().y);
+
+            // Check if the next item would exceed the window width
+            if (currentX + itemSize > windowWidth - startX)
+            {
+                // Move to the next line
+                currentX = startX;
+                currentY += itemSize + itemSpacing;
+            }
+
+            sprite.setPosition(currentX, currentY);
+            sprite.setScale(itemSize / sprite.getTexture()->getSize().x, itemSize / sprite.getTexture()->getSize().y);
             window.draw(sprite);
 
             if (i == selectedIndex)
             {
                 sf::RectangleShape highlight;
-                highlight.setSize(sf::Vector2f(64, 64));
+                highlight.setSize(sf::Vector2f(itemSize, itemSize));
                 highlight.setPosition(sprite.getPosition());
                 highlight.setFillColor(sf::Color::Transparent);
                 highlight.setOutlineColor(sf::Color::Yellow);
                 highlight.setOutlineThickness(2.0f);
                 window.draw(highlight);
             }
+
+            // Move to the next item position
+            currentX += itemSize + itemSpacing;
         }
 
         window.setView(originalView);
@@ -713,19 +733,40 @@ void Map::Menu::selectPrevious()
     selectedIndex = (selectedIndex - 1 + entityTextures.size() + textures.size()) % (entityTextures.size() + textures.size());
 }
 
-bool Map::handleMenuClick(const sf::Vector2i &mousePosition)
+bool Map::handleMenuClick(const sf::Vector2i &mousePosition,sf::RenderWindow &window)
 {
     if (!menu.isOpen)
         return false;
 
-    for (size_t i = 0; i < menu.entityTextures.size() + menu.textures.size(); ++i)
+    const float itemSize = 64.0f;
+    const float itemSpacing = 10.0f;
+    const float startX = 50.0f;
+    const float startY = 50.0f;
+    const float windowWidth = static_cast<float>(window.getSize().x);
+
+    float currentX = startX;
+    float currentY = startY;
+
+    size_t totalItems = menu.entityTextures.size() + menu.textures.size();
+    for (size_t i = 0; i < totalItems; ++i)
     {
-        sf::FloatRect itemBounds(50.0f + i * 100.0f, 50.0f, 64.0f, 64.0f);
+        // Check if the next item would exceed the window width
+        if (currentX + itemSize > windowWidth - startX)
+        {
+            // Move to the next line
+            currentX = startX;
+            currentY += itemSize + itemSpacing;
+        }
+
+        sf::FloatRect itemBounds(currentX, currentY, itemSize, itemSize);
         if (itemBounds.contains(mousePosition.x, mousePosition.y))
         {
             menu.selectedIndex = i;
             return true;
         }
+
+        // Move to the next item position
+        currentX += itemSize + itemSpacing;
     }
     return false;
 }

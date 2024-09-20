@@ -80,7 +80,7 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    if (map.handleMenuClick(mousePos))
+                    if (map.handleMenuClick(mousePos,window))
                     {
                         if (map.menu.isEntitySelected())
                         {

@@ -3,6 +3,7 @@ class Player;
 class Entity;
 class EntityFactory;
 class TextBox;
+class Item;
 class Map
 {
 
@@ -22,24 +23,24 @@ private:
 
 public:
     class Menu
-{
-    public:
-    std::string getFileNameWithoutExtension(const std::string& path)
     {
-        // Find the last occurrence of '/' or '\' to get the start of the filename
-        size_t lastSlash = path.find_last_of("/\\");
-        std::string fileName = (lastSlash == std::string::npos) ? path : path.substr(lastSlash + 1);
-
-        // Find the last occurrence of '.' to remove the extension
-        size_t lastDot = fileName.find_last_of(".");
-        if (lastDot != std::string::npos)
+    public:
+        std::string getFileNameWithoutExtension(const std::string &path)
         {
-            fileName = fileName.substr(0, lastDot);
-        }
+            // Find the last occurrence of '/' or '\' to get the start of the filename
+            size_t lastSlash = path.find_last_of("/\\");
+            std::string fileName = (lastSlash == std::string::npos) ? path : path.substr(lastSlash + 1);
 
-        return fileName;
-    }
-        Menu(const std::vector<std::string>& entityPaths, const std::vector<std::string>& texturePaths, sf::RenderWindow& window);
+            // Find the last occurrence of '.' to remove the extension
+            size_t lastDot = fileName.find_last_of(".");
+            if (lastDot != std::string::npos)
+            {
+                fileName = fileName.substr(0, lastDot);
+            }
+
+            return fileName;
+        }
+        Menu(const std::vector<std::string> &entityPaths, const std::vector<std::string> &texturePaths, sf::RenderWindow &window);
         void draw();
         void selectNext();
         void selectPrevious();
@@ -53,7 +54,7 @@ public:
         std::vector<std::string> textureNames;
 
         // Add this new function
-        const std::string& getSelectedName() const 
+        const std::string &getSelectedName() const
         {
             if (isEntitySelected())
             {
@@ -66,15 +67,13 @@ public:
         }
 
     private:
-        sf::RenderWindow& window;
-        //std::string getFileNameWithoutExtension(const std::string& path);
+        sf::RenderWindow &window;
+        // std::string getFileNameWithoutExtension(const std::string& path);
     };
 
-
 public:
-    bool handleMenuClick(const sf::Vector2i& mousePosition);
-    const std::string& getSelectedName() const;
-
+    bool handleMenuClick(const sf::Vector2i &mousePosition,sf::RenderWindow &window);
+    const std::string &getSelectedName() const;
 
     bool *gameOver;
     std::vector<sf::FloatRect> getObjectBounds();
@@ -93,6 +92,7 @@ public:
     Menu menu;
     void removeEntity(int x, int y);
     std::vector<sf::FloatRect> getEntityBounds();
+    std::vector<Item *> allItems;
 
     struct PlacedEntity
     {
@@ -100,7 +100,7 @@ public:
         std::string type;
         std::unique_ptr<Entity> entity;
     };
-    const sf::Texture* getSelectedTexture() const;
+    const sf::Texture *getSelectedTexture() const;
     void removeEntity(int index);
     void drawEditorEntities(sf::RenderWindow &window, const Map::PlacedEntity *selectedEntity, bool &isOpen);
     const sf::Texture *getEntityTexture(const std::string &entityName) const;

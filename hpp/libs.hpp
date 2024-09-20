@@ -9,8 +9,10 @@
 #include <cassert>
 #include <filesystem>
 #include <memory>
+#include <array>
+#include <numeric>
+#include <string_view>
 #include <functional>
-#include <unordered_map>
 #include <iostream>//only used for debugging can be removed
 #include <stdexcept>
 #include <fstream>
@@ -19,6 +21,8 @@
 #include "GifPlayer.hpp"
 #include "EntityFactory.hpp"
 #include "map.hpp"
+#include "EditorMap.hpp"
+#include "GameMap.hpp"
 #include "CutScene.hpp"
 #include "Entity.hpp"
 #include "sprite.hpp"

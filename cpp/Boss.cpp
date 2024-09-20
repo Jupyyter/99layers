@@ -1,10 +1,10 @@
 #include "../hpp/libs.hpp"
 
-Boss::Boss(const std::string &imagePath, sf::Vector2u windowSize,bool &gameOverr)
+Boss::Boss(sf::Vector2u windowSize,bool &gameOverr)
     : targetWidth(200.0f), windowSize(windowSize),gameover(&gameOverr)
 {
     sprite.setOrigin(514, 366);
-    loadAndScaleImage(imagePath);
+    loadAndScaleImage("../imgs/ikeaman.jpg");
     setInitialPosition();
     atimer.restart();
     ptimer.restart();

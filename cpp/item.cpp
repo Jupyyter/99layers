@@ -1,14 +1,15 @@
 #include "../hpp/libs.hpp"
 
-Item::Item(float x, float y, float sizet, float speedb, float jumpb, std::string description, std::string name, std::string fname) : sizet(sizet),
+Item::Item(const sf::Vector2f &position, float sizet, float speedb, float jumpb, std::string description, std::string name, std::string fname) : sizet(sizet),
                                                                                                                    speedb(speedb),
                                                                                                                    jumpb(jumpb),
                                                                                                                    name(name),
-                                                                                                                   description(description)
+                                                                                                                   description(description),
+                                                                                                                   shouldApplyItemChangesToPlayer(false)
 {
     this->texture.loadFromFile(fname);
     this->sprite.setTexture(this->texture);
-    this->sprite.setPosition(x,y);
+    this->sprite.setPosition(position.x,position.y);
 }
 
 void Item::applyStats(Player *player)
@@ -55,17 +56,31 @@ void Item::setStasis(Player* player, bool stasis){
 
 void Item::draw(sf::RenderWindow &window)
 {
-    window.draw(this->sprite);
+    Sprite::draw(window);
 }
-
-HB::HB(float x, float y) : Item(x, y, 1, 1.25, 1.1, "Obtain a protective barrier once every 10 seconds,\nthat makes you immune to damage for a brief period of time", "Horus's Brogans", "../imgs/HorusBrogans.png")
+void Item::update(float deltaTime, Map &map, const sf::Vector2u &screenres) {
+    if(playerBounds->intersects(this->sprite.getGlobalBounds())){
+        shouldApplyItemChangesToPlayer=true;
+        invisible=true;
+    }
+}
+II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad at you\nyou better run", "IKEAMAN", "../imgs/ikeaman.png")
+{
+}
+void II::updateOwned(Player *player)
+{
+}
+void II::applyItemChanges(Player *player){
+    //applyStats(player);
+}
+HB::HB(const sf::Vector2f &position) : Item(position, 1, 1.25, 1.1, "Obtain a protective barrier once every 10 seconds,\nthat makes you immune to damage for a brief period of time", "Horus's Brogans", "../imgs/HorusBrogans.png")
 {
     this->ctimer.restart();
     this->btimer.restart();
     this->fc = true;
 }
 
-void HB::updateO(Player *player)
+void HB::updateOwned(Player *player)
 {
 
     if (ctimer.getElapsedTime().asSeconds() >= 10.0f)
@@ -88,37 +103,14 @@ void HB::updateO(Player *player)
         }
     }
 }
-
-bool HB::updateU(Player *player)
-{
-    if (player->getBounds().intersects(this->sprite.getGlobalBounds()))
-    {
-        applyStats(player);
-        ctimer.restart();
-        btimer.restart();
-        return true;
-    }
-
-    return false;
+void HB::applyItemChanges(Player *player){
+    applyStats(player);
 }
-
-RP::RP(float x, float y) : Item(x, y, 1.0f, 1.0f, 0.85f, "You gain 10 speed for every 300 units of distance traveled,\n up to a max of 200", "Runner's Pact", "../imgs/runnerspact.png"){
+RP::RP(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 0.85f, "You gain 10 speed for every 300 units of distance traveled,\n up to a max of 200", "Runner's Pact", "../imgs/runnerspact.png"){
     this->xdis = 0;
     this->accsp = 0;
 }
-
-bool RP::updateU(Player* player){
-    if (player->getBounds().intersects(this->sprite.getGlobalBounds()))
-    {
-        applyStats(player);
-        px = player->getBounds().getPosition().x;
-        return true;
-    }
-
-    return false;
-}
-
-void RP::updateO(Player* player){
+void RP::updateOwned(Player* player){
     xdis += std::abs(px - player->getBounds().getPosition().x);
     px = player->getBounds().getPosition().x;
     if(accsp < 200 && xdis >= 300.0f){
@@ -127,27 +119,17 @@ void RP::updateO(Player* player){
         xdis -= 300.0f;
     }
 }
-
+void RP::applyItemChanges(Player *player){
+    applyStats(player);
+}
 std::string RP::customText(){
     return "Accumulated Speed: "+std::to_string(int(accsp))+"/200";
 }
 
-GB::GB(float x, float y) : Item(x, y, 1.0f, 1.0f, 1.35f, "Every third jump has 50% bonus jump power", "Groundbreaker", "../imgs/groundbreaker.png"){
+GB::GB(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 1.35f, "Every third jump has 50% bonus jump power", "Groundbreaker", "../imgs/groundbreaker.png"){
     this->jc = 0;
 }
-
-bool GB::updateU(Player* player){
-    if (player->getBounds().intersects(this->sprite.getGlobalBounds()))
-    {
-        applyStats(player);
-        isGroundedP = isGrounded(player);
-        return true;
-    }
-
-    return false;
-}
-
-void GB::updateO(Player* player){
+void GB::updateOwned(Player* player){
     if(!isGroundedP && isGrounded(player)){
         jc++;
         if(jc == 2){
@@ -161,24 +143,17 @@ void GB::updateO(Player* player){
     }
     isGroundedP = isGrounded(player);
 }
-
-CTP::CTP(float x, float y) : Item(x,y,1,1,1,"Active(2 second cooldown):\n When used, you enter a stasis\nthat renders you invulnerable for 2.5 seconds", "Chronos's Time Piece", "../imgs/chronostimepiece.png"){
+void GB::applyItemChanges(Player *player){
+    applyStats(player);
+}
+CTP::CTP(const sf::Vector2f &position) : Item(position,1,1,1,"Active(2 second cooldown):\n When used, you enter a stasis\nthat renders you invulnerable for 2.5 seconds", "Chronos's Time Piece", "../imgs/chronostimepiece.png"){
     activated = false;
     fc = true;
 }
-
-bool CTP::updateU(Player* player){
-    if (player->getBounds().intersects(this->sprite.getGlobalBounds()))
-    {
-        applyStats(player);
-        timer.restart();
-        return true;
-    }
-
-    return false;
+void CTP::applyItemChanges(Player *player){
+    applyStats(player);
 }
-
-void CTP::updateO(Player* player){
+void CTP::updateOwned(Player* player){
     if(activated){
         if(fc){
             fc = false;

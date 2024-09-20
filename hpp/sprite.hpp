@@ -16,8 +16,10 @@ public:
     void draw(sf::RenderWindow &window) override;
     void setPosition(const sf::Vector2f &pos);
     void setPosition(float x, float y);
+    void scale(float scaleX, float scaleY); 
 
 protected:
+    bool invisible;
     bool flipped;
     sf::Sprite sprite;
     sf::Texture texture;
