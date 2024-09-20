@@ -12,7 +12,7 @@ void Sprite::loadTexture(const std::string &filename)
     sprite.setTexture(texture);
 }
 
-void Sprite::update(float deltaTime, Map &map, const sf::Vector2u &screenres)
+void Sprite::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
 {
     // Basic update for sprite (e.g., updating position based on velocity)
     // position += velocity * deltaTime;

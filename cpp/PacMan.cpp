@@ -32,11 +32,11 @@ void PacMan::updateDirection()
     sprite.setRotation(rotation);
 }
 
-void PacMan::update(float deltaTime, Map &map, const sf::Vector2u &screenres)
+void PacMan::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
 {
     if (!hasAppearedOnScreen)
     {
-        if (isOnScreen(map.getPartBounds()))
+        if (isOnScreen(gamemap.getPartBounds()))
         {
             hasAppearedOnScreen = true;
             lifeTimer = 0.0f;
@@ -60,7 +60,7 @@ void PacMan::update(float deltaTime, Map &map, const sf::Vector2u &screenres)
     {
         shouldBeDead = true;
     }
-    Animation::update(deltaTime,map,screenres);
+    Animation::update(deltaTime,gamemap,screenres);
 }
 
 bool PacMan::shouldRemove() { return lifeTimer >= lifeDuration; }

@@ -35,7 +35,7 @@ void Boss::setInitialPosition()
     eyesprite.setPosition(x - eyesprite.getGlobalBounds().width / 2.0f, y - eyesprite.getGlobalBounds().height / 2.0f);
 }
 
-void Boss::update(float deltaTime, Map &map, const sf::Vector2u& screenres)
+void Boss::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres)
 {
     // Calculate direction to player
     sf::Vector2f bossPosition = sprite.getPosition();
@@ -75,7 +75,7 @@ void Boss::update(float deltaTime, Map &map, const sf::Vector2u& screenres)
     sprite.setRotation(angle);
 
     // Create Attacks (keeping the existing attack logic)
-    if (isOnScreen((map.getPartBounds())))
+    if (isOnScreen((gamemap.getPartBounds())))
     {
         if (ptimer.getElapsedTime().asSeconds() >= 3.5)
         {
@@ -91,7 +91,7 @@ void Boss::update(float deltaTime, Map &map, const sf::Vector2u& screenres)
 
         if (ttimer.getElapsedTime().asSeconds() >= 2.3)
         {
-            this->attacks.push_back(new TableFall(sf::Vector2f(playerBounds->left + playerBounds->width / 2.0f, map.getPartBounds().top), *gameover));
+            this->attacks.push_back(new TableFall(sf::Vector2f(playerBounds->left + playerBounds->width / 2.0f, gamemap.getPartBounds().top), *gameover));
             ttimer.restart();
         }
     }

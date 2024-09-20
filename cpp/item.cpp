@@ -58,13 +58,13 @@ void Item::draw(sf::RenderWindow &window)
 {
     Sprite::draw(window);
 }
-void Item::update(float deltaTime, Map &map, const sf::Vector2u &screenres) {
+void Item::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres) {
     if(playerBounds->intersects(this->sprite.getGlobalBounds())){
         shouldApplyItemChangesToPlayer=true;
         invisible=true;
     }
 }
-II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad at you\nyou better run", "IKEAMAN", "../imgs/ikeaman.png")
+II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad at you\nyou better run", "IKEAMAN", "../imgs/poketIkeaman.png")
 {
 }
 void II::updateOwned(Player *player)

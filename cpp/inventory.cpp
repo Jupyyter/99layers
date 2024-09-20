@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Inventory::Inventory(Map &map, Player *player, sf::RenderWindow &window)
+Inventory::Inventory(GameMap &map, Player *player, sf::RenderWindow &window)
     : pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), mapr(map),
       playerr(player), windowr(window), movingItem(false), active{nullptr, nullptr, nullptr},
       activeSlots(3, -1) {

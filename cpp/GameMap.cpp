@@ -1,4 +1,5 @@
-#include "libs.hpp"
+#include "../hpp/libs.hpp"
+class EditorMap;
 
 GameMap::Object::Object(int x, int y, int w, int h, std::string tname) : rect(sf::Vector2f(w, h))
 {
@@ -45,7 +46,7 @@ void GameMap::loadFromFile(const std::string& fname)
         file.read(reinterpret_cast<char*>(&size), sizeof(int));
         np = size;
 
-        // Load objects
+        // Load objects (unchanged)
         for (int j = 0; j < size; j++)
         {
             int cmx, cmy, ssize;
@@ -66,7 +67,7 @@ void GameMap::loadFromFile(const std::string& fname)
             }
         }
 
-        // Load entities
+        // Load placedEntities and allItems
         int entityCount;
         file.read(reinterpret_cast<char*>(&entityCount), sizeof(int));
         for (int i = 0; i < entityCount; ++i)
@@ -82,7 +83,7 @@ void GameMap::loadFromFile(const std::string& fname)
             file.read(reinterpret_cast<char*>(&y), sizeof(float));
 
             // Create the entity
-            std::unique_ptr<Entity> newEntity(EntityFactory::createEntity(entityType, sf::Vector2f(x, y), *this));
+            Entity* newEntity = EntityFactory::createEntity(entityType, sf::Vector2f(x, y), *this, true);
             if (newEntity)
             {
                 // Load entity properties
@@ -102,7 +103,13 @@ void GameMap::loadFromFile(const std::string& fname)
                     newEntity->setProperty(propName, propValue);
                 }
 
-                activeEntities.push_back(newEntity.release());
+                auto placedEntity = std::make_unique<Entity::PlacedEntity>();
+                placedEntity->type = entityType;
+                placedEntity->sprite.setPosition(x, y);
+                placedEntity->entity.reset(newEntity);
+                placedEntities.push_back(std::move(placedEntity));
+
+                // If the entity is an item, it's already added to allItems by EntityFactory
             }
         }
     }
@@ -178,28 +185,35 @@ std::vector<sf::FloatRect> GameMap::getObjectBounds()
 
 void GameMap::resetEntities(sf::FloatRect &playerBounds)
 {
-    for (auto* entity : activeEntities)
-    {
-        delete entity;
-    }
     activeEntities.clear();
-
-    for (auto* item : allItems)
-    {
-        delete item;
-    }
     allItems.clear();
-
     spawnEntities(playerBounds);
 }
 
 void GameMap::spawnEntities(sf::FloatRect &playerBounds)
 {
-    // This function would typically create entities based on the map data
-    // For now, it's left as a placeholder
-    // You would implement this based on your game's specific requirements
-}
+    for (const auto &placedEntity : placedEntities)
+    {
+        const sf::Vector2f position = placedEntity->sprite.getPosition();
+        const std::string &type = placedEntity->type;
 
+        // Create a new instance of the entity
+        std::unique_ptr<Entity> entity(EntityFactory::createEntity(type, position, *this,true));
+
+        if (entity)
+        {
+            entity->playerBounds = &playerBounds;
+
+            // Copy the properties from the placed entity to the new instance
+            auto properties = placedEntity->entity->getEditableProperties();
+            for (const auto &prop : properties)
+            {
+                entity->setProperty(prop.first, prop.second);
+            }
+            activeEntities.push_back(entity.release()); // Transfer ownership to activeEntities
+        }
+    }
+}
 void GameMap::updateEntities(float deltaTime, const sf::Vector2u &windowSize)
 {
     for (auto* entity : activeEntities)

@@ -85,7 +85,7 @@ void Player::updateAnimation()
        }
 }
 
-void Player::update(float deltaTime, Map &map, const sf::Vector2u &screenres)
+void Player::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
 {
        if(!isStasis){
               if(velocity.y>5777){
@@ -95,10 +95,10 @@ void Player::update(float deltaTime, Map &map, const sf::Vector2u &screenres)
               velocity.y += gravity * deltaTime;
               position += velocity * deltaTime;
               setPosition(position);
-              manageCollisions(map.getObjectBounds());
-              checkBounds(screenres, map);
+              manageCollisions(gamemap.getObjectBounds());
+              checkBounds(screenres, gamemap);
               updateAnimation();
-              Animation::update(deltaTime,map,screenres);
+              Animation::update(deltaTime,gamemap,screenres);
               place=getBounds();
        }
 }
@@ -159,24 +159,24 @@ void Player::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
        }
 }
 
-void Player::checkBounds(const sf::Vector2u &screenres, Map &map)
+void Player::checkBounds(const sf::Vector2u &screenres, GameMap& gamemap)
 {
-       auto bounds = map.getPartBounds();
+       auto bounds = gamemap.getPartBounds();
        if (this->position.x > bounds.left + bounds.width)
        {
-              map.changePart(1, 0);
+              gamemap.changePart(1, 0);
        }
        else if (this->position.x < bounds.left)
        {
-              map.changePart(-1, 0);
+              gamemap.changePart(-1, 0);
        }
        else if (this->position.y < bounds.top)
        {
-              map.changePart(0, -1);
+              gamemap.changePart(0, -1);
        }
        else if (this->position.y > bounds.top + bounds.height)
        {
-              map.changePart(0, 1);
+              gamemap.changePart(0, 1);
        }
 }
 

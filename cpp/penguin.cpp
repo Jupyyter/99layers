@@ -14,8 +14,8 @@ void Penguin::loadSprite() {
     setAnimation("spin");
 }
 
-void Penguin::update(float deltaTime, Map &map, const sf::Vector2u& screenres) {
-    if (isOnScreen(map.getPartBounds())) {
+void Penguin::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) {
+    if (isOnScreen(gamemap.getPartBounds())) {
         velocity.y += gravity * deltaTime;
         position.y += velocity.y * deltaTime;
         
@@ -23,8 +23,8 @@ void Penguin::update(float deltaTime, Map &map, const sf::Vector2u& screenres) {
         position.x += velocity.x;
 
         setPosition(position);
-        manageCollisions(map.getObjectBounds());
-        Animation::update(deltaTime,map,screenres);
+        manageCollisions(gamemap.getObjectBounds());
+        Animation::update(deltaTime,gamemap,screenres);
     }
 }
 

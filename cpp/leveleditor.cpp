@@ -1,6 +1,5 @@
 #include "../hpp/libs.hpp"
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Text.hpp>
+class EditorMap;
 
 sf::Vector2f getEntityOrigin(const sf::Sprite &sprite)
 {
@@ -33,7 +32,7 @@ int main()
 {
     bool gameover;
     sf::RenderWindow window(sf::VideoMode(1024, 768), "Level Editor", sf::Style::Titlebar | sf::Style::Close);
-    Map map("../map.mib", window, gameover);
+    EditorMap map("../map.mib", window);
     sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     sf::RectangleShape transrect;    // This is the transparent placeholder rectangle for textures
     sf::Sprite entityPreview;        // This is the preview sprite for entities
@@ -50,7 +49,7 @@ int main()
     const sf::Texture *initialEntityTexture = map.getEntityTexture(map.getSelectedName());
     updateEntityPreview(entityPreview, initialEntityTexture);
 
-    Map::PropertyEditor propertyEditor;
+    EditorMap::PropertyEditor propertyEditor;
     sf::Font font;
     if (!font.loadFromFile("../fonts/Arial.ttf"))
     {
@@ -108,7 +107,7 @@ int main()
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                     sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
 
-                    Map::PlacedEntity *clickedEntity = nullptr;
+                    Entity::PlacedEntity *clickedEntity = nullptr;
                     for (auto &placedEntity : map.placedEntities)
                     {
                         if (placedEntity->sprite.getGlobalBounds().contains(worldPos))

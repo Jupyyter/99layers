@@ -21,7 +21,7 @@ void Animation::addAnimation(const std::string &name, int row, int frameCount)
     animations[name] = frames;
 }
 
-void Animation::update(float deltaTime, Map &map, const sf::Vector2u &screenres)
+void Animation::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
 {
     // Sprite::update(deltaTime,map,screenres);  // Call parent update method
 

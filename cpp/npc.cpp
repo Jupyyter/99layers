@@ -15,16 +15,16 @@ void Npc::loadSprite()
        setAnimation("idle");
 }
 
-void Npc::update(float deltaTime, Map &map, const sf::Vector2u &screenres)
+void Npc::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
 {
-       if (isOnScreen(map.getPartBounds()))
+       if (isOnScreen(gamemap.getPartBounds()))
        {
               velocity.y += gravity * deltaTime;
               position.y += velocity.y * deltaTime;
               setPosition(position);
-              manageCollisions(map.getObjectBounds());
+              manageCollisions(gamemap.getObjectBounds());
               checkCollisionWithPlayer(*playerBounds);
-              Animation::update(deltaTime,map,screenres);
+              Animation::update(deltaTime,gamemap,screenres);
 
               if (textBox)
               {

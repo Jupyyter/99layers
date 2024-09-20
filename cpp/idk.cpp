@@ -12,9 +12,9 @@ void Idk::loadSprite()
     addAnimation("default", 0, 1);
     setAnimation("default");
 }
-void Idk::update(float deltaTime, Map &map, const sf::Vector2u& screenres)
+void Idk::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres)
 {
-    if (isOnScreen(map.getPartBounds()))
+    if (isOnScreen(gamemap.getPartBounds()))
     {
         velocity.y += gravity * deltaTime;
         if (movingRight)
@@ -36,10 +36,10 @@ void Idk::update(float deltaTime, Map &map, const sf::Vector2u& screenres)
         // Update position
         position += velocity * deltaTime;
         setPosition(position);
-        manageCollisions(map.getObjectBounds());
+        manageCollisions(gamemap.getObjectBounds());
 
         // Update animation
-        Animation::update(deltaTime,map,screenres);
+        Animation::update(deltaTime,gamemap,screenres);
     }
 }
 

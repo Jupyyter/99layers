@@ -1,4 +1,5 @@
-#include "libs.hpp"
+#include "../hpp/libs.hpp"
+class GameMap;
 
 std::unordered_map<std::string, sf::Texture> EditorMap::entityTextures;
 
@@ -107,7 +108,7 @@ EditorMap::EditorMap(std::string fname, sf::RenderWindow &wndref)
                 {
                     sf::Sprite sprite(entityTextures[entityType]);
                     sprite.setPosition(x, y);
-                    placedEntities.push_back(std::make_unique<PlacedEntity>(PlacedEntity{sprite, entityType, std::move(newEntity)}));
+                    placedEntities.push_back(std::make_unique<Entity::PlacedEntity>(Entity::PlacedEntity{sprite, entityType, std::move(newEntity)}));
                 }
             }
         }
@@ -174,6 +175,7 @@ void EditorMap::saveToFile(std::string fname)
     int size = np;
     file.write(reinterpret_cast<const char*>(&size), sizeof(int));
 
+    // Save objects (unchanged)
     for (const auto &x : obj)
     {
         for (const auto &y : x.second)
@@ -200,6 +202,7 @@ void EditorMap::saveToFile(std::string fname)
         }
     }
 
+    // Save placedEntities (which includes items)
     int entityCount = placedEntities.size();
     file.write(reinterpret_cast<const char*>(&entityCount), sizeof(int));
     for (const auto &entity : placedEntities)
@@ -268,7 +271,7 @@ void EditorMap::removeEntity(int x, int y)
 {
     sf::Vector2f mousePos(x, y);
     auto it = std::find_if(placedEntities.begin(), placedEntities.end(),
-        [&mousePos](const std::unique_ptr<PlacedEntity> &entity) {
+        [&mousePos](const std::unique_ptr<Entity::PlacedEntity> &entity) {
             return entity->sprite.getGlobalBounds().contains(mousePos);
         });
 
@@ -305,7 +308,7 @@ void EditorMap::addEntity(int x, int y, const std::string &entityType)
         {
             sf::Sprite sprite(entityTextures[entityType]);
             sprite.setPosition(position);
-            placedEntities.push_back(std::make_unique<PlacedEntity>(PlacedEntity{
+            placedEntities.push_back(std::make_unique<Entity::PlacedEntity>(Entity::PlacedEntity{
                 std::move(sprite),
                 entityType,
                 std::move(newEntity)}));
@@ -313,7 +316,7 @@ void EditorMap::addEntity(int x, int y, const std::string &entityType)
     }
 }
 
-void EditorMap::drawEditorEntities(sf::RenderWindow &window, const PlacedEntity *selectedEntity, bool &isOpen)
+void EditorMap::drawEditorEntities(sf::RenderWindow &window, const Entity::PlacedEntity *selectedEntity, bool &isOpen)
 {
     for (const auto &entityPtr : placedEntities)
     {
@@ -331,8 +334,6 @@ void EditorMap::drawEditorEntities(sf::RenderWindow &window, const PlacedEntity 
         window.draw(entitySprite);
     }
 }
-
-std::unordered_map<std::string, sf::Texture> EditorMap::entityTextures;
 
 // Menu methods
 EditorMap::Menu::Menu(const std::vector<std::string> &entityPaths, const std::vector<std::string> &texturePaths, sf::RenderWindow &window)
@@ -471,8 +472,95 @@ void EditorMap::PropertyEditor::setup(sf::Font &loadedFont)
     background.setPosition(824, 0);
     selectedInputBox = -1;
 }
+void EditorMap::Menu::draw()
+{
+    if (isOpen)
+    {
+        sf::View originalView = window.getView();
+        window.setView(window.getDefaultView());
 
-void EditorMap::PropertyEditor::updateForEntity(PlacedEntity *entity, sf::Font &font)
+        const float itemSize = 64.0f;
+        const float itemSpacing = 10.0f;
+        const float startX = 50.0f;
+        const float startY = 50.0f;
+        const float windowWidth = static_cast<float>(window.getSize().x);
+
+        float currentX = startX;
+        float currentY = startY;
+
+        size_t totalItems = entityTextures.size() + textures.size();
+        for (size_t i = 0; i < totalItems; i++)
+        {
+            sf::Sprite sprite;
+            if (i < entityTextures.size())
+            {
+                sprite.setTexture(entityTextures[i]);
+            }
+            else
+            {
+                sprite.setTexture(textures[i - entityTextures.size()]);
+            }
+
+            // Check if the next item would exceed the window width
+            if (currentX + itemSize > windowWidth - startX)
+            {
+                // Move to the next line
+                currentX = startX;
+                currentY += itemSize + itemSpacing;
+            }
+
+            sprite.setPosition(currentX, currentY);
+            sprite.setScale(itemSize / sprite.getTexture()->getSize().x, itemSize / sprite.getTexture()->getSize().y);
+            window.draw(sprite);
+
+            if (i == selectedIndex)
+            {
+                sf::RectangleShape highlight;
+                highlight.setSize(sf::Vector2f(itemSize, itemSize));
+                highlight.setPosition(sprite.getPosition());
+                highlight.setFillColor(sf::Color::Transparent);
+                highlight.setOutlineColor(sf::Color::Yellow);
+                highlight.setOutlineThickness(2.0f);
+                window.draw(highlight);
+            }
+
+            // Move to the next item position
+            currentX += itemSize + itemSpacing;
+        }
+
+        window.setView(originalView);
+    }
+}
+
+void EditorMap::PropertyEditor::draw(sf::RenderWindow &window)
+{
+    if (!selectedEntity)
+    {
+        isOpen = false;
+        return;
+    }
+    isOpen = true;
+    window.draw(background);
+    for (const auto &label : labels)
+        window.draw(label);
+    for (const auto &box : inputBoxes)
+        window.draw(box);
+    for (auto &text : inputTexts)
+    {
+        wrapText(text, 170); // Reduced width to account for padding
+        window.draw(text);
+    }
+
+    if (selectedInputBox >= 0 && selectedInputBox < inputBoxes.size())
+    {
+        sf::RectangleShape highlight = inputBoxes[selectedInputBox];
+        highlight.setFillColor(sf::Color::Transparent);
+        highlight.setOutlineColor(sf::Color::Red);
+        highlight.setOutlineThickness(2);
+        window.draw(highlight);
+    }
+}
+void EditorMap::PropertyEditor::updateForEntity(Entity::PlacedEntity *entity, sf::Font &font)
 {
     selectedEntity = entity;
     labels.clear();
