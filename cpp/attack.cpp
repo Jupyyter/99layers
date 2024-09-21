@@ -1,104 +1,86 @@
 #include "../hpp/libs.hpp"
 
-Attack::Attack(sf::Vector2f sp,bool &gameOver) : pos(sp),gameOver(&gameOver) {
+Attack::Attack(sf::Vector2f sp) : Sprite() {
+    setPosition(sp);
+}
+void Attack::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
+
+}
+HammerThrow::HammerThrow(sf::Vector2f sp) : Attack(sp), fc(true) {
+    loadTexture("../imgs/hammer.jpg");
+    this->sprite.scale(32.0f / texture.getSize().x, 32.0f / texture.getSize().y);
+    position.x-=sprite.getGlobalBounds().height;
+}
+
+void HammerThrow::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
     
 }
 
-HammerThrow::HammerThrow(sf::Vector2f sp,bool &gameOver) : Attack(sp,gameOver), fc(true){
-    this->texture.loadFromFile("../imgs/hammer.jpg");
-    this->sprite.setTexture(this->texture);
-    this->sprite.setPosition(this->pos);
-    this->sprite.setScale(32.0f/this->texture.getSize().x, 32.0f/this->texture.getSize().y);
-    this->sprite.move(0,-this->sprite.getGlobalBounds().height);
+Plank::Plank(sf::Vector2f sp) : Attack(sp), fc(true) {
+    loadTexture("../imgs/plank.png");
+    this->sprite.scale(20.0f / texture.getSize().x, 100.0f / texture.getSize().y);
+    secondSprite.setTexture(texture);
+    secondSprite.setScale(20.0f / texture.getSize().x, 100.0f / texture.getSize().y);
 }
 
-bool HammerThrow::update(sf::FloatRect player){
-    //hammer throw should be changed to throw multiple hammers in different directions at the same time
-    return false;
-}
-
-void HammerThrow::draw(sf::RenderWindow &window){
-    window.draw(this->sprite);
-}
-
-Plank::Plank(sf::Vector2f sp,bool &gameOver) : Attack(sp,gameOver), fc(true){
-    this->texture.loadFromFile("../imgs/plank.png");
-    this->sprite[0].setTexture(this->texture);
-    this->sprite[0].setScale(20.0f/this->texture.getSize().x, 100.0f/this->texture.getSize().y);
-    this->sprite[1].setTexture(this->texture);
-    this->sprite[1].setScale(20.0f/this->texture.getSize().x, 100.0f/this->texture.getSize().y);
-}
-
-bool Plank::update(sf::FloatRect player){
-    float deltatime = this->timer.getElapsedTime().asSeconds();
-    if(deltatime < 0.9f){
-        if(fc){
-            pos = player.getPosition();
+void Plank::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
+    float elapsedTime = timer.getElapsedTime().asSeconds();
+    if (elapsedTime < 0.9f) {
+        if (fc) {
+            setPosition(gamemap.playerBounds->left, gamemap.playerBounds->top);
             fc = false;
         }
-        sprite[0].setPosition(sf::Vector2f(pos.x - 5*player.width, pos.y-20));
-        sprite[1].setPosition(sf::Vector2f(pos.x + 5*player.width, pos.y-20));
+        sprite.setPosition(sf::Vector2f(position.x - 5 * gamemap.playerBounds->width, position.y - 20));
+        secondSprite.setPosition(sf::Vector2f(position.x + 5 * gamemap.playerBounds->width, position.y - 20));
+    } else {
+        sprite.setPosition(sf::Vector2f(position.x - 5 * gamemap.playerBounds->width + 500 * (elapsedTime - 0.9f), position.y - 20));
+        secondSprite.setPosition(sf::Vector2f(position.x + 5 * gamemap.playerBounds->width - 500 * (elapsedTime - 0.9f), position.y - 20));
+
+        if (sprite.getPosition().x >= position.x)
+            shouldBeDead=true;
     }
-    else{
-        sprite[0].setPosition(sf::Vector2f(pos.x - 5*player.width + 500*(deltatime-0.9f), pos.y - 20));
-        sprite[1].setPosition(sf::Vector2f(pos.x + 5*player.width - 500*(deltatime-0.9f), pos.y - 20));
-
-        if(sprite[0].getPosition().x >= pos.x)
-            return true;
-    }
-    if(this->sprite[0].getGlobalBounds().intersects(player) || this->sprite[1].getGlobalBounds().intersects(player))
-        (*gameOver)=true;
-    return false;
+    if (sprite.getGlobalBounds().intersects(*gamemap.playerBounds) || secondSprite.getGlobalBounds().intersects(*gamemap.playerBounds))
+        (*gamemap.gameOver)=true;
 }
 
-void Plank::draw(sf::RenderWindow &window){
-    window.draw(this->sprite[0]);
-    window.draw(this->sprite[1]);
+void Plank::draw(sf::RenderWindow &window) {
+    Sprite::draw(window);
+    window.draw(secondSprite);
 }
 
-LaserBeam::LaserBeam(sf::Vector2f sp, float rotangle,bool &gameOver) : Attack(sp,gameOver), fc(true){
-    this->texture.loadFromFile("../imgs/laser.png");
-    this->sprite.setTexture(this->texture);
-    this->sprite.setPosition(this->pos);
-    this->sprite.rotate(90 + rotangle);
+LaserBeam::LaserBeam(sf::Vector2f sp, float rotangle) : Attack(sp), fc(true){
+    loadTexture("../imgs/laser.png");
+    sprite.rotate(90 + rotangle);
+    priorityLayer=2;
 }
 
-bool LaserBeam::update(sf::FloatRect player){
-    if(fc){
-        this->velocity = player.getPosition() + player.getSize()/2.0f - this->pos;
-        this->velocity /= sqrt(this->velocity.x*this->velocity.x + this->velocity.y*this->velocity.y);
-        this->velocity *= 20.0f;
+void LaserBeam::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
+    if (fc) {
+        velocity = sf::Vector2f(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f, gamemap.playerBounds->top + gamemap.playerBounds->height/ 2.0f) - position;
+        float length = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+        velocity /= length;
+        velocity *= 20.0f;
+        position+=velocity;
+        setPosition(position);
         fc = false;
+    } else {
+        position+=velocity;
+        setPosition(position);
     }
-    else{
-        this->pos += this->velocity;
-        this->sprite.setPosition(this->pos);
-    }
-    if(player.intersects(this->sprite.getGlobalBounds()))
-        (*gameOver)=true;
-    return false;
+    if (sprite.getGlobalBounds().intersects(*gamemap.playerBounds))
+        (*gamemap.gameOver)=true;
 }
 
-void LaserBeam::draw(sf::RenderWindow &window){
-    window.draw(this->sprite);
+TableFall::TableFall(sf::Vector2f sp) : Attack(sp) {
+    loadTexture("../imgs/table.png");
+    sprite.setOrigin(texture.getSize().x / 2.0f, texture.getSize().y);
+    this->sprite.scale(60.0f / texture.getSize().x, 30.0f / texture.getSize().y);
 }
 
-TableFall::TableFall(sf::Vector2f sp,bool &gameOver) : Attack(sp,gameOver){
-    this->texture.loadFromFile("../imgs/table.png");
-    this->sprite.setTexture(this->texture);
-    this->sprite.setOrigin(this->texture.getSize().x/2.0f, this->texture.getSize().y);
-    this->sprite.setScale(60.0f/this->texture.getSize().x, 30.0f/this->texture.getSize().y);
-    this->sprite.setPosition(this->pos);
-}
-
-bool TableFall::update(sf::FloatRect player){
-    this->velocity.y += 0.5f;
-    this->sprite.move(0,velocity.y);
-    if(this->sprite.getGlobalBounds().intersects(player))
-        (*gameOver)=true;
-    return false;
-}
-
-void TableFall::draw(sf::RenderWindow &window){
-    window.draw(this->sprite);
+void TableFall::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
+    velocity.y += 0.5f;
+    position+=velocity;
+        setPosition(position);
+    if (sprite.getGlobalBounds().intersects(*gamemap.playerBounds))
+        (*gamemap.gameOver)=true;
 }

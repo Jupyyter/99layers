@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position,bool &gameoverr) : Animation(), CollisionDetector(), gameover(&gameoverr)
+Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
 {
        loadAnimations();
        loadShaders();
@@ -89,7 +89,7 @@ void Player::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &scree
 {
        if(!isStasis){
               if(velocity.y>5777){
-                     (*gameover)=true;
+                     (*gamemap.gameOver)=true;
               }
               handleInput();
               velocity.y += gravity * deltaTime;

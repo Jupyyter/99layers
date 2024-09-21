@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Entity::Entity() : position(0,0), velocity(0, 0),shouldBeDead(false) {}
+Entity::Entity() : position(0,0), velocity(0, 0),shouldBeDead(false),priorityLayer(0) {}
 
 sf::Vector2f Entity::getPosition() const {
     return position;

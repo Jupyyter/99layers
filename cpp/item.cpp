@@ -59,7 +59,7 @@ void Item::draw(sf::RenderWindow &window)
     Sprite::draw(window);
 }
 void Item::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres) {
-    if(playerBounds->intersects(this->sprite.getGlobalBounds())){
+    if(gamemap.playerBounds->intersects(this->sprite.getGlobalBounds())){
         shouldApplyItemChangesToPlayer=true;
         invisible=true;
     }

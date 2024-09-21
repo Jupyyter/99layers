@@ -13,10 +13,9 @@ enum class GameState
 
 void resetGame(GameMap &map, Player *&player, Inventory &inventory, sf::RenderWindow &window, bool &gameover, Boss *&boss)
 {
-    player = new Player(sf::Vector2f(500, 500), gameover);
+    player = new Player(sf::Vector2f(500, 500));
     map.resetEntities(player->place);
-    boss=new Boss(window.getSize(),gameover);
-    boss->playerBounds=&player->place;
+    boss=new Boss(window.getSize());
     inventory.reset(player);
     gameover = false;
 }
@@ -31,13 +30,13 @@ int main()
 
     };
     bool gameOver = false;
-    Player *player = new Player(sf::Vector2f(500, 500), gameOver);
+    Player *player = new Player(sf::Vector2f(500, 500));
     CutScene cutScene(cutSceneImages, window.getSize());
     GameMap map("../map.mib", window, gameOver);
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
     Inventory inventory(map, player, window);
-    Boss *boss=new Boss(window.getSize(),gameOver);
+    Boss *boss=new Boss(window.getSize());
     Sprite background;
     background.scale(0.6,0.6);
     background.loadTexture("../imgs/background3.jpg");
@@ -97,8 +96,8 @@ int main()
                 window.setView(originalView);
 
                 map.draw();
-                map.drawEntities(window);
                 boss->draw(window);
+                map.drawEntities(window);
                 player->draw(window);
                 inventory.draw();
             }

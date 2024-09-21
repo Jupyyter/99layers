@@ -82,8 +82,12 @@ void GameMap::loadFromFile(const std::string& fname)
             file.read(reinterpret_cast<char*>(&x), sizeof(float));
             file.read(reinterpret_cast<char*>(&y), sizeof(float));
 
+            sf::Transformable transform;
+            transform.setPosition(sf::Vector2f(x,y));
+            transform.setRotation(0);
+            transform.setScale(1,1);
             // Create the entity
-            Entity* newEntity = EntityFactory::createEntity(entityType, sf::Vector2f(x, y), *this, true);
+            Entity* newEntity = EntityFactory::createEntity(entityType, transform, *this, true);
             if (newEntity)
             {
                 // Load entity properties
@@ -183,11 +187,12 @@ std::vector<sf::FloatRect> GameMap::getObjectBounds()
     return bounds;
 }*/
 
-void GameMap::resetEntities(sf::FloatRect &playerBounds)
+void GameMap::resetEntities(sf::FloatRect &playerBoundss)
 {
+    playerBounds=&playerBoundss;
     activeEntities.clear();
     allItems.clear();
-    spawnEntities(playerBounds);
+    spawnEntities(*playerBounds);
 }
 
 void GameMap::spawnEntities(sf::FloatRect &playerBounds)
@@ -197,12 +202,16 @@ void GameMap::spawnEntities(sf::FloatRect &playerBounds)
         const sf::Vector2f position = placedEntity->sprite.getPosition();
         const std::string &type = placedEntity->type;
 
+        sf::Transformable transform;
+            transform.setPosition(position);
+            transform.setRotation(0);
+            transform.setScale(1,1);
+
         // Create a new instance of the entity
-        std::unique_ptr<Entity> entity(EntityFactory::createEntity(type, position, *this,true));
+        std::unique_ptr<Entity> entity(EntityFactory::createEntity(type, transform, *this,true));
 
         if (entity)
         {
-            entity->playerBounds = &playerBounds;
 
             // Copy the properties from the placed entity to the new instance
             auto properties = placedEntity->entity->getEditableProperties();
@@ -244,4 +253,39 @@ void GameMap::removeDeadEntities()
             }),
         activeEntities.end()
     );
+}
+void GameMap::spawn(std::string entityName, float x, float y, float rotation)
+{
+    sf::Transformable transform;
+    transform.setPosition(x, y);
+    transform.setRotation(rotation);
+    transform.setScale(1, 1);
+    Entity* entity = EntityFactory::createEntity(entityName, transform, *this, true);
+    if (entity)
+    {
+
+        // Find the correct position to insert the new entity based on priorityLayer
+        auto insertPos = std::lower_bound(activeEntities.begin(), activeEntities.end(), entity,
+            [](const Entity* a, const Entity* b) {
+                return a->priorityLayer < b->priorityLayer;
+            });
+
+        // Insert the entity at the correct position
+        activeEntities.insert(insertPos, entity);
+
+        // Create a PlacedEntity for the spawned entity
+        auto placedEntity = std::make_unique<Entity::PlacedEntity>();
+        placedEntity->type = typeid(*entity).name(); // Get the type name of the entity
+        placedEntity->sprite.setPosition(x, y);
+        placedEntity->entity.reset(EntityFactory::createEntity(entityName, transform, *this, true));
+        
+        // Find the correct position to insert the new placedEntity based on priorityLayer
+        auto placedInsertPos = std::lower_bound(placedEntities.begin(), placedEntities.end(), placedEntity,
+            [](const std::unique_ptr<Entity::PlacedEntity>& a, const std::unique_ptr<Entity::PlacedEntity>& b) {
+                return a->entity->priorityLayer < b->entity->priorityLayer;
+            });
+
+        // Insert the placedEntity at the correct position
+        placedEntities.insert(placedInsertPos, std::move(placedEntity));
+    }
 }

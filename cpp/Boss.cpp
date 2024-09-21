@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 
-Boss::Boss(sf::Vector2u windowSize,bool &gameOverr)
-    : targetWidth(200.0f), windowSize(windowSize),gameover(&gameOverr)
+Boss::Boss(sf::Vector2u windowSize)
+    : targetWidth(200.0f), windowSize(windowSize)
 {
     sprite.setOrigin(514, 366);
     loadAndScaleImage("../imgs/ikeaman.jpg");
@@ -39,7 +39,7 @@ void Boss::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenr
 {
     // Calculate direction to player
     sf::Vector2f bossPosition = sprite.getPosition();
-    sf::Vector2f playerCenter(playerBounds->left + playerBounds->width / 2.0f, playerBounds->top + playerBounds->height / 2.0f);
+    sf::Vector2f playerCenter(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f, gamemap.playerBounds->top + gamemap.playerBounds->height / 2.0f);
     sf::Vector2f direction = playerCenter - bossPosition;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -74,46 +74,31 @@ void Boss::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenr
     float angle = std::atan2(direction.y, direction.x) * 180 / 3.14159;
     sprite.setRotation(angle);
 
-    // Create Attacks (keeping the existing attack logic)
+    // Create Attacks
     if (isOnScreen((gamemap.getPartBounds())))
     {
         if (ptimer.getElapsedTime().asSeconds() >= 3.5)
         {
-            this->attacks.push_back(new Plank(this->sprite.getPosition(), *gameover));
+            gamemap.spawn("plank",this->sprite.getPosition().x,this->sprite.getPosition().y,0);
             ptimer.restart();
         }
 
         if (ltimer.getElapsedTime().asSeconds() >= 0.8)
         {
-            this->attacks.push_back(new LaserBeam(this->sprite.getPosition(), this->sprite.getRotation(), *gameover));
+            gamemap.spawn("laser",this->sprite.getPosition().x,this->sprite.getPosition().y,this->sprite.getRotation());
             ltimer.restart();
         }
 
         if (ttimer.getElapsedTime().asSeconds() >= 2.3)
         {
-            this->attacks.push_back(new TableFall(sf::Vector2f(playerBounds->left + playerBounds->width / 2.0f, gamemap.getPartBounds().top), *gameover));
+            gamemap.spawn("table",sf::Vector2f(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f, gamemap.getPartBounds().top).x,sf::Vector2f(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f, gamemap.getPartBounds().top).y,this->sprite.getRotation());
             ttimer.restart();
-        }
-    }
-    // Manage attacks behavior
-    for (int i = 0; i < this->attacks.size(); i++)
-    {
-        if (this->attacks[i]->update(*playerBounds))
-        {
-            attacks.erase(attacks.begin() + i);
-            i--;
         }
     }
 }
 void Boss::draw(sf::RenderWindow &window)
 {
     window.draw(sprite);
-
-    // Draw all attacks
-    for (const auto &at : attacks)
-    {
-        at->draw(window);
-    }
     // Draw the red eye
     window.draw(this->eyesprite);
 }
@@ -128,8 +113,4 @@ void Boss::resetTimers()
 
 Boss::~Boss()
 {
-    for (int i = 0; i < this->attacks.size(); i++)
-    {
-        delete attacks[i];
-    }
 }
