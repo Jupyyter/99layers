@@ -61,6 +61,9 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         }
         return item;
     }
+    else if(type=="ikeaman"){
+        return new Boss(transform.getPosition());
+    }
     else if(type=="laser"){
         return new LaserBeam(transform.getPosition(),transform.getRotation());
     }
@@ -133,6 +136,9 @@ Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable t
             editormap.allItems.push_back(item);
         }
         return item;
+    }
+    else if(type=="ikeaman"){
+        return new Boss(transform.getPosition());
     }
     return nullptr;
 }

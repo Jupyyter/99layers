@@ -1,71 +1,51 @@
 #include "../hpp/libs.hpp"
 
-Boss::Boss(sf::Vector2u windowSize)
-    : targetWidth(200.0f), windowSize(windowSize)
+Boss::Boss(const sf::Vector2f &initialPosition)
+    : Sprite()
 {
-    sprite.setOrigin(514, 366);
-    loadAndScaleImage("../imgs/ikeaman.jpg");
-    setInitialPosition();
-    atimer.restart();
-    ptimer.restart();
-    ltimer.restart();
+    loadAndScaleImage();
+    setPosition(initialPosition);
+    resetTimers();
 }
 
-void Boss::loadAndScaleImage(const std::string &imagePath)
+void Boss::loadAndScaleImage()
 {
-    assert(texture.loadFromFile(imagePath));
-    assert(eyetexture.loadFromFile("../imgs/redeye.png"));
+    loadTexture("../imgs/ikeaman.png");
+    sprite.setOrigin(103, 73);
 
-    eyesprite.setTexture(eyetexture);
-    sprite.setTexture(texture);
-
-    // Calculate the scaling factor to achieve the target width
-    float scaleFactor = targetWidth / sprite.getLocalBounds().width;
-    sprite.setScale(scaleFactor, scaleFactor);
+    if (!eyeTexture.loadFromFile("../imgs/redeye.png"))
+    {
+        std::cerr << "Failed to load eye texture" << std::endl;
+    }
+    eyeSprite.setTexture(eyeTexture);
+    updateEyePosition();
 }
 
-void Boss::setInitialPosition()
+void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
 {
-    // Position the sprite a little above the middle of the screen
-    float x = (windowSize.x - sprite.getGlobalBounds().width) / 2.0f;
-    float y = (windowSize.y - sprite.getGlobalBounds().height) / 2.0f - 150.0f;
-    position.x = x;
-    position.y = y;
-    sprite.setPosition(position);
-    eyesprite.setPosition(x - eyesprite.getGlobalBounds().width / 2.0f, y - eyesprite.getGlobalBounds().height / 2.0f);
-}
-
-void Boss::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres)
-{
-    // Calculate direction to player
-    sf::Vector2f bossPosition = sprite.getPosition();
-    sf::Vector2f playerCenter(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f, gamemap.playerBounds->top + gamemap.playerBounds->height / 2.0f);
-    sf::Vector2f direction = playerCenter - bossPosition;
+    sf::Vector2f playerCenter(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f,
+                              gamemap.playerBounds->top + gamemap.playerBounds->height / 2.0f);
+    sf::Vector2f direction = playerCenter - position;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    // Normalize direction
     if (distance > 0)
     {
         direction /= distance;
     }
 
-    // Set movement speed (you can adjust this value)
-    float movementSpeed = 100.0f; // pixels per second
+    float movementSpeed = 70.0f;
+    move(direction * movementSpeed * deltaTime);
+    position += direction * movementSpeed * deltaTime;
+    setPosition(position);
 
-    // Move towards player
-    sprite.move(direction * movementSpeed * deltaTime);
-    position = sprite.getPosition();
-
-    // Update eye sprite position
-    eyesprite.setPosition(sprite.getPosition().x - eyesprite.getGlobalBounds().width / 2.0f,
-                          sprite.getPosition().y - eyesprite.getGlobalBounds().height / 2.0f);
+    updateEyePosition();
 
     // Face the player
-    if (playerCenter.x < bossPosition.x && sprite.getScale().y > 0)
+    if (playerCenter.x < position.x && sprite.getScale().y > 0)
     {
         sprite.scale(1, -1);
     }
-    else if (playerCenter.x > bossPosition.x && sprite.getScale().y < 0)
+    else if (playerCenter.x > position.x && sprite.getScale().y < 0)
     {
         sprite.scale(1, -1);
     }
@@ -75,42 +55,44 @@ void Boss::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenr
     sprite.setRotation(angle);
 
     // Create Attacks
-    if (isOnScreen((gamemap.getPartBounds())))
+    if (isOnScreen(gamemap.getPartBounds()))
     {
         if (ptimer.getElapsedTime().asSeconds() >= 3.5)
         {
-            gamemap.spawn("plank",this->sprite.getPosition().x,this->sprite.getPosition().y,0);
+            gamemap.spawn("plank", position.x, position.y, 0);
             ptimer.restart();
         }
 
-        if (ltimer.getElapsedTime().asSeconds() >= 0.8)
+        if (ltimer.getElapsedTime().asSeconds() >= 0.5)
         {
-            gamemap.spawn("laser",this->sprite.getPosition().x,this->sprite.getPosition().y,this->sprite.getRotation());
+            gamemap.spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
         }
 
         if (ttimer.getElapsedTime().asSeconds() >= 2.3)
         {
-            gamemap.spawn("table",sf::Vector2f(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f, gamemap.getPartBounds().top).x,sf::Vector2f(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f, gamemap.getPartBounds().top).y,this->sprite.getRotation());
+            gamemap.spawn("table", playerCenter.x, gamemap.getPartBounds().top, sprite.getRotation());
             ttimer.restart();
         }
     }
 }
+
 void Boss::draw(sf::RenderWindow &window)
 {
-    window.draw(sprite);
-    // Draw the red eye
-    window.draw(this->eyesprite);
+    Sprite::draw(window);
+    window.draw(eyeSprite);
 }
 
 void Boss::resetTimers()
 {
-    this->ttimer.restart();
-    this->ltimer.restart();
-    this->atimer.restart();
-    this->ptimer.restart();
+    ttimer.restart();
+    ltimer.restart();
+    atimer.restart();
+    ptimer.restart();
 }
 
-Boss::~Boss()
+void Boss::updateEyePosition()
 {
+    eyeSprite.setPosition(position.x - eyeSprite.getGlobalBounds().width / 2.0f,
+                          position.y - eyeSprite.getGlobalBounds().height / 2.0f);
 }

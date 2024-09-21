@@ -11,11 +11,10 @@ enum class GameState
     GameOver
 };
 
-void resetGame(GameMap &map, Player *&player, Inventory &inventory, sf::RenderWindow &window, bool &gameover, Boss *&boss)
+void resetGame(GameMap &map, Player *&player, Inventory &inventory, sf::RenderWindow &window, bool &gameover)
 {
     player = new Player(sf::Vector2f(500, 500));
     map.resetEntities(player->place);
-    boss=new Boss(window.getSize());
     inventory.reset(player);
     gameover = false;
 }
@@ -36,7 +35,6 @@ int main()
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
     Inventory inventory(map, player, window);
-    Boss *boss=new Boss(window.getSize());
     Sprite background;
     background.scale(0.6,0.6);
     background.loadTexture("../imgs/background3.jpg");
@@ -63,7 +61,7 @@ int main()
         case GameState::Menu:
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
             {
-                resetGame(map, player, inventory, window, gameOver,boss);
+                resetGame(map, player, inventory, window, gameOver);
                 currentState = GameState::CutScene;
                 clock.restart();
             }
@@ -88,7 +86,6 @@ int main()
                 map.updateEntities(deltaTime, window.getSize());
                 player->update(deltaTime, map, window.getSize());
                 inventory.update();
-                boss->update(deltaTime,map,window.getSize());
 
                 sf::View originalView = window.getView();
                 window.setView(window.getDefaultView());
@@ -96,7 +93,6 @@ int main()
                 window.setView(originalView);
 
                 map.draw();
-                boss->draw(window);
                 map.drawEntities(window);
                 player->draw(window);
                 inventory.draw();
