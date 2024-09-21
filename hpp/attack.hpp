@@ -1,75 +1,59 @@
 #pragma once
+#include "sprite.hpp"
 
-class Attack{
-    public:
-    Attack(sf::Vector2f sp,bool &gameOver);
-
-    virtual bool update(sf::FloatRect player) = 0;
-
-    virtual void draw(sf::RenderWindow &window) = 0;
-    bool *gameOver;
-    sf::Vector2f pos;
-    sf::FloatRect hitbox;
+class Attack : public Sprite {
+public:
+    Attack(sf::Vector2f sp);
+float timeOffScreen;
+sf::Clock offScreenTimer;
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
 };
 
-class HammerThrow : public Attack{
-    public:
-    HammerThrow(sf::Vector2f sp,bool &gameOver);
+class HammerThrow : public Attack {
+public:
+    HammerThrow(sf::Vector2f sp);
 
-    bool update(sf::FloatRect player) override;
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
 
-    void draw(sf::RenderWindow &window) override;
-
-    private:
-    sf::Texture texture;
-    sf::Sprite sprite;
+private:
     sf::Vector2f velocity;
     bool fc;
 };
 
-class Plank : public Attack{
-    public:
-    Plank(sf::Vector2f sp,bool &gameOver);
+class Plank : public Attack {
+public:
+    Plank(sf::Vector2f sp);
 
-    bool update(sf::FloatRect player) override;
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
 
     void draw(sf::RenderWindow& window) override;
 
-    private:
-    sf::Texture texture;
-    sf::Sprite sprite[2];
+private:
+    sf::Sprite secondSprite;
     sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;
 };
 
-class LaserBeam : public Attack{
-    public:
-    LaserBeam(sf::Vector2f sp, float rotangle,bool &gameOver);
+class LaserBeam : public Attack {
+public:
+    LaserBeam(sf::Vector2f sp, float rotangle);
 
-    bool update(sf::FloatRect player) override;
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
 
-    void draw(sf::RenderWindow& window) override;
-
-    private:
-    sf::Texture texture;
-    sf::Sprite sprite;
+private:
     sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;
 };
 
-class TableFall : public Attack{
-    public:
-    TableFall(sf::Vector2f sp,bool &gameOver);
+class TableFall : public Attack {
+public:
+    TableFall(sf::Vector2f sp);
 
-    bool update(sf::FloatRect player) override;
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
 
-    void draw(sf::RenderWindow& window) override;
-
-    private:
-    sf::Texture texture;
-    sf::Sprite sprite;
+private:
     sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;

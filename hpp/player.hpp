@@ -5,8 +5,8 @@ class Item;
 class Player : public Animation, public CollisionDetector {
     friend class Item;
 public:
-    Player(sf::Vector2f position,bool&gameover);
-    void update(float deltaTime, Map& map, const sf::Vector2u& screenres) override;
+    Player(sf::Vector2f position);
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
     sf::FloatRect getBounds();
     sf::FloatRect place;
     void draw(sf::RenderWindow& window) override;
@@ -16,7 +16,7 @@ bool *gameover;
     void handleInput();
     void updateAnimation();
     void manageCollisions(const std::vector<sf::FloatRect>& objectBounds);
-    void checkBounds(const sf::Vector2u& screenres, Map& map);
+    void checkBounds(const sf::Vector2u& screenres, GameMap& gamemap);
 
     float gravity;
     float jumpForce;

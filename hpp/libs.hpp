@@ -20,11 +20,10 @@
 #include <random>
 #include "GifPlayer.hpp"
 #include "EntityFactory.hpp"
-#include "map.hpp"
+#include "Entity.hpp"
 #include "EditorMap.hpp"
 #include "GameMap.hpp"
 #include "CutScene.hpp"
-#include "Entity.hpp"
 #include "sprite.hpp"
 #include "Animation.hpp"
 #include "CollisionDetector.hpp"

@@ -22,8 +22,8 @@ private:
     };
 
 public:
-
-       void loadFromFile(const std::string& fname);
+    void spawn(std::string entityName, float x, float y,float rotation);
+    void loadFromFile(const std::string& fname);
     GameMap(sf::RenderWindow &wndref, bool &gameover);
     GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover);
     GameMap(const GameMap &) = delete;
@@ -43,8 +43,10 @@ public:
 
     std::vector<Entity *> activeEntities;
     std::vector<Item *> allItems;
+    sf::FloatRect *playerBounds;
 
     bool *gameOver;
+    std::vector<std::unique_ptr<Entity::PlacedEntity>> placedEntities;
 
 private:
     void removeDeadEntities();

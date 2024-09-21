@@ -1,12 +1,9 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include "Entity.hpp"
-#include "Map.hpp"
 
 class PacMan : public Animation, public CollisionDetector {
 public:
     PacMan(sf::Vector2f spawnPosition, bool &gameOver);
-    void update(float deltaTime, Map& map, const sf::Vector2u& screenres) override;
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow& window) override;
     bool shouldRemove();
     std::vector<std::pair<std::string, std::string>> getEditableProperties() const override;

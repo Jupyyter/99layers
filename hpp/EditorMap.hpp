@@ -42,14 +42,7 @@ public:
 
     private:
         sf::RenderWindow &window;
-        std::string getFileNameWithoutExtension(const std::string& path);
-    };
-
-    struct PlacedEntity
-    {
-        sf::Sprite sprite;
-        std::string type;
-        std::unique_ptr<Entity> entity;
+        std::string getFileNameWithoutExtension(const std::string &path);
     };
 
     EditorMap(sf::RenderWindow &wndref);
@@ -75,19 +68,22 @@ public:
     void removeEntity(int x, int y);
     void removeEntity(int index);
     void addEntity(int x, int y, const std::string &entityType);
-    void drawEditorEntities(sf::RenderWindow &window, const PlacedEntity *selectedEntity, bool &isOpen);
-
+    void drawEditorEntities(sf::RenderWindow &window, const Entity::PlacedEntity *selectedEntity, bool &isOpen);
+    bool *gameOver;               // this should not be here
+    std::vector<Item *> allItems; // this shoud also not be here but its kinda justified
     Menu menu;
-    std::vector<std::unique_ptr<PlacedEntity>> placedEntities;
+    std::vector<std::unique_ptr<Entity::PlacedEntity>> placedEntities;
 
     class PropertyEditor
     {
     public:
         void setup(sf::Font &loadedFont);
-        void updateForEntity(PlacedEntity *entity, sf::Font &font);
+        void updateForEntity(Entity::PlacedEntity *entity, sf::Font &font);
         void draw(sf::RenderWindow &window);
         void handleInput(sf::Event &event, sf::RenderWindow &window);
         void applyChanges();
+        bool isOpen = false;
+        Entity::PlacedEntity *selectedEntity = nullptr;
 
     private:
         void wrapText(sf::Text &text, float maxWidth);
@@ -99,9 +95,7 @@ public:
         std::vector<sf::Text> labels;
         std::vector<sf::RectangleShape> inputBoxes;
         std::vector<sf::Text> inputTexts;
-        PlacedEntity *selectedEntity = nullptr;
         int selectedInputBox;
-        bool isOpen = false;
         sf::Font *font;
     };
 

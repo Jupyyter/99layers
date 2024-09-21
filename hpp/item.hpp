@@ -14,7 +14,7 @@ public:
     bool shouldApplyItemChangesToPlayer;
     virtual void updateOwned(Player *player) = 0;
     virtual void applyItemChanges(Player *player)=0;
-    void update(float deltaTime, Map &map, const sf::Vector2u &screenres) override;
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres) override;
     void draw(sf::RenderWindow &window) override;
     
     virtual std::string customText();

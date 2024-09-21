@@ -2,7 +2,7 @@
 
 class Inventory {
 public:
-    Inventory(Map& map, Player* player, sf::RenderWindow& window);
+    Inventory(GameMap& map, Player* player, sf::RenderWindow& window);
     ~Inventory() = default;
 
     void update();
@@ -30,7 +30,7 @@ private:
     std::vector<int> ownedItems, unownedItems;
     int selectedItem, pgcount, movedItem;
     bool shouldDraw, fc, movingItem;
-    Map &mapr;
+    GameMap &mapr;
     Player *playerr;
     sf::RenderWindow &windowr;
 };

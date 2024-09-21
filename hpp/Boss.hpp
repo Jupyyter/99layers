@@ -1,28 +1,21 @@
 #pragma once
 
-class Boss : public Entity  {
+class Boss : public Sprite {
 public:
-    Boss(sf::Vector2u windowSize,bool &gameOver);
-    void update(float deltaTime, Map& map, const sf::Vector2u& screenres) override;
-    void draw(sf::RenderWindow& window);
+    Boss(const sf::Vector2f& initialPosition);
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
+    void draw(sf::RenderWindow& window) override;
     void resetTimers();
-    ~Boss();
 
 private:
-    bool *gameover;
-    sf::Texture texture;
-    sf::Texture eyetexture;
-    sf::Sprite sprite;
-    sf::Sprite eyesprite;
-    sf::Vector2f velocity;
-    float targetWidth;
-    sf::Vector2u windowSize;
-    std::vector<Attack*> attacks;
     sf::Clock atimer;
     sf::Clock ptimer;
     sf::Clock ltimer;
     sf::Clock ttimer;
 
-    void loadAndScaleImage(const std::string& imagePath);
-    void setInitialPosition();
+    sf::Sprite eyeSprite;
+    sf::Texture eyeTexture;
+
+    void loadAndScaleImage();
+    void updateEyePosition();
 };

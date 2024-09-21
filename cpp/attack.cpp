@@ -2,7 +2,7 @@
 
 Attack::Attack(sf::Vector2f sp) : Sprite(),offScreenTimer(), timeOffScreen(0.f) {
     setPosition(sp);
-}//a
+}
 void Attack::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
     if (!isOnScreen(gamemap.getPartBounds())) {
         timeOffScreen += offScreenTimer.restart().asSeconds();
