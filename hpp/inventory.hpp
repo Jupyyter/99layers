@@ -2,11 +2,11 @@
 
 class Inventory {
 public:
-    Inventory(GameMap& map, Player* player, sf::RenderWindow& window);
+    Inventory(GameMap& gamemap);
     ~Inventory() = default;
 
-    void update();
-    void draw();
+    void update(Player* player,sf::RenderWindow &window);
+    void draw(sf::RenderWindow &window);
     void reset(Player* player);
     sf::RectangleShape borderHighlight;
     std::vector<int> activeSlots;
@@ -15,11 +15,11 @@ public:
 
 private:
     void updateItemPositions();
-    void loadPanel();
+    void loadPanel(GameMap& gamemap);
     void loadItems();
     void selectItem(int i, bool isActiveSlot = false);
-    int getHoverCell();
-    int getActiveHoverCell();
+    int getHoverCell(sf::RenderWindow &window);
+    int getActiveHoverCell(sf::RenderWindow &window);
 
     sf::Font font;
     sf::Text text;
@@ -30,7 +30,4 @@ private:
     std::vector<int> ownedItems, unownedItems;
     int selectedItem, pgcount, movedItem;
     bool shouldDraw, fc, movingItem;
-    GameMap &mapr;
-    Player *playerr;
-    sf::RenderWindow &windowr;
 };

@@ -14,6 +14,7 @@ public:
     void loadTexture(const std::string &filename);
     void update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) override;
     void draw(sf::RenderWindow &window) override;
+    sf::FloatRect getBounds() const override;
     void setPosition(const sf::Vector2f &pos);
     void setPosition(float x, float y);
     void scale(float scaleX, float scaleY); 

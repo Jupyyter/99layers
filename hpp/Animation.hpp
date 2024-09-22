@@ -30,6 +30,10 @@ public:
 
     // Check if the animation is paused
     bool isPaused() const;
+    sf::FloatRect getBounds() const override {
+        // Implement if different from Sprite, otherwise let it use Sprite's implementation
+        return Sprite::getBounds();
+    }
 
 protected:
     std::map<std::string, std::vector<sf::IntRect>> animations; // Map of animation sequences

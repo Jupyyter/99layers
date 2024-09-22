@@ -24,6 +24,7 @@ private:
 public:
     void spawn(std::string entityName, float x, float y,float rotation);
     void loadFromFile(const std::string& fname);
+    void handleCollisions();
     GameMap(sf::RenderWindow &wndref, bool &gameover);
     GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover);
     GameMap(const GameMap &) = delete;
@@ -36,8 +37,8 @@ public:
     std::vector<sf::FloatRect> getObjectBounds();
     std::vector<sf::FloatRect> getEntityBounds();
 
-    void resetEntities(sf::FloatRect &playerBounds);
-    void spawnEntities(sf::FloatRect &playerBounds);
+    void resetEntities();
+    void spawnEntities();
     void updateEntities(float deltaTime, const sf::Vector2u &windowSize);
     void drawEntities(sf::RenderWindow &window);
 
@@ -46,6 +47,7 @@ public:
     sf::FloatRect *playerBounds;
 
     bool *gameOver;
+    sf::RenderWindow &wndref;
     std::vector<std::unique_ptr<Entity::PlacedEntity>> placedEntities;
 
 private:
@@ -54,5 +56,4 @@ private:
     std::unordered_map<int, std::unordered_map<int, std::vector<Object *>>> obj;
     int mx, my, np;
     sf::View view;
-    sf::RenderWindow &wndref;
 };

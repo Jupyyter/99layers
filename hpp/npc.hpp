@@ -7,7 +7,7 @@ public:
     std::vector<std::pair<std::string, std::string>> getEditableProperties() const override;
      void setProperty(const std::string& name, const std::string& value) override;
     std::unique_ptr<TextBox> textBox;
-
+void onCollision(Entity* other) override;
 private:
     void loadSprite();
     void manageCollisions(const std::vector<sf::FloatRect>& objectBounds);
