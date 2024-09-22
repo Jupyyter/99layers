@@ -1,11 +1,10 @@
 #include "../hpp/libs.hpp"
 
-Inventory::Inventory(GameMap &map, Player *player, sf::RenderWindow &window)
-    : pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), mapr(map),
-      playerr(player), windowr(window), movingItem(false), active{nullptr, nullptr, nullptr},
+Inventory::Inventory(GameMap& gamemap)
+    : pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), movingItem(false), active{nullptr, nullptr, nullptr},
       activeSlots(3, -1) {
-    loadPanel();
-    allItems = &map.allItems;
+    loadPanel(gamemap);
+    allItems = &gamemap.allItems;
     loadItems();
     borderHighlight.setSize(sf::Vector2f(cellTex.getSize()));
     borderHighlight.setFillColor(sf::Color::Transparent);
@@ -13,14 +12,14 @@ Inventory::Inventory(GameMap &map, Player *player, sf::RenderWindow &window)
     borderHighlight.setOutlineThickness(-2.0f);
 }
 
-void Inventory::loadPanel() {
+void Inventory::loadPanel(GameMap& gamemap) {
     font.loadFromFile("../fonts/font.ttf");
     bpTex.loadFromFile("../imgs/BigPanel.jpg");
     cellTex.loadFromFile("../imgs/Cell.png");
     
     bpSprite.setTexture(bpTex);
-    bpSprite.setPosition(mapr.getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
-                         mapr.getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f);
+    bpSprite.setPosition(gamemap.getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
+                         gamemap.getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f);
 
     for (int i = 0; i < 40; i++) {
         cellSprite[i].setTexture(cellTex);
@@ -29,7 +28,7 @@ void Inventory::loadPanel() {
     }
 
     selectedSquare.setTexture(cellTex);
-    selectedSquare.setPosition(bpSprite.getPosition().x + 0.75 * mapr.getPartBounds().width - cellTex.getSize().x / 2.0f,
+    selectedSquare.setPosition(bpSprite.getPosition().x + 0.75 * gamemap.getPartBounds().width - cellTex.getSize().x / 2.0f,
                                bpSprite.getPosition().y + 40);
     selectedItemS.setPosition(selectedSquare.getPosition());
 
@@ -71,18 +70,18 @@ void Inventory::selectItem(int i, bool isActiveSlot) {
     }
 }
 
-inline int Inventory::getHoverCell() {
+inline int Inventory::getHoverCell(sf::RenderWindow &window) {
     sf::IntRect zone(cellSprite[0].getPosition().x, cellSprite[0].getPosition().y,
                      cellSprite[0].getGlobalBounds().width * 5, cellSprite[0].getGlobalBounds().height * 8);
-    sf::Vector2i mp = sf::Mouse::getPosition(windowr);
+    sf::Vector2i mp = sf::Mouse::getPosition(window);
     return zone.contains(mp) ? (mp.y - zone.top) / cellSprite[0].getGlobalBounds().height * 5 + 
                                (mp.x - zone.left) / cellSprite[0].getGlobalBounds().width : -1;
 }
 
-inline int Inventory::getActiveHoverCell() {
+inline int Inventory::getActiveHoverCell(sf::RenderWindow &window) {
     sf::IntRect zone(activeCellS[0].getPosition().x, activeCellS[0].getPosition().y,
                      activeCellS[0].getGlobalBounds().width * 3, activeCellS[0].getGlobalBounds().height);
-    sf::Vector2i mp = sf::Mouse::getPosition(windowr);
+    sf::Vector2i mp = sf::Mouse::getPosition(window);
     return zone.contains(mp) ? (mp.x - zone.left) / activeCellS[0].getGlobalBounds().width : -1;
 }
 
@@ -106,11 +105,11 @@ void Inventory::updateItemPositions() {
             (*allItems)[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
 }
 
-void Inventory::update() {
+void Inventory::update(Player* player,sf::RenderWindow &window) {
     for (auto it = unownedItems.begin(); it != unownedItems.end();) {
         int i = *it;
         if ((*allItems)[i]->shouldApplyItemChangesToPlayer) {
-            (*allItems)[i]->applyItemChanges(playerr);
+            (*allItems)[i]->applyItemChanges(player);
             (*allItems)[i]->shouldApplyItemChangesToPlayer = false;
             (*allItems)[i]->sprite.setPosition(cellSprite[ownedItems.size()].getPosition());
             (*allItems)[i]->sprite.setScale(cellSprite[0].getGlobalBounds().width / (*allItems)[i]->sprite.getGlobalBounds().width,
@@ -121,9 +120,9 @@ void Inventory::update() {
         } else { ++it; }
     }
 
-    for (int i : ownedItems) (*allItems)[i]->updateOwned(playerr);
+    for (int i : ownedItems) (*allItems)[i]->updateOwned(player);
     for (int i = 0; i < 3; i++)
-        if (activeSlots[i] != -1) (*allItems)[activeSlots[i]]->updateOwned(playerr);
+        if (activeSlots[i] != -1) (*allItems)[activeSlots[i]]->updateOwned(player);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !movingItem) {
         if (fc) {
@@ -137,7 +136,7 @@ void Inventory::update() {
     if (shouldDraw) {
         for (int i : ownedItems) (*allItems)[i]->invisible = false;
 
-        sf::Vector2i mousePos = sf::Mouse::getPosition(windowr);
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             for (size_t i = 0; i < ownedItems.size(); ++i)
@@ -161,7 +160,7 @@ void Inventory::update() {
                     }
             }
         } else if (movingItem) {
-            int hoverCell = getHoverCell(), activeHoverCell = getActiveHoverCell();
+            int hoverCell = getHoverCell(window), activeHoverCell = getActiveHoverCell(window);
             if (hoverCell != -1 && hoverCell <= ownedItems.size()) {
                 ownedItems.insert(ownedItems.begin() + hoverCell, movedItem);
             } else if (activeHoverCell != -1 && dynamic_cast<Item::Active *>((*allItems)[movedItem])) {
@@ -179,44 +178,43 @@ void Inventory::update() {
     if (active[2] && sf::Keyboard::isKeyPressed(sf::Keyboard::C)) active[2]->activate();
 }
 
-void Inventory::draw() {
+void Inventory::draw(sf::RenderWindow &window) {
     if (shouldDraw) {
-        sf::View originalView = windowr.getView();
-        windowr.setView(windowr.getDefaultView());
+        sf::View originalView = window.getView();
+        window.setView(window.getDefaultView());
 
-        windowr.draw(bpSprite);
-        for (int i = 0; i < 40; i++) windowr.draw(cellSprite[i]);
-        windowr.draw(selectedSquare);
-        for (int i = 0; i < 3; i++) windowr.draw(activeCellS[i]);
+        window.draw(bpSprite);
+        for (int i = 0; i < 40; i++) window.draw(cellSprite[i]);
+        window.draw(selectedSquare);
+        for (int i = 0; i < 3; i++) window.draw(activeCellS[i]);
 
         for (size_t i = 0; i < ownedItems.size(); i++) {
-            (*allItems)[ownedItems[i]]->draw(windowr);
+            (*allItems)[ownedItems[i]]->draw(window);
             if (ownedItems[i] == selectedItem) {
                 borderHighlight.setPosition(cellSprite[i].getPosition());
-                windowr.draw(borderHighlight);
+                window.draw(borderHighlight);
             }
         }
 
         for (int i = 0; i < 3; i++) {
             if (activeSlots[i] != -1) {
                 (*allItems)[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
-                (*allItems)[activeSlots[i]]->draw(windowr);
+                (*allItems)[activeSlots[i]]->draw(window);
                 if (activeSlots[i] == selectedItem) {
                     borderHighlight.setPosition(activeCellS[i].getPosition());
-                    windowr.draw(borderHighlight);
+                    window.draw(borderHighlight);
                 }
             }
         }
 
-        if (selectedItem != -1) { windowr.draw(selectedItemS); windowr.draw(text); }
-        if (movingItem) (*allItems)[movedItem]->draw(windowr);
+        if (selectedItem != -1) { window.draw(selectedItemS); window.draw(text); }
+        if (movingItem) (*allItems)[movedItem]->draw(window);
 
-        windowr.setView(originalView);
+        window.setView(originalView);
     }
 }
 
 void Inventory::reset(Player *player) {
-    playerr = player;
     pgcount = 1; selectedItem = -1; shouldDraw = false; fc = true;
     ownedItems.clear(); unownedItems.clear();
     unownedItems.resize((*allItems).size());

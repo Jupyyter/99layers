@@ -73,6 +73,11 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
     else if(type=="table"){
         return new TableFall(transform.getPosition());
     }
+    else if (type=="adidas"){
+        Player *player = new Player(transform.getPosition(),gamemap);
+        gamemap.playerBounds=&player->place;
+        return player;
+    }
     return nullptr;
 }
 Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable transform, EditorMap &editormap, bool additemsToinventory)
@@ -139,6 +144,10 @@ Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable t
     }
     else if(type=="ikeaman"){
         return new Boss(transform.getPosition());
+    }
+    else if (type=="adidas"){
+        Player *player = new Player(transform.getPosition());
+        return player;
     }
     return nullptr;
 }

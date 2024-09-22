@@ -32,7 +32,7 @@ void EditorMap::Object::draw(sf::RenderWindow &window)
 
 EditorMap::EditorMap(sf::RenderWindow &wndref)
     : mx(0), my(0), np(1), wndref(wndref),
-      menu({"../imgs/poketIkeaman.png", "../imgs/pacman.png", "../imgs/capybaraa.png",
+      menu({"../imgs/adidas.png","../imgs/poketIkeaman.png", "../imgs/pacman.png", "../imgs/capybaraa.png",
             "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png",
             "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",
             "../imgs/ikeaman.png"},

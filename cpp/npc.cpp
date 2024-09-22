@@ -1,5 +1,5 @@
 #include "../hpp/libs.hpp"
-class TextBox; 
+class TextBox;
 Npc::Npc(sf::Vector2f position)
     : Animation(), CollisionDetector(), gravity(980.0f), isColliding(false)
 {
@@ -11,11 +11,11 @@ Npc::Npc(sf::Vector2f position)
 void Npc::loadSprite()
 {
        loadSpritesheet("../imgs/capybara.png", 64, 64);
-       addAnimation("idle", 1, 8); 
+       addAnimation("idle", 1, 8);
        setAnimation("idle");
 }
 
-void Npc::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
+void Npc::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
 {
        if (isOnScreen(gamemap.getPartBounds()))
        {
@@ -24,7 +24,7 @@ void Npc::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenre
               setPosition(position);
               manageCollisions(gamemap.getObjectBounds());
               checkCollisionWithPlayer(*gamemap.playerBounds);
-              Animation::update(deltaTime,gamemap,screenres);
+              Animation::update(deltaTime, gamemap, screenres);
 
               if (textBox)
               {
@@ -62,7 +62,10 @@ void Npc::checkCollisionWithPlayer(const sf::FloatRect &playerBounds)
               isColliding = false;
        }
 }
-
+void Npc::onCollision(Entity *other)
+{
+       // std::cout<<"tttttttttttuuuuuuuu";
+}
 void Npc::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
 {
        sf::FloatRect npcBounds = sprite.getGlobalBounds();
@@ -88,14 +91,16 @@ void Npc::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
               }
        }
 }
-std::vector<std::pair<std::string, std::string>> Npc::getEditableProperties() const {
-        return {
-            {"text", text}
-        };
-    }
+std::vector<std::pair<std::string, std::string>> Npc::getEditableProperties() const
+{
+       return {
+           {"text", text}};
+}
 
-    void Npc::setProperty(const std::string& text, const std::string& value) {
-        if (text == "text") {
-            this->text = value;
-        }
-    }
+void Npc::setProperty(const std::string &text, const std::string &value)
+{
+       if (text == "text")
+       {
+              this->text = value;
+       }
+}

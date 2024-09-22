@@ -11,11 +11,10 @@ enum class GameState
     GameOver
 };
 
-void resetGame(GameMap &map, Player *&player, Inventory &inventory, sf::RenderWindow &window, bool &gameover)
+void resetGame(GameMap &map, sf::RenderWindow &window, bool &gameover)
 {
-    player = new Player(sf::Vector2f(500, 500));
-    map.resetEntities(player->place);
-    inventory.reset(player);
+    map.resetEntities();
+    //inventory.reset(player);
     gameover = false;
 }
 
@@ -29,12 +28,11 @@ int main()
 
     };
     bool gameOver = false;
-    Player *player = new Player(sf::Vector2f(500, 500));
     CutScene cutScene(cutSceneImages, window.getSize());
     GameMap map("../map.mib", window, gameOver);
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
-    Inventory inventory(map, player, window);
+    //Inventory inventory(map, player, window);
     Sprite background;
     background.scale(0.6,0.6);
     background.loadTexture("../imgs/background3.jpg");
@@ -61,7 +59,7 @@ int main()
         case GameState::Menu:
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
             {
-                resetGame(map, player, inventory, window, gameOver);
+                resetGame(map, window, gameOver);
                 currentState = GameState::CutScene;
                 clock.restart();
             }
@@ -84,8 +82,7 @@ int main()
             else
             {
                 map.updateEntities(deltaTime, window.getSize());
-                player->update(deltaTime, map, window.getSize());
-                inventory.update();
+                //inventory.update();
 
                 sf::View originalView = window.getView();
                 window.setView(window.getDefaultView());
@@ -94,8 +91,7 @@ int main()
 
                 map.draw();
                 map.drawEntities(window);
-                player->draw(window);
-                inventory.draw();
+                //inventory.draw();
             }
             break;
         case GameState::GameOver:

@@ -3,7 +3,8 @@ class EditorMap;
 
 GameMap::Object::Object(int x, int y, int w, int h, std::string tname) : rect(sf::Vector2f(w, h))
 {
-    if (!tex.loadFromFile(tname)) {
+    if (!tex.loadFromFile(tname))
+    {
         std::cerr << "Failed to load texture: " << tname << std::endl;
     }
     tex.setRepeated(true);
@@ -13,9 +14,12 @@ GameMap::Object::Object(int x, int y, int w, int h, std::string tname) : rect(sf
 
     size_t lastSlash = tname.find_last_of("/\\");
     size_t lastDot = tname.find_last_of(".");
-    if (lastSlash == std::string::npos) lastSlash = 0;
-    else lastSlash++;
-    if (lastDot == std::string::npos || lastDot < lastSlash) lastDot = tname.length();
+    if (lastSlash == std::string::npos)
+        lastSlash = 0;
+    else
+        lastSlash++;
+    if (lastDot == std::string::npos || lastDot < lastSlash)
+        lastDot = tname.length();
     texid = tname.substr(lastSlash, lastDot - lastSlash);
 }
 
@@ -37,30 +41,30 @@ GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover)
     loadFromFile(fname);
 }
 
-void GameMap::loadFromFile(const std::string& fname)
+void GameMap::loadFromFile(const std::string &fname)
 {
     if (std::filesystem::exists(fname))
     {
         std::ifstream file(fname, std::ios::binary);
         int size;
-        file.read(reinterpret_cast<char*>(&size), sizeof(int));
+        file.read(reinterpret_cast<char *>(&size), sizeof(int));
         np = size;
 
         // Load objects (unchanged)
         for (int j = 0; j < size; j++)
         {
             int cmx, cmy, ssize;
-            file.read(reinterpret_cast<char*>(&cmx), sizeof(int));
-            file.read(reinterpret_cast<char*>(&cmy), sizeof(int));
-            file.read(reinterpret_cast<char*>(&ssize), sizeof(int));
+            file.read(reinterpret_cast<char *>(&cmx), sizeof(int));
+            file.read(reinterpret_cast<char *>(&cmy), sizeof(int));
+            file.read(reinterpret_cast<char *>(&ssize), sizeof(int));
             for (int i = 0; i < ssize; i++)
             {
                 int cx, cy, cw, ch, nameLength;
-                file.read(reinterpret_cast<char*>(&cx), sizeof(int));
-                file.read(reinterpret_cast<char*>(&cy), sizeof(int));
-                file.read(reinterpret_cast<char*>(&cw), sizeof(int));
-                file.read(reinterpret_cast<char*>(&ch), sizeof(int));
-                file.read(reinterpret_cast<char*>(&nameLength), sizeof(int));
+                file.read(reinterpret_cast<char *>(&cx), sizeof(int));
+                file.read(reinterpret_cast<char *>(&cy), sizeof(int));
+                file.read(reinterpret_cast<char *>(&cw), sizeof(int));
+                file.read(reinterpret_cast<char *>(&ch), sizeof(int));
+                file.read(reinterpret_cast<char *>(&nameLength), sizeof(int));
                 std::string texName(nameLength, '\0');
                 file.read(&texName[0], nameLength);
                 obj[cmx][cmy].push_back(new Object(cx, cy, cw, ch, "../imgs/" + texName + ".png"));
@@ -69,38 +73,38 @@ void GameMap::loadFromFile(const std::string& fname)
 
         // Load placedEntities and allItems
         int entityCount;
-        file.read(reinterpret_cast<char*>(&entityCount), sizeof(int));
+        file.read(reinterpret_cast<char *>(&entityCount), sizeof(int));
         for (int i = 0; i < entityCount; ++i)
         {
             int nameLength;
-            file.read(reinterpret_cast<char*>(&nameLength), sizeof(int));
+            file.read(reinterpret_cast<char *>(&nameLength), sizeof(int));
 
             std::string entityType(nameLength, '\0');
             file.read(&entityType[0], nameLength);
 
             float x, y;
-            file.read(reinterpret_cast<char*>(&x), sizeof(float));
-            file.read(reinterpret_cast<char*>(&y), sizeof(float));
+            file.read(reinterpret_cast<char *>(&x), sizeof(float));
+            file.read(reinterpret_cast<char *>(&y), sizeof(float));
 
             sf::Transformable transform;
-            transform.setPosition(sf::Vector2f(x,y));
+            transform.setPosition(sf::Vector2f(x, y));
             transform.setRotation(0);
-            transform.setScale(1,1);
+            transform.setScale(1, 1);
             // Create the entity
-            Entity* newEntity = EntityFactory::createEntity(entityType, transform, *this, true);
+            Entity *newEntity = EntityFactory::createEntity(entityType, transform, *this, true);
             if (newEntity)
             {
                 // Load entity properties
                 int propertyCount;
-                file.read(reinterpret_cast<char*>(&propertyCount), sizeof(int));
+                file.read(reinterpret_cast<char *>(&propertyCount), sizeof(int));
                 for (int j = 0; j < propertyCount; ++j)
                 {
-                    file.read(reinterpret_cast<char*>(&nameLength), sizeof(int));
+                    file.read(reinterpret_cast<char *>(&nameLength), sizeof(int));
                     std::string propName(nameLength, '\0');
                     file.read(&propName[0], nameLength);
 
                     int valueLength;
-                    file.read(reinterpret_cast<char*>(&valueLength), sizeof(int));
+                    file.read(reinterpret_cast<char *>(&valueLength), sizeof(int));
                     std::string propValue(valueLength, '\0');
                     file.read(&propValue[0], valueLength);
 
@@ -125,19 +129,19 @@ GameMap::~GameMap()
     {
         for (const auto &y : x.second)
         {
-            for (auto* object : y.second)
+            for (auto *object : y.second)
             {
                 delete object;
             }
         }
     }
 
-    for (auto* entity : activeEntities)
+    for (auto *entity : activeEntities)
     {
         delete entity;
     }
 
-    for (auto* item : allItems)
+    for (auto *item : allItems)
     {
         delete item;
     }
@@ -145,7 +149,7 @@ GameMap::~GameMap()
 
 void GameMap::draw()
 {
-    for (const auto& object : obj[mx][my])
+    for (const auto &object : obj[mx][my])
     {
         object->draw(wndref);
     }
@@ -171,7 +175,7 @@ sf::FloatRect GameMap::getPartBounds()
 std::vector<sf::FloatRect> GameMap::getObjectBounds()
 {
     std::vector<sf::FloatRect> bounds;
-    for (const auto& object : obj[mx][my])
+    for (const auto &object : obj[mx][my])
     {
         bounds.push_back(object->rect.getGlobalBounds());
     }
@@ -187,15 +191,14 @@ std::vector<sf::FloatRect> GameMap::getObjectBounds()
     return bounds;
 }*/
 
-void GameMap::resetEntities(sf::FloatRect &playerBoundss)
+void GameMap::resetEntities()
 {
-    playerBounds=&playerBoundss;
     activeEntities.clear();
     allItems.clear();
-    spawnEntities(*playerBounds);
+    spawnEntities();
 }
 
-void GameMap::spawnEntities(sf::FloatRect &playerBounds)
+void GameMap::spawnEntities()
 {
     for (const auto &placedEntity : placedEntities)
     {
@@ -203,12 +206,12 @@ void GameMap::spawnEntities(sf::FloatRect &playerBounds)
         const std::string &type = placedEntity->type;
 
         sf::Transformable transform;
-            transform.setPosition(position);
-            transform.setRotation(0);
-            transform.setScale(1,1);
+        transform.setPosition(position);
+        transform.setRotation(0);
+        transform.setScale(1, 1);
 
         // Create a new instance of the entity
-        std::unique_ptr<Entity> entity(EntityFactory::createEntity(type, transform, *this,true));
+        std::unique_ptr<Entity> entity(EntityFactory::createEntity(type, transform, *this, true));
 
         if (entity)
         {
@@ -225,16 +228,17 @@ void GameMap::spawnEntities(sf::FloatRect &playerBounds)
 }
 void GameMap::updateEntities(float deltaTime, const sf::Vector2u &windowSize)
 {
-    for (auto* entity : activeEntities)
+    for (auto *entity : activeEntities)
     {
         entity->update(deltaTime, *this, windowSize);
     }
+    handleCollisions();
     removeDeadEntities();
 }
 
 void GameMap::drawEntities(sf::RenderWindow &window)
 {
-    for (auto* entity : activeEntities)
+    for (auto *entity : activeEntities)
     {
         entity->draw(window);
     }
@@ -244,15 +248,16 @@ void GameMap::removeDeadEntities()
 {
     activeEntities.erase(
         std::remove_if(activeEntities.begin(), activeEntities.end(),
-            [](Entity* entity) {
-                if (entity->shouldBeDead) {
-                    delete entity;
-                    return true;
-                }
-                return false;
-            }),
-        activeEntities.end()
-    );
+                       [](Entity *entity)
+                       {
+                           if (entity->shouldBeDead)
+                           {
+                               delete entity;
+                               return true;
+                           }
+                           return false;
+                       }),
+        activeEntities.end());
 }
 void GameMap::spawn(std::string entityName, float x, float y, float rotation)
 {
@@ -260,15 +265,16 @@ void GameMap::spawn(std::string entityName, float x, float y, float rotation)
     transform.setPosition(x, y);
     transform.setRotation(rotation);
     transform.setScale(1, 1);
-    Entity* entity = EntityFactory::createEntity(entityName, transform, *this, true);
+    Entity *entity = EntityFactory::createEntity(entityName, transform, *this, true);
     if (entity)
     {
 
         // Find the correct position to insert the new entity based on priorityLayer
         auto insertPos = std::lower_bound(activeEntities.begin(), activeEntities.end(), entity,
-            [](const Entity* a, const Entity* b) {
-                return a->priorityLayer < b->priorityLayer;
-            });
+                                          [](const Entity *a, const Entity *b)
+                                          {
+                                              return a->priorityLayer < b->priorityLayer;
+                                          });
 
         // Insert the entity at the correct position
         activeEntities.insert(insertPos, entity);
@@ -278,14 +284,29 @@ void GameMap::spawn(std::string entityName, float x, float y, float rotation)
         placedEntity->type = typeid(*entity).name(); // Get the type name of the entity
         placedEntity->sprite.setPosition(x, y);
         placedEntity->entity.reset(EntityFactory::createEntity(entityName, transform, *this, true));
-        
+
         // Find the correct position to insert the new placedEntity based on priorityLayer
         auto placedInsertPos = std::lower_bound(placedEntities.begin(), placedEntities.end(), placedEntity,
-            [](const std::unique_ptr<Entity::PlacedEntity>& a, const std::unique_ptr<Entity::PlacedEntity>& b) {
-                return a->entity->priorityLayer < b->entity->priorityLayer;
-            });
+                                                [](const std::unique_ptr<Entity::PlacedEntity> &a, const std::unique_ptr<Entity::PlacedEntity> &b)
+                                                {
+                                                    return a->entity->priorityLayer < b->entity->priorityLayer;
+                                                });
 
         // Insert the placedEntity at the correct position
         placedEntities.insert(placedInsertPos, std::move(placedEntity));
+    }
+}
+void GameMap::handleCollisions()
+{
+    for (size_t i = 0; i < activeEntities.size(); ++i)
+    {
+        for (size_t j = i + 1; j < activeEntities.size(); ++j)
+        {
+            if (activeEntities[i]->getBounds().intersects(activeEntities[j]->getBounds()))
+            {
+                activeEntities[i]->onCollision(activeEntities[j]);
+                activeEntities[j]->onCollision(activeEntities[i]);
+            }
+        }
     }
 }

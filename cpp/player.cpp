@@ -1,6 +1,21 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
+Player::Player(sf::Vector2f position,GameMap& gamemap) : Animation(), CollisionDetector(),inventory(new Inventory(gamemap))
+{
+       loadAnimations();
+       loadShaders();
+       setPosition(position);
+
+       gravity = 980.0f;
+       jumpForce = -500.0f;
+       moveSpeed = 200.0f;
+       isGrounded = false;
+       onehitinvin = false;
+       gothitinv = false;
+       isStasis = false;
+       place=getBounds();
+}
 Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
 {
        loadAnimations();
@@ -16,7 +31,6 @@ Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
        isStasis = false;
        place=getBounds();
 }
-
 void Player::loadAnimations()
 {
        loadSpritesheet("../imgs/player.png", 29, 38);
@@ -101,8 +115,11 @@ void Player::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &scree
               Animation::update(deltaTime,gamemap,screenres);
               place=getBounds();
        }
+       inventory->update(this, gamemap.wndref);
 }
+void Player::onCollision(Entity* other) {
 
+    }
 void Player::draw(sf::RenderWindow &window)
 {
        if(isStasis){
@@ -111,6 +128,7 @@ void Player::draw(sf::RenderWindow &window)
        else{
               window.draw(sprite);
        }
+       inventory->draw(window);
 }
 
 void Player::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
@@ -178,10 +196,5 @@ void Player::checkBounds(const sf::Vector2u &screenres, GameMap& gamemap)
        {
               gamemap.changePart(0, 1);
        }
-}
-
-sf::FloatRect Player::getBounds()
-{
-       return this->sprite.getGlobalBounds();
 }
 // what am i doing idk i seem to be too incapable to code which is paradoxically is the only thing i know how to do (or not this is subjective) well that is unfortunate
