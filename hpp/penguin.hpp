@@ -5,7 +5,7 @@ public:
     Penguin(sf::Vector2f position);
     
     void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window) const  override;
 
 
     // New methods specific to Penguin

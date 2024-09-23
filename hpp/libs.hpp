@@ -18,6 +18,15 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <execution>
+#include <thread>
+#include <future>
+#include <mutex>
+#include <atomic>
+#include <condition_variable>
 #include "GifPlayer.hpp"
 #include "EntityFactory.hpp"
 #include "Entity.hpp"

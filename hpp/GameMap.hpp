@@ -14,7 +14,7 @@ private:
         Object(int x, int y, int w, int h, std::string tname);
         ~Object() = default;
 
-        void draw(sf::RenderWindow &window);
+        void draw(sf::RenderWindow &window)const;
 
         sf::RectangleShape rect;
         sf::Texture tex;
@@ -22,25 +22,23 @@ private:
     };
 
 public:
-    void spawn(std::string entityName, float x, float y,float rotation);
+    void spawn(const std::string& entityName, float x, float y, float rotation);
     void loadFromFile(const std::string& fname);
-    void handleCollisions();
     GameMap(sf::RenderWindow &wndref, bool &gameover);
     GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover);
     GameMap(const GameMap &) = delete;
     GameMap &operator=(const GameMap &) = delete;
     ~GameMap();
 
-    void draw();
+    void draw()const;
     void changePart(int x, int y);
-    sf::FloatRect getPartBounds();
-    std::vector<sf::FloatRect> getObjectBounds();
-    std::vector<sf::FloatRect> getEntityBounds();
+    sf::FloatRect getPartBounds() const;
+    std::vector<sf::FloatRect> getObjectBounds() const;
 
     void resetEntities();
     void spawnEntities();
     void updateEntities(float deltaTime, const sf::Vector2u &windowSize);
-    void drawEntities(sf::RenderWindow &window);
+    void drawEntities(sf::RenderWindow &window)const;
 
     std::vector<Entity *> activeEntities;
     std::vector<Item *> allItems;
@@ -51,9 +49,7 @@ public:
     std::vector<std::unique_ptr<Entity::PlacedEntity>> placedEntities;
 
 private:
-    void removeDeadEntities();
-
-    std::unordered_map<int, std::unordered_map<int, std::vector<Object *>>> obj;
+    std::unordered_map<int, std::unordered_map<int, std::vector<std::unique_ptr<Object>>>> obj;
     int mx, my, np;
     sf::View view;
 };

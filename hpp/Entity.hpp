@@ -10,8 +10,8 @@ public:
     virtual ~Entity() = default;
 
     virtual void update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenrese) = 0;
-    virtual void draw(sf::RenderWindow &window) = 0;
-    virtual void onCollision(Entity* other) {}
+    virtual void draw(sf::RenderWindow &window)const  = 0;
+    virtual void onCollision(Entity* other)  {}
     virtual sf::FloatRect getBounds() const = 0;
     virtual std::vector<std::pair<std::string, std::string>> getEditableProperties() const
     {

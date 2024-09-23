@@ -3,7 +3,7 @@ class Idk :public Animation, public CollisionDetector {
 public:
     Idk(sf::Vector2f position, float moveDistance);
     void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window) const override;
     bool isOutOfBounds(const sf::Vector2u& windowSize) const;
 
 private:

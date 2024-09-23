@@ -18,7 +18,5 @@ public:
     };
     // Check for collision between an object and obstacles
     CollisionInfo checkCollision(const sf::FloatRect& bounds, const std::vector<sf::FloatRect>& obstacles);
-protected:
-    // Determine the side of collision
-    CollisionSide getCollisionSide(const sf::FloatRect& object, const sf::FloatRect& obstacle, const sf::FloatRect& intersection);
+
 };

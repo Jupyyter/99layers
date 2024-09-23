@@ -77,6 +77,17 @@
         "xlocmon": "cpp",
         "xloctime": "cpp",
         "xtr1common": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "thread": "cpp",
+        "condition_variable": "cpp",
+        "coroutine": "cpp",
+        "resumable": "cpp",
+        "future": "cpp",
+        "mutex": "cpp",
+        "stop_token": "cpp",
+        "execution": "cpp",
+        "queue": "cpp",
+        "ranges": "cpp",
+        "span": "cpp"
     }
 }

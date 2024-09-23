@@ -4,7 +4,7 @@ class Boss : public Sprite {
 public:
     Boss(const sf::Vector2f& initialPosition);
     void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window)const  override;
     void resetTimers();
 
 private:
