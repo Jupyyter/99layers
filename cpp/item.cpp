@@ -54,7 +54,7 @@ void Item::setStasis(Player* player, bool stasis){
     player->isStasis = stasis;
 }
 
-void Item::draw(sf::RenderWindow &window)
+void Item::draw(sf::RenderWindow &window)const 
 {
     Sprite::draw(window);
 }

@@ -14,7 +14,6 @@ enum class GameState
 void resetGame(GameMap &map, sf::RenderWindow &window, bool &gameover)
 {
     map.resetEntities();
-    //inventory.reset(player);
     gameover = false;
 }
 
@@ -32,7 +31,6 @@ int main()
     GameMap map("../map.mib", window, gameOver);
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
-    //Inventory inventory(map, player, window);
     Sprite background;
     background.scale(0.6,0.6);
     background.loadTexture("../imgs/background3.jpg");
@@ -82,7 +80,6 @@ int main()
             else
             {
                 map.updateEntities(deltaTime, window.getSize());
-                //inventory.update();
 
                 sf::View originalView = window.getView();
                 window.setView(window.getDefaultView());
@@ -91,7 +88,6 @@ int main()
 
                 map.draw();
                 map.drawEntities(window);
-                //inventory.draw();
             }
             break;
         case GameState::GameOver:

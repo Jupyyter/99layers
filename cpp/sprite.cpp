@@ -22,7 +22,7 @@ void Sprite::scale(float scaleX, float scaleY)
 {
     sprite.setScale(scaleX, scaleY);
 }
-void Sprite::draw(sf::RenderWindow &window)
+void Sprite::draw(sf::RenderWindow &window)const 
 {
     if (!invisible)
     {

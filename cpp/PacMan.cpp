@@ -65,7 +65,7 @@ void PacMan::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &scree
 
 bool PacMan::shouldRemove() { return lifeTimer >= lifeDuration; }
 
-void PacMan::draw(sf::RenderWindow &window)
+void PacMan::draw(sf::RenderWindow &window)const 
 {
     Animation::draw(window);
 }

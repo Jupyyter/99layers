@@ -33,7 +33,7 @@ void Npc::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenre
        }
 }
 
-void Npc::draw(sf::RenderWindow &window)
+void Npc::draw(sf::RenderWindow &window)const 
 {
        Animation::draw(window);
        textBox->draw(window);

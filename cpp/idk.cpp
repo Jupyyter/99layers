@@ -43,7 +43,7 @@ void Idk::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenre
     }
 }
 
-void Idk::draw(sf::RenderWindow &window)
+void Idk::draw(sf::RenderWindow &window)const 
 {
     Animation::draw(window);
 }

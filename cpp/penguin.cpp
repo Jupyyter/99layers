@@ -28,7 +28,7 @@ void Penguin::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& scre
     }
 }
 
-void Penguin::draw(sf::RenderWindow& window) {
+void Penguin::draw(sf::RenderWindow& window)const  {
     Animation::draw(window);
 }
 

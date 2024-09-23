@@ -120,7 +120,7 @@ void Player::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &scree
 void Player::onCollision(Entity* other) {
 
     }
-void Player::draw(sf::RenderWindow &window)
+void Player::draw(sf::RenderWindow &window)const 
 {
        if(isStasis){
               window.draw(sprite, &stasishad);

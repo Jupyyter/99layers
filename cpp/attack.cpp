@@ -52,7 +52,7 @@ void Plank::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screen
         (*gamemap.gameOver)=true;
 }
 
-void Plank::draw(sf::RenderWindow &window) {
+void Plank::draw(sf::RenderWindow &window)const  {
     Sprite::draw(window);
     window.draw(secondSprite);
 }

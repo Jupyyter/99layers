@@ -63,7 +63,7 @@ void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
             ptimer.restart();
         }
 
-        if (ltimer.getElapsedTime().asSeconds() >= 0.5)
+        if (ltimer.getElapsedTime().asSeconds() >= 0.05)
         {
             gamemap.spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
@@ -77,7 +77,7 @@ void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
     }
 }
 
-void Boss::draw(sf::RenderWindow &window)
+void Boss::draw(sf::RenderWindow &window)const 
 {
     Sprite::draw(window);
     window.draw(eyeSprite);
