@@ -161,6 +161,7 @@ std::vector<sf::FloatRect> GameMap::getObjectBounds()const {
 
 void GameMap::resetEntities()
 {
+    changePart(0,0);
     activeEntities.clear();
     allItems.clear();
     spawnEntities();

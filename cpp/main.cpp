@@ -1,8 +1,5 @@
 #include "../hpp/libs.hpp"
-class Player;
-class Map;
 
-// Define an enum for game states
 enum class GameState
 {
     Menu,
@@ -11,20 +8,14 @@ enum class GameState
     GameOver
 };
 
-void resetGame(GameMap &map, sf::RenderWindow &window, bool &gameover)
-{
-    map.resetEntities();
-    gameover = false;
-}
-
 int main()
 {
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(1024, 768), "SFML Player", sf::Style::Titlebar | sf::Style::Close);
-    window.setFramerateLimit(60);
+    window.setVerticalSyncEnabled(true);
 
     std::vector<std::string> cutSceneImages = {
-
+        // Add your cutscene images here
     };
     bool gameOver = false;
     CutScene cutScene(cutSceneImages, window.getSize());
@@ -32,14 +23,22 @@ int main()
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
     Sprite background;
-    background.scale(0.6,0.6);
+    background.scale(0.6, 0.6);
     background.loadTexture("../imgs/background3.jpg");
-
     GameState currentState = GameState::Menu;
-    sf::Clock clock;
+
+    sf::Clock frameClock;
+    sf::Clock updateClock;
+    const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
+    const float maxDeltaTime = 1.0f / 30.0f; // Maximum allowed delta time
 
     while (window.isOpen())
     {
+        sf::Time frameTime = frameClock.restart();
+        float deltaTime = std::min(frameTime.asSeconds(), maxDeltaTime); // Cap delta time
+        //This ensures that even if there's a long pause (like when moving the window), the game won't try to simulate that entire duration in one step.
+
+        // Handle events
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -47,59 +46,85 @@ int main()
             {
                 window.close();
             }
+
+            // Handle other events based on current state
+            switch (currentState)
+            {
+                case GameState::Menu:
+                    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
+                    {
+                        map.resetEntities();
+                        gameOver = false;
+                        currentState = GameState::CutScene;
+                        updateClock.restart();
+                    }
+                    break;
+                case GameState::GameOver:
+                    if (gameOverScreen.handleEvent(event))
+                    {
+                        currentState = GameState::Menu;
+                    }
+                    break;
+            }
         }
 
-        float deltaTime = clock.restart().asSeconds();
-
-        window.clear(sf::Color::Black);
+        // Update logic based on current state
         switch (currentState)
         {
-        case GameState::Menu:
-            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
-            {
-                resetGame(map, window, gameOver);
-                currentState = GameState::CutScene;
-                clock.restart();
-            }
-            menu.updateButtonColor();
-            menu.draw();
-            break;
-        case GameState::CutScene:
-            if (cutScene.update(deltaTime))
-            {
-                currentState = GameState::Playing;
-            }
-            cutScene.draw(window);
-            break;
-        case GameState::Playing:
-            if (gameOver)
-            {
-                currentState = GameState::GameOver;
-                gameOver = false;
-            }
-            else
-            {
-                map.updateEntities(deltaTime, window.getSize());
+            case GameState::Menu:
+                menu.updateButtonColor();
+                break;
+            case GameState::CutScene:
+                if (cutScene.update(deltaTime))
+                {
+                    currentState = GameState::Playing;
+                }
+                break;
+            case GameState::Playing:
+                if (gameOver)
+                {
+                    currentState = GameState::GameOver;
+                    gameOver = false;
+                }
+                else
+                {
+                    map.updateEntities(deltaTime, window.getSize());
+                }
+                break;
+        }
 
-                sf::View originalView = window.getView();
-                window.setView(window.getDefaultView());
-                background.draw(window);
-                window.setView(originalView);
+        // Render
+        window.clear(sf::Color::Black);
 
-                map.draw();
-                map.drawEntities(window);
-            }
-            break;
-        case GameState::GameOver:
-            if (gameOverScreen.handleEvent(event))
-            {
-                currentState = GameState::Menu;
-            }
-            gameOverScreen.draw();
-            break;
+        switch (currentState)
+        {
+            case GameState::Menu:
+                menu.draw();
+                break;
+            case GameState::CutScene:
+                cutScene.draw(window);
+                break;
+            case GameState::Playing:
+                {
+                    sf::View originalView = window.getView();
+                    window.setView(window.getDefaultView());
+                    background.draw(window);
+                    window.setView(originalView);
+                    map.draw();
+                    map.drawEntities(window);
+                }
+                break;
+            case GameState::GameOver:
+                gameOverScreen.draw();
+                break;
         }
 
         window.display();
+
+        // Frame rate control
+        sf::Time sleepTime = timePerFrame - frameClock.getElapsedTime();
+        //if (sleepTime > sf::Time::Zero)
+        std::this_thread::sleep_for(std::chrono::microseconds(sleepTime.asMicroseconds()));
     }
 
     return 0;

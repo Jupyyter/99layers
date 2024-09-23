@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position,GameMap& gamemap) : Animation(), CollisionDetector(),inventory(new Inventory(gamemap))
+Player::Player(sf::Vector2f position, GameMap &gamemap) : Animation(), CollisionDetector(), inventory(new Inventory(gamemap))
 {
        loadAnimations();
        loadShaders();
@@ -14,7 +14,7 @@ Player::Player(sf::Vector2f position,GameMap& gamemap) : Animation(), CollisionD
        onehitinvin = false;
        gothitinv = false;
        isStasis = false;
-       place=getBounds();
+       place = getBounds();
 }
 Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
 {
@@ -29,7 +29,7 @@ Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
        onehitinvin = false;
        gothitinv = false;
        isStasis = false;
-       place=getBounds();
+       place = getBounds();
 }
 void Player::loadAnimations()
 {
@@ -40,7 +40,8 @@ void Player::loadAnimations()
        setAnimation("idle");
 }
 
-void Player::loadShaders(){
+void Player::loadShaders()
+{
        assert(this->stasishad.loadFromFile("../shaders/stasis.frag", sf::Shader::Fragment));
        this->stasishad.setUniform("texture", sf::Shader::CurrentTexture);
 }
@@ -99,33 +100,41 @@ void Player::updateAnimation()
        }
 }
 
-void Player::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
+void Player::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
 {
-       if(!isStasis){
-              if(velocity.y>5777){
-                     (*gamemap.gameOver)=true;
+       if (!isStasis)
+       {
+              if (velocity.y > 5777)
+              {
+                     (*gamemap.gameOver) = true;
               }
               handleInput();
-              velocity.y += gravity * deltaTime;
-              position += velocity * deltaTime;
+              if (isOnScreen(gamemap.getPartBounds()))
+              {
+                     velocity.y += gravity * deltaTime;
+                     position += velocity * deltaTime;
+              }
+
               setPosition(position);
               manageCollisions(gamemap.getObjectBounds());
               checkBounds(screenres, gamemap);
               updateAnimation();
-              Animation::update(deltaTime,gamemap,screenres);
-              place=getBounds();
+              Animation::update(deltaTime, gamemap, screenres);
+              place = getBounds();
        }
        inventory->update(this, gamemap.wndref);
 }
-void Player::onCollision(Entity* other) {
-
-    }
-void Player::draw(sf::RenderWindow &window)const 
+void Player::onCollision(Entity *other)
 {
-       if(isStasis){
+}
+void Player::draw(sf::RenderWindow &window) const
+{
+       if (isStasis)
+       {
               window.draw(sprite, &stasishad);
        }
-       else{
+       else
+       {
               window.draw(sprite);
        }
        inventory->draw(window);
@@ -144,14 +153,14 @@ void Player::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
                      switch (collision.side)
                      {
                      case CollisionSide::Left:
-                            if (!(obstacle.top > playerBounds.top && obstacle.top - playerBounds.top > 27&&velocity.y>=0))//in case of stairs
+                            if (!(obstacle.top > playerBounds.top && obstacle.top - playerBounds.top > 27 && velocity.y >= 0)) // in case of stairs
                             {
                                    position.x = obstacle.left - playerBounds.width;
                                    velocity.x = 0;
                             }
                             break;
                      case CollisionSide::Right:
-                            if (!(obstacle.top > playerBounds.top && obstacle.top - playerBounds.top > 27&&velocity.y>=0))
+                            if (!(obstacle.top > playerBounds.top && obstacle.top - playerBounds.top > 27 && velocity.y >= 0))
                             {
                                    position.x = obstacle.left + obstacle.width;
                                    velocity.x = 0;
@@ -177,7 +186,7 @@ void Player::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
        }
 }
 
-void Player::checkBounds(const sf::Vector2u &screenres, GameMap& gamemap)
+void Player::checkBounds(const sf::Vector2u &screenres, GameMap &gamemap)
 {
        auto bounds = gamemap.getPartBounds();
        if (this->position.x > bounds.left + bounds.width)
