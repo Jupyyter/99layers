@@ -105,11 +105,11 @@ void Inventory::updateItemPositions() {
             (*allItems)[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
 }
 
-void Inventory::update(Player* player,sf::RenderWindow &window) {
+void Inventory::update(Player* player,GameMap &gamemap) {
     for (auto it = unownedItems.begin(); it != unownedItems.end();) {
         int i = *it;
         if ((*allItems)[i]->shouldApplyItemChangesToPlayer) {
-            (*allItems)[i]->applyItemChanges(player);
+            (*allItems)[i]->applyItemChanges(player,gamemap);
             (*allItems)[i]->shouldApplyItemChangesToPlayer = false;
             (*allItems)[i]->sprite.setPosition(cellSprite[ownedItems.size()].getPosition());
             (*allItems)[i]->sprite.setScale(cellSprite[0].getGlobalBounds().width / (*allItems)[i]->sprite.getGlobalBounds().width,
@@ -136,7 +136,7 @@ void Inventory::update(Player* player,sf::RenderWindow &window) {
     if (shouldDraw) {
         for (int i : ownedItems) (*allItems)[i]->invisible = false;
 
-        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        sf::Vector2i mousePos = sf::Mouse::getPosition(gamemap.wndref);
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             for (size_t i = 0; i < ownedItems.size(); ++i)
@@ -160,7 +160,7 @@ void Inventory::update(Player* player,sf::RenderWindow &window) {
                     }
             }
         } else if (movingItem) {
-            int hoverCell = getHoverCell(window), activeHoverCell = getActiveHoverCell(window);
+            int hoverCell = getHoverCell(gamemap.wndref), activeHoverCell = getActiveHoverCell(gamemap.wndref);
             if (hoverCell != -1 && hoverCell <= ownedItems.size()) {
                 ownedItems.insert(ownedItems.begin() + hoverCell, movedItem);
             } else if (activeHoverCell != -1 && dynamic_cast<Item::Active *>((*allItems)[movedItem])) {

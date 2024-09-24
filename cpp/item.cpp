@@ -70,8 +70,16 @@ II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad a
 void II::updateOwned(Player *player)
 {
 }
-void II::applyItemChanges(Player *player){
-    //applyStats(player);
+void II::applyItemChanges(Player *player,GameMap &gamemap){
+}
+AK::AK(const sf::Vector2f &position) : Item(position, 1, 1, 1, "AK 47\nthe one and only", "AK 47", "../imgs/ak47item.png")
+{
+}
+void AK::updateOwned(Player *player)
+{
+}
+void AK::applyItemChanges(Player *player,GameMap &gamemap){
+    gamemap.spawn("ak47",player->position.x,player->position.y,0);
 }
 HB::HB(const sf::Vector2f &position) : Item(position, 1, 1.25, 1.1, "Obtain a protective barrier once every 10 seconds,\nthat makes you immune to damage for a brief period of time", "Horus's Brogans", "../imgs/HorusBrogans.png")
 {
@@ -103,7 +111,7 @@ void HB::updateOwned(Player *player)
         }
     }
 }
-void HB::applyItemChanges(Player *player){
+void HB::applyItemChanges(Player *player,GameMap &gamemap){
     applyStats(player);
 }
 RP::RP(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 0.85f, "You gain 10 speed for every 300 units of distance traveled,\n up to a max of 200", "Runner's Pact", "../imgs/runnerspact.png"){
@@ -119,7 +127,7 @@ void RP::updateOwned(Player* player){
         xdis -= 300.0f;
     }
 }
-void RP::applyItemChanges(Player *player){
+void RP::applyItemChanges(Player *player,GameMap &gamemap){
     applyStats(player);
 }
 std::string RP::customText(){
@@ -143,14 +151,14 @@ void GB::updateOwned(Player* player){
     }
     isGroundedP = isGrounded(player);
 }
-void GB::applyItemChanges(Player *player){
+void GB::applyItemChanges(Player *player,GameMap &gamemap){
     applyStats(player);
 }
 CTP::CTP(const sf::Vector2f &position) : Item(position,1,1,1,"Active(2 second cooldown):\n When used, you enter a stasis\nthat renders you invulnerable for 2.5 seconds", "Chronos's Time Piece", "../imgs/chronostimepiece.png"){
     activated = false;
     fc = true;
 }
-void CTP::applyItemChanges(Player *player){
+void CTP::applyItemChanges(Player *player,GameMap &gamemap){
     applyStats(player);
 }
 void CTP::updateOwned(Player* player){

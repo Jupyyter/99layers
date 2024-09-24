@@ -44,6 +44,7 @@
 #include "player.hpp"
 #include "npc.hpp"
 #include "penguin.hpp"
+#include "ak47.hpp"
 #include "Menu.hpp"
 #include "GameOverScreen.hpp"
 #include "item.hpp"

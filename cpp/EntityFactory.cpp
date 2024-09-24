@@ -78,6 +78,17 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         gamemap.playerBounds=&player->place;
         return player;
     }
+    else if(type=="ak47"){
+        return new AK47(gamemap);
+    }
+    else if(type=="ak47item"){
+        AK *item = new AK(transform.getPosition());
+        if (additemsToinventory)
+        {
+            gamemap.allItems.push_back(item);
+        }
+        return item;
+    }
     return nullptr;
 }
 Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable transform, EditorMap &editormap, bool additemsToinventory)
@@ -148,6 +159,17 @@ Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable t
     else if (type=="adidas"){
         Player *player = new Player(transform.getPosition());
         return player;
+    }
+    else if(type=="ak47"){
+        return new AK47();
+    }
+    else if(type=="ak47item"){
+        AK *item = new AK(transform.getPosition());
+        if (additemsToinventory)
+        {
+            editormap.allItems.push_back(item);
+        }
+        return item;
     }
     return nullptr;
 }

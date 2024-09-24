@@ -122,7 +122,7 @@ void Player::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &scree
               Animation::update(deltaTime, gamemap, screenres);
               place = getBounds();
        }
-       inventory->update(this, gamemap.wndref);
+       inventory->update(this, gamemap);
 }
 void Player::onCollision(Entity *other)
 {

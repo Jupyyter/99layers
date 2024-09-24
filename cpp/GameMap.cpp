@@ -230,6 +230,7 @@ void GameMap::drawEntities(sf::RenderWindow &window)const
 }
 
 void GameMap::spawn(const std::string& entityName, float x, float y, float rotation) {
+    std::cout<<entityName<<" ";
     sf::Transformable transform;
     transform.setPosition(x, y);
     transform.setRotation(rotation);

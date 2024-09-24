@@ -1,11 +1,11 @@
 #pragma once
-
+class AK47;
 class Inventory {
 public:
     Inventory(GameMap& gamemap);
     ~Inventory() = default;
 
-    void update(Player* player,sf::RenderWindow &window);
+    void update(Player* player,GameMap &gamemap);
     void draw(sf::RenderWindow &window);
     void reset(Player* player);
     sf::RectangleShape borderHighlight;
