@@ -1,5 +1,5 @@
 #include "../hpp/libs.hpp"
-
+class GameMap;
 Boss::Boss(const sf::Vector2f &initialPosition)
     : Sprite()
 {
@@ -23,8 +23,8 @@ void Boss::loadAndScaleImage()
 
 void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
 {
-    sf::Vector2f playerCenter(gamemap.playerBounds->left + gamemap.playerBounds->width / 2.0f,
-                              gamemap.playerBounds->top + gamemap.playerBounds->height / 2.0f);
+    sf::Vector2f playerCenter(gamemap.playerRef->getBounds().left + gamemap.playerRef->getBounds().width / 2.0f,
+                              gamemap.playerRef->getBounds().top + gamemap.playerRef->getBounds().height / 2.0f);
     sf::Vector2f direction = playerCenter - position;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -55,7 +55,7 @@ void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
     sprite.setRotation(angle);
 
     // Create Attacks
-    if (isOnScreen(gamemap.getPartBounds()))
+    /*if (isOnScreen(gamemap.getPartBounds()))
     {
         if (ptimer.getElapsedTime().asSeconds() >= 3.5)
         {
@@ -63,7 +63,7 @@ void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
             ptimer.restart();
         }
 
-        if (ltimer.getElapsedTime().asSeconds() >= 0.05)
+        if (ltimer.getElapsedTime().asSeconds() >= 0.17)
         {
             gamemap.spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
@@ -74,7 +74,7 @@ void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
             gamemap.spawn("table", playerCenter.x, gamemap.getPartBounds().top, sprite.getRotation());
             ttimer.restart();
         }
-    }
+    }*/
 }
 
 void Boss::draw(sf::RenderWindow &window)const 
@@ -95,4 +95,37 @@ void Boss::updateEyePosition()
 {
     eyeSprite.setPosition(position.x - eyeSprite.getGlobalBounds().width / 2.0f,
                           position.y - eyeSprite.getGlobalBounds().height / 2.0f);
+}
+void Boss::onCollision(Entity *other)
+{
+    // claudeai showed this trick to me
+    akBullet* attack = dynamic_cast<akBullet*>(other);
+    
+    if (attack)
+    {
+        sf::Color color = sprite.getColor();
+        
+        // Subtract 10 from each component, starting with red
+        if (color.r > 0)
+        {
+            color.r = std::max(0, color.r - 10);
+        }
+        else if (color.g > 0)
+        {
+            color.g = std::max(0, color.g - 10);
+        }
+        else if (color.b > 0)
+        {
+            color.b = std::max(0, color.b - 10);
+        }
+        
+        // Set the new color
+        sprite.setColor(color);
+        
+        // Check if all components are 0
+        if (color.r == 0 && color.g == 0 && color.b == 0)
+        {
+            shouldBeDead = true;
+        }
+    }
 }

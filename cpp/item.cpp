@@ -59,10 +59,11 @@ void Item::draw(sf::RenderWindow &window)const
     Sprite::draw(window);
 }
 void Item::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres) {
-    if(gamemap.playerBounds->intersects(this->sprite.getGlobalBounds())){
-        shouldApplyItemChangesToPlayer=true;
+}
+void Item::onCollision(Entity *other)
+{
+    shouldApplyItemChangesToPlayer=true;
         invisible=true;
-    }
 }
 II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad at you\nyou better run", "IKEAMAN", "../imgs/poketIkeaman.png")
 {
@@ -70,7 +71,7 @@ II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad a
 void II::updateOwned(Player *player)
 {
 }
-void II::applyItemChanges(Player *player,GameMap &gamemap){
+void II::applyItemChanges(GameMap &gamemap){
 }
 AK::AK(const sf::Vector2f &position) : Item(position, 1, 1, 1, "AK 47\nthe one and only", "AK 47", "../imgs/ak47item.png")
 {
@@ -78,8 +79,8 @@ AK::AK(const sf::Vector2f &position) : Item(position, 1, 1, 1, "AK 47\nthe one a
 void AK::updateOwned(Player *player)
 {
 }
-void AK::applyItemChanges(Player *player,GameMap &gamemap){
-    gamemap.spawn("ak47",player->position.x,player->position.y,0);
+void AK::applyItemChanges(GameMap &gamemap){
+    gamemap.spawn("ak47",gamemap.playerRef->position.x,gamemap.playerRef->position.y,0);
 }
 HB::HB(const sf::Vector2f &position) : Item(position, 1, 1.25, 1.1, "Obtain a protective barrier once every 10 seconds,\nthat makes you immune to damage for a brief period of time", "Horus's Brogans", "../imgs/HorusBrogans.png")
 {
@@ -111,8 +112,8 @@ void HB::updateOwned(Player *player)
         }
     }
 }
-void HB::applyItemChanges(Player *player,GameMap &gamemap){
-    applyStats(player);
+void HB::applyItemChanges(GameMap &gamemap){
+    applyStats(gamemap.playerRef);
 }
 RP::RP(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 0.85f, "You gain 10 speed for every 300 units of distance traveled,\n up to a max of 200", "Runner's Pact", "../imgs/runnerspact.png"){
     this->xdis = 0;
@@ -127,8 +128,8 @@ void RP::updateOwned(Player* player){
         xdis -= 300.0f;
     }
 }
-void RP::applyItemChanges(Player *player,GameMap &gamemap){
-    applyStats(player);
+void RP::applyItemChanges(GameMap &gamemap){
+    applyStats(gamemap.playerRef);
 }
 std::string RP::customText(){
     return "Accumulated Speed: "+std::to_string(int(accsp))+"/200";
@@ -151,15 +152,15 @@ void GB::updateOwned(Player* player){
     }
     isGroundedP = isGrounded(player);
 }
-void GB::applyItemChanges(Player *player,GameMap &gamemap){
-    applyStats(player);
+void GB::applyItemChanges(GameMap &gamemap){
+    applyStats(gamemap.playerRef);
 }
 CTP::CTP(const sf::Vector2f &position) : Item(position,1,1,1,"Active(2 second cooldown):\n When used, you enter a stasis\nthat renders you invulnerable for 2.5 seconds", "Chronos's Time Piece", "../imgs/chronostimepiece.png"){
     activated = false;
     fc = true;
 }
-void CTP::applyItemChanges(Player *player,GameMap &gamemap){
-    applyStats(player);
+void CTP::applyItemChanges(GameMap &gamemap){
+    applyStats(gamemap.playerRef);
 }
 void CTP::updateOwned(Player* player){
     if(activated){

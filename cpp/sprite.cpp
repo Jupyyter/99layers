@@ -44,3 +44,6 @@ void Sprite::setPosition(float x, float y)
 sf::FloatRect Sprite::getBounds() const {
     return this->sprite.getGlobalBounds();
 }
+const sf::Sprite Sprite::getSprite()const{
+    return sprite;
+}

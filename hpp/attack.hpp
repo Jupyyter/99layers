@@ -40,13 +40,28 @@ public:
     LaserBeam(sf::Vector2f sp, float rotangle);
 
     void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
+    void onCollision(Entity *other) override;
 
 private:
     sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;
 };
+class akBullet : public Attack,public CollisionDetector {
+public:
+    akBullet(sf::Vector2f sp, float rotangle,GameMap *gameMap);
 
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
+void onCollision(Entity *other) override;
+    void draw(sf::RenderWindow& window) const override;
+    void manageCollisions(const std::vector<sf::FloatRect>& objectBounds);
+
+private:
+    GameMap *gameMap;
+    sf::Vector2f velocity;
+    sf::Clock timer;
+    bool fc;
+};
 class TableFall : public Attack {
 public:
     TableFall(sf::Vector2f sp);

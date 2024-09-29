@@ -30,15 +30,17 @@ void updateEntityPreview(sf::Sprite &entityPreview, const sf::Texture *entityTex
 
 int main()
 {
-    bool gameover;
+    sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(1024, 768), "Level Editor", sf::Style::Titlebar | sf::Style::Close);
+    window.setVerticalSyncEnabled(true);
+
     EditorMap map("../map.mib", window);
     sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     sf::RectangleShape transrect;    // This is the transparent placeholder rectangle for textures
     sf::Sprite entityPreview;        // This is the preview sprite for entities
     sf::Vector2i fc(0, 0), sc(0, 0); // Stands for first click, second click
     bool lc = false;                 // Stands for left click, used to determine if the left click is currently being pressed
-    bool placingTexture = false;      // True for texture, false for entity
+    bool placingTexture = false;     // True for texture, false for entity
 
     window.setView(view);
 
@@ -59,9 +61,18 @@ int main()
     }
     propertyEditor.setup(font);
 
+    // Frame rate control
+    sf::Clock frameClock;
+    sf::Clock updateClock;
+    const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
+    const float maxDeltaTime = 1.0f / 30.0f; // Maximum allowed delta time
+
     while (window.isOpen())
     {
-        window.setFramerateLimit(60);
+        sf::Time frameTime = frameClock.restart();
+        float deltaTime = std::min(frameTime.asSeconds(), maxDeltaTime); // Cap delta time
+
+        // Handle events
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -160,43 +171,32 @@ int main()
         }
         if (!propertyEditor.isOpen)
         {
-
             // Handle keyboard input for map navigation and saving
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
             {
                 map.saveToFile("../map.mib");
                 std::cout << "\nsaved map";
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-                {
-                } // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {} // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
             {
                 map.changePart(-1, 0);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-                {
-                } // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {} // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             {
                 map.changePart(1, 0);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-                {
-                } // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {} // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
             {
                 map.changePart(0, -1);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-                {
-                } // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {} // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
                 map.changePart(0, 1);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-                {
-                } // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {} // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
             {
@@ -240,7 +240,7 @@ int main()
         }
 
         // Drawing
-        window.clear();
+        window.clear(sf::Color::Black);
         map.draw();
         map.drawEditorEntities(window, propertyEditor.selectedEntity, propertyEditor.isOpen);
         window.draw(transrect);
@@ -251,6 +251,11 @@ int main()
         map.menu.draw();
         propertyEditor.draw(window);
         window.display();
+
+        // Frame rate control
+        sf::Time sleepTime = timePerFrame - frameClock.getElapsedTime();
+        if (sleepTime > sf::Time::Zero)
+            std::this_thread::sleep_for(std::chrono::microseconds(sleepTime.asMicroseconds()));
     }
     return 0;
 }

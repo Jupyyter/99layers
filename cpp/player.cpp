@@ -1,8 +1,10 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position, GameMap &gamemap) : Animation(), CollisionDetector(), inventory(new Inventory(gamemap))
+Player::Player(sf::Vector2f position, GameMap &gamemap) : Animation(), CollisionDetector(),inventory(new Inventory(gamemap))
 {
+       priorityLayer=4;
+       gamemap.spawn(inventory);
        loadAnimations();
        loadShaders();
        setPosition(position);
@@ -14,7 +16,6 @@ Player::Player(sf::Vector2f position, GameMap &gamemap) : Animation(), Collision
        onehitinvin = false;
        gothitinv = false;
        isStasis = false;
-       place = getBounds();
 }
 Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
 {
@@ -29,7 +30,6 @@ Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
        onehitinvin = false;
        gothitinv = false;
        isStasis = false;
-       place = getBounds();
 }
 void Player::loadAnimations()
 {
@@ -120,9 +120,7 @@ void Player::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &scree
               checkBounds(screenres, gamemap);
               updateAnimation();
               Animation::update(deltaTime, gamemap, screenres);
-              place = getBounds();
        }
-       inventory->update(this, gamemap);
 }
 void Player::onCollision(Entity *other)
 {
@@ -137,7 +135,6 @@ void Player::draw(sf::RenderWindow &window) const
        {
               window.draw(sprite);
        }
-       inventory->draw(window);
 }
 
 void Player::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)

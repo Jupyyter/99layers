@@ -15,6 +15,7 @@ public:
     void update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) override;
     void draw(sf::RenderWindow &window) const override;
     sf::FloatRect getBounds() const override;
+    const sf::Sprite getSprite()const override;
     void setPosition(const sf::Vector2f &pos);
     void setPosition(float x, float y);
     void scale(float scaleX, float scaleY); 
@@ -22,6 +23,6 @@ public:
 protected:
     bool invisible;
     bool flipped;
-    sf::Sprite sprite;
     sf::Texture texture;
+    sf::Sprite sprite;
 };

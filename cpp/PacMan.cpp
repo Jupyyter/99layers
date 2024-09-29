@@ -52,7 +52,7 @@ void PacMan::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &scree
     setPosition(position);
 
     lifeTimer += deltaTime;
-    if(sprite.getGlobalBounds().intersects(*gamemap.playerBounds)){
+    if(sprite.getGlobalBounds().intersects(gamemap.playerRef->getBounds())){
         *gameOver = true;
     }
 

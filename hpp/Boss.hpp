@@ -1,11 +1,13 @@
 #pragma once
 
-class Boss : public Sprite {
+class Boss : public Sprite
+{
 public:
-    Boss(const sf::Vector2f& initialPosition);
-    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
-    void draw(sf::RenderWindow& window)const  override;
+    Boss(const sf::Vector2f &initialPosition);
+    void update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) override;
+    void draw(sf::RenderWindow &window) const override;
     void resetTimers();
+    int hp = 77;
 
 private:
     sf::Clock atimer;
@@ -18,4 +20,5 @@ private:
 
     void loadAndScaleImage();
     void updateEyePosition();
+    void onCollision(Entity *other) override;
 };

@@ -23,7 +23,7 @@ void Npc::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenre
               position.y += velocity.y * deltaTime;
               setPosition(position);
               manageCollisions(gamemap.getObjectBounds());
-              checkCollisionWithPlayer(*gamemap.playerBounds);
+              checkCollisionWithPlayer(gamemap.playerRef->getBounds());
               Animation::update(deltaTime, gamemap, screenres);
 
               if (textBox)

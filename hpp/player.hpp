@@ -9,7 +9,6 @@ public:
     Player(sf::Vector2f position,GameMap& gamemap);
     Player(sf::Vector2f position);
     void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
-    sf::FloatRect place;
     void draw(sf::RenderWindow& window) const  override;
     sf::FloatRect getBounds() const override {
         // Implement if different from Sprite, otherwise let it use Sprite's implementation

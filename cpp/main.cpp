@@ -1,5 +1,5 @@
 #include "../hpp/libs.hpp"
-
+class GameMap;
 enum class GameState
 {
     Menu,
@@ -89,6 +89,7 @@ int main()
                 else
                 {
                     map.updateEntities(deltaTime, window.getSize());
+                    map.removeDeadEntities();
                 }
                 break;
         }

@@ -13,6 +13,7 @@ public:
     virtual void draw(sf::RenderWindow &window)const  = 0;
     virtual void onCollision(Entity* other)  {}
     virtual sf::FloatRect getBounds() const = 0;
+    const virtual sf::Sprite getSprite()const = 0;
     virtual std::vector<std::pair<std::string, std::string>> getEditableProperties() const
     {
         return {};

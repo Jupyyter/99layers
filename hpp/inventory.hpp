@@ -1,12 +1,12 @@
 #pragma once
 class AK47;
-class Inventory {
+class Inventory:public Sprite {
 public:
     Inventory(GameMap& gamemap);
     ~Inventory() = default;
 
-    void update(Player* player,GameMap &gamemap);
-    void draw(sf::RenderWindow &window);
+    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
+    void draw(sf::RenderWindow &window) const override;
     void reset(Player* player);
     sf::RectangleShape borderHighlight;
     std::vector<int> activeSlots;

@@ -27,7 +27,6 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
-#include "GifPlayer.hpp"
 #include "EntityFactory.hpp"
 #include "Entity.hpp"
 #include "EditorMap.hpp"
@@ -35,6 +34,7 @@
 #include "CutScene.hpp"
 #include "sprite.hpp"
 #include "Animation.hpp"
+#include "HappyEnd.hpp"
 #include "CollisionDetector.hpp"
 #include "TextBox.hpp"
 #include "idk.hpp"

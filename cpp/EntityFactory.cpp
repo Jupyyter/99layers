@@ -1,4 +1,5 @@
 #include "../hpp/libs.hpp"
+class HappyEnd;
 Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable transform, GameMap &gamemap, bool additemsToinventory)
 {
     if (type == "pacman")
@@ -75,7 +76,7 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
     }
     else if (type=="adidas"){
         Player *player = new Player(transform.getPosition(),gamemap);
-        gamemap.playerBounds=&player->place;
+        gamemap.playerRef=player;
         return player;
     }
     else if(type=="ak47"){
@@ -88,6 +89,15 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
             gamemap.allItems.push_back(item);
         }
         return item;
+    }
+    else if(type=="inventory"){
+        return new Inventory(gamemap);
+    }
+    else if(type=="akBullet"){
+         return new akBullet(transform.getPosition(),transform.getRotation(),&gamemap);
+    }
+    else if(type=="HappyEnd"){
+        return new HappyEnd(transform.getPosition());
     }
     return nullptr;
 }
@@ -170,6 +180,9 @@ Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable t
             editormap.allItems.push_back(item);
         }
         return item;
+    }
+    else if(type=="HappyEnd"){
+        return new HappyEnd(transform.getPosition());
     }
     return nullptr;
 }

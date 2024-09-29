@@ -10,10 +10,11 @@ public:
     };
 
     Item(const sf::Vector2f &position, float sizet, float speedb, float jumpb, std::string description, std::string name, std::string fname);
+    void onCollision(Entity *other) override;
     virtual ~Item() = default;
     bool shouldApplyItemChangesToPlayer;
     virtual void updateOwned(Player *player) = 0;
-    virtual void applyItemChanges(Player *player,GameMap &gamemap)=0;
+    virtual void applyItemChanges(GameMap &gamemap)=0;
     void update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres) override;
     void draw(sf::RenderWindow &window)const  override;
     
@@ -41,7 +42,7 @@ class II:public Item{
     void updateOwned(Player *player) override;
     // update is inherited from Item
 
-    void applyItemChanges(Player *player,GameMap &gamemap) override;
+    void applyItemChanges(GameMap &gamemap) override;
 
 };
 class AK:public Item{
@@ -52,7 +53,7 @@ class AK:public Item{
     void updateOwned(Player *player) override;
     // update is inherited from Item
 
-    void applyItemChanges(Player *player,GameMap &gamemap) override;
+    void applyItemChanges(GameMap &gamemap) override;
 
 };
 //stands for Horus's Brogans
@@ -64,7 +65,7 @@ public:
     void updateOwned(Player *player) override;
     // update is inherited from Item
 
-    void applyItemChanges(Player *player,GameMap &gamemap) override;
+    void applyItemChanges(GameMap &gamemap) override;
 
 private:
     sf::Clock ctimer;
@@ -79,7 +80,7 @@ class RP : public Item{
     ~RP() = default;
 
     void updateOwned(Player *player) override;//the update if you own the item
-    void applyItemChanges(Player *player,GameMap &gamemap) override;
+    void applyItemChanges(GameMap &gamemap) override;
 
     //for custom text writing
     std::string customText() override;
@@ -95,7 +96,7 @@ class GB: public Item{
     ~GB() = default;
 
     void updateOwned(Player *player) override;//the update if you own the item
-    void applyItemChanges(Player *player,GameMap &gamemap) override;
+    void applyItemChanges(GameMap &gamemap) override;
 
     private:
     int jc;
@@ -108,7 +109,7 @@ class CTP : public Item, public Item::Active{
     public:
     CTP(const sf::Vector2f &position);
     ~CTP() = default;
-    void applyItemChanges(Player *player,GameMap &gamemap) override;
+    void applyItemChanges(GameMap &gamemap) override;
     void updateOwned(Player *player) override;//the update if you own the item
     void activate() override;//the functions that gets called when the button related to your active ability gets pressed
 
