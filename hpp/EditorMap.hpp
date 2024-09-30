@@ -7,19 +7,6 @@ class Item;
 
 class EditorMap
 {
-private:
-    class Object
-    {
-    public:
-        Object(int x, int y, int w, int h, std::string tname);
-        ~Object() = default;
-
-        void draw(sf::RenderWindow &window);
-
-        sf::RectangleShape rect;
-        sf::Texture tex;
-        std::string texid;
-    };
 
 public:
     class Menu

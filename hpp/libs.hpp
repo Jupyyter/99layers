@@ -12,6 +12,7 @@
 #include <array>
 #include <numeric>
 #include <string_view>
+#include <unordered_set>
 #include <functional>
 #include <iostream>//only used for debugging can be removed
 #include <stdexcept>
@@ -29,6 +30,7 @@
 #include <condition_variable>
 #include "EntityFactory.hpp"
 #include "Entity.hpp"
+#include "Object.hpp"
 #include "EditorMap.hpp"
 #include "GameMap.hpp"
 #include "CutScene.hpp"

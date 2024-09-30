@@ -8,6 +8,7 @@ Inventory::Inventory(GameMap &gamemap)
     loadPanel(gamemap);
     allItems = &gamemap.allItems;
     loadItems();
+    loadTexts();
     borderHighlight.setSize(sf::Vector2f(cellTex.getSize()));
     borderHighlight.setFillColor(sf::Color::Transparent);
     borderHighlight.setOutlineColor(sf::Color::Red);
@@ -31,15 +32,15 @@ void Inventory::loadPanel(GameMap &gamemap)
                                   bpSprite.getPosition().y + 40 + (i / 5) * cellTex.getSize().y);
     }
 
+    // Adjust the position of the selected item info
+    float infoSectionX = cellSprite[4].getPosition().x + cellSprite[4].getGlobalBounds().width + 40; // 40 pixels padding
     selectedSquare.setTexture(cellTex);
-    selectedSquare.setPosition(bpSprite.getPosition().x + 0.75 * gamemap.getPartBounds().width - cellTex.getSize().x / 2.0f,
-                               bpSprite.getPosition().y + 40);
+    selectedSquare.setPosition(infoSectionX, bpSprite.getPosition().y + 80);
     selectedItemS.setPosition(selectedSquare.getPosition());
 
     text.setFont(font);
     text.setCharacterSize(12);
-    text.setPosition(bpSprite.getPosition().x + bpSprite.getGlobalBounds().width / 2.0f,
-                     selectedSquare.getPosition().y + selectedSquare.getGlobalBounds().height + 40);
+    text.setPosition(infoSectionX, selectedSquare.getPosition().y + selectedSquare.getGlobalBounds().height + 20);
 
     for (int i = 0; i < 3; i++)
     {
@@ -49,6 +50,43 @@ void Inventory::loadPanel(GameMap &gamemap)
     }
 }
 
+void Inventory::loadTexts()
+{
+    float infoSectionX = cellSprite[4].getPosition().x + cellSprite[4].getGlobalBounds().width + 40;
+
+    infoText.setFont(font);
+    infoText.setCharacterSize(20);
+    infoText.setString("Info");
+    infoText.setPosition(infoSectionX, selectedSquare.getPosition().y - 30);
+
+    itemsText.setFont(font);
+    itemsText.setCharacterSize(20);
+    itemsText.setString("Items");
+    itemsText.setPosition(cellSprite[0].getPosition().x, cellSprite[0].getPosition().y - 30);
+
+    activeItemsText.setFont(font);
+    activeItemsText.setCharacterSize(20);
+    activeItemsText.setString("Active Items");
+    activeItemsText.setPosition(activeCellS[0].getPosition().x, activeCellS[0].getPosition().y - 30);
+
+    zText.setFont(font);
+    zText.setCharacterSize(16);
+    zText.setString("Z/1");
+    zText.setPosition(activeCellS[0].getPosition().x + activeCellS[0].getGlobalBounds().width / 2 - zText.getGlobalBounds().width / 2,
+                      activeCellS[0].getPosition().y + activeCellS[0].getGlobalBounds().height + 5);
+
+    xText.setFont(font);
+    xText.setCharacterSize(16);
+    xText.setString("X/2");
+    xText.setPosition(activeCellS[1].getPosition().x + activeCellS[1].getGlobalBounds().width / 2 - xText.getGlobalBounds().width / 2,
+                      activeCellS[1].getPosition().y + activeCellS[1].getGlobalBounds().height + 5);
+
+    cText.setFont(font);
+    cText.setCharacterSize(16);
+    cText.setString("C/3");
+    cText.setPosition(activeCellS[2].getPosition().x + activeCellS[2].getGlobalBounds().width / 2 - cText.getGlobalBounds().width / 2,
+                      activeCellS[2].getPosition().y + activeCellS[2].getGlobalBounds().height + 5);
+}
 void Inventory::loadItems()
 {
     unownedItems.resize((*allItems).size());
@@ -275,6 +313,13 @@ void Inventory::draw(sf::RenderWindow &window) const
         for (int i = 0; i < 3; i++)
             window.draw(activeCellS[i]);
 
+        window.draw(infoText);
+        window.draw(itemsText);
+        window.draw(activeItemsText);
+        window.draw(zText);
+        window.draw(xText);
+        window.draw(cText);
+
         for (size_t i = 0; i < ownedItems.size(); i++)
         {
             (*allItems)[ownedItems[i]]->draw(window);
@@ -322,6 +367,7 @@ void Inventory::reset(Player *player)
     std::fill(active, active + 3, nullptr);
     std::fill(activeSlots.begin(), activeSlots.end(), -1);
 }
+
 void Inventory::moveItemToInventory(int slotIndex)
 {
     if (slotIndex >= 0 && slotIndex < 3 && activeSlots[slotIndex] != -1)

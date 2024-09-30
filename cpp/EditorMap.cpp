@@ -3,33 +3,6 @@ class GameMap;
 
 std::unordered_map<std::string, sf::Texture> EditorMap::entityTextures;
 
-EditorMap::Object::Object(int x, int y, int w, int h, std::string tname) : rect(sf::Vector2f(w, h))
-{
-    if (!tex.loadFromFile(tname))
-    {
-        std::cerr << "Failed to load texture: " << tname << std::endl;
-    }
-    tex.setRepeated(true);
-    rect.setTexture(&tex);
-    rect.setTextureRect(sf::IntRect(0, 0, w, h));
-    rect.setPosition(x, y);
-
-    size_t lastSlash = tname.find_last_of("/\\");
-    size_t lastDot = tname.find_last_of(".");
-    if (lastSlash == std::string::npos)
-        lastSlash = 0;
-    else
-        lastSlash++;
-    if (lastDot == std::string::npos || lastDot < lastSlash)
-        lastDot = tname.length();
-    texid = tname.substr(lastSlash, lastDot - lastSlash);
-}
-
-void EditorMap::Object::draw(sf::RenderWindow &window)
-{
-    window.draw(rect);
-}
-
 EditorMap::EditorMap(sf::RenderWindow &wndref)
     : mx(0), my(0), np(1), wndref(wndref),
       menu({"../imgs/adidas.png", "../imgs/pacman.png", "../imgs/capybaraa.png",

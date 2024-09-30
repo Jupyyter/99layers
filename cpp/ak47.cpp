@@ -18,36 +18,36 @@ AK47::AK47() : Sprite()
     sprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 
-void AK47::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
-{
+void AK47::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
     sf::Vector2i mousePosition = sf::Mouse::getPosition(gamemap.wndref);
     updatePosition();
-    if (playerRef)
-    {
+
+    if (playerRef) {
+        // Get the current view
+        sf::View currentView = gamemap.wndref.getView();
+        
+        // Convert mouse position to world coordinates
+        sf::Vector2f worldMousePos = gamemap.wndref.mapPixelToCoords(mousePosition, currentView);
+
         sf::Vector2f gunCenter = getPosition();
-        sf::Vector2f mousePositionF(static_cast<float>(mousePosition.x), static_cast<float>(mousePosition.y));
-        sf::Vector2f direction = mousePositionF - gunCenter;
+        sf::Vector2f direction = worldMousePos - gunCenter;
         float angle = std::atan2(direction.y, direction.x) * 180 / PI;
         sprite.setRotation(angle);
+
         // Flip the sprite if the mouse is on the left side of the player
-        if (mousePosition.x < gunCenter.x)
-        {
+        if (worldMousePos.x < gunCenter.x) {
             sprite.setScale(1, -1); // Flip vertically
-        }
-        else
-        {
+        } else {
             sprite.setScale(1, 1); // Normal orientation
         }
 
         // Check if left mouse button is pressed
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        {
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             // Check if enough time has passed since the last shot
-            if (shootCooldown.getElapsedTime().asSeconds() >= shootCooldownTime)
-            {
+            if (shootCooldown.getElapsedTime().asSeconds() >= shootCooldownTime) {
                 // Spawn a bullet
                 gamemap.spawn("akBullet", gunCenter.x, gunCenter.y, sprite.getRotation());
-                
+
                 // Reset the cooldown timer
                 shootCooldown.restart();
             }
@@ -55,10 +55,9 @@ void AK47::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
     }
 }
 
-void AK47::updatePosition()
-{
-    if (playerRef)
-    {
+
+void AK47::updatePosition() {
+    if (playerRef) {
         float centerX = playerRef->getBounds().left + playerRef->getBounds().width / 2;
         float centerY = playerRef->getBounds().top + playerRef->getBounds().height / 2;
         setPosition(centerX, centerY);

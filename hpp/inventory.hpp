@@ -1,6 +1,9 @@
 #pragma once
+#include "libs.hpp"
+
 class AK47;
-class Inventory:public Sprite {
+
+class Inventory : public Sprite {
 public:
     Inventory(GameMap& gamemap);
     ~Inventory() = default;
@@ -17,6 +20,7 @@ private:
     void updateItemPositions();
     void loadPanel(GameMap& gamemap);
     void loadItems();
+    void loadTexts();
     void selectItem(int i, bool isActiveSlot = false);
     int getHoverCell(sf::RenderWindow &window);
     int getActiveHoverCell(sf::RenderWindow &window);
@@ -30,4 +34,8 @@ private:
     std::vector<int> ownedItems, unownedItems;
     int selectedItem, pgcount, movedItem;
     bool shouldDraw, fc, movingItem;
+
+    // New text elements
+    sf::Text infoText, itemsText, activeItemsText;
+    sf::Text zText, xText, cText;
 };

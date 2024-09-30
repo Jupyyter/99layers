@@ -7,19 +7,6 @@ class Item;
 
 class GameMap
 {
-private:
-    class Object
-    {
-    public:
-        Object(int x, int y, int w, int h, std::string tname);
-        ~Object() = default;
-
-        void draw(sf::RenderWindow &window)const;
-
-        sf::RectangleShape rect;
-        sf::Texture tex;
-        std::string texid;
-    };
 
 public:
 bool checkPixelPerfectCollision( sf::Sprite s1,  sf::Sprite s2,int step = 4);

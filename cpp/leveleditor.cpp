@@ -36,16 +36,19 @@ int main()
 
     EditorMap map("../map.mib", window);
     sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
-    sf::RectangleShape transrect;    // This is the transparent placeholder rectangle for textures
-    sf::Sprite entityPreview;        // This is the preview sprite for entities
+    sf::Sprite transrect;        // This is the transparent placeholder sprite for textures
+    sf::Sprite entityPreview;    // This is the preview sprite for entities
     sf::Vector2i fc(0, 0), sc(0, 0); // Stands for first click, second click
-    bool lc = false;                 // Stands for left click, used to determine if the left click is currently being pressed
-    bool placingTexture = false;     // True for texture, false for entity
+    bool lc = false;             // Stands for left click, used to determine if the left click is currently being pressed
+    bool placingTexture = false; // True for texture, false for entity
 
     window.setView(view);
 
-    transrect.setFillColor(sf::Color(255, 255, 255, 128));
-    transrect.setTexture(map.getSelectedTexture());
+    transrect.setColor(sf::Color(255, 255, 255, 128));
+    const sf::Texture* initialTexture = map.getSelectedTexture();
+    if (initialTexture) {
+        transrect.setTexture(*initialTexture, true);
+    }
 
     // Initialize entity preview
     const sf::Texture *initialEntityTexture = map.getEntityTexture(map.getSelectedName());
@@ -95,16 +98,16 @@ int main()
                         if (map.menu.isEntitySelected())
                         {
                             placingTexture = false;
-                            transrect.setTexture(nullptr);
-                            transrect.setFillColor(sf::Color::Transparent);
                             const sf::Texture *entityTexture = map.getSelectedTexture();
                             updateEntityPreview(entityPreview, entityTexture);
                         }
                         else
                         {
                             placingTexture = true;
-                            transrect.setTexture(map.getSelectedTexture());
-                            transrect.setFillColor(sf::Color(255, 255, 255, 128));
+                            const sf::Texture* selectedTexture = map.getSelectedTexture();
+                            if (selectedTexture) {
+                                transrect.setTexture(*selectedTexture, true);
+                            }
                         }
                     }
                     else if (!map.menu.isOpen && !propertyEditor.isOpen)
@@ -149,7 +152,7 @@ int main()
                         map.addEntity(entityPos.x - entitySize.x / 2, entityPos.y - entitySize.y / 2, map.getSelectedName());
                     }
                     sc = sf::Vector2i(0, 0);
-                    transrect.setSize(sf::Vector2f(0, 0));
+                    transrect.setScale(1, 1);
                 }
             }
             else if (event.type == sf::Event::MouseMoved && !propertyEditor.isOpen)
@@ -165,10 +168,19 @@ int main()
         if (lc && placingTexture)
         {
             sc = sf::Mouse::getPosition(window);
-            transrect.setSize(sf::Vector2f(std::abs(sc.x - fc.x), std::abs(sc.y - fc.y)));
-            transrect.setPosition(sf::Vector2f(std::min(sc.x, fc.x) + map.getPartBounds().left,
-                                               std::min(sc.y, fc.y) + map.getPartBounds().top));
+            sf::Vector2f size(std::abs(sc.x - fc.x), std::abs(sc.y - fc.y));
+            sf::Vector2f position(std::min(sc.x, fc.x) + map.getPartBounds().left,
+                                  std::min(sc.y, fc.y) + map.getPartBounds().top);
+            
+            transrect.setPosition(position);
+            if (transrect.getTexture()) {
+                transrect.setScale(
+                    size.x / transrect.getTexture()->getSize().x,
+                    size.y / transrect.getTexture()->getSize().y
+                );
+            }
         }
+
         if (!propertyEditor.isOpen)
         {
             // Handle keyboard input for map navigation and saving
@@ -243,7 +255,10 @@ int main()
         window.clear(sf::Color::Black);
         map.draw();
         map.drawEditorEntities(window, propertyEditor.selectedEntity, propertyEditor.isOpen);
-        window.draw(transrect);
+        if (placingTexture && lc)
+        {
+            window.draw(transrect);
+        }
         if (!placingTexture && !map.menu.isOpen && !propertyEditor.isOpen)
         {
             window.draw(entityPreview);
