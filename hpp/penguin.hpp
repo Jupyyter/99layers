@@ -16,7 +16,7 @@ public:
 
 private:
     void loadSprite();
-    void manageCollisions(const std::vector<sf::FloatRect>& objectBounds);
+     void onCollision(Entity* other) override;
 
     float gravity;
     bool isColliding;

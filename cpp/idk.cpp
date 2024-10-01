@@ -12,7 +12,48 @@ void Idk::loadSprite()
     addAnimation("default", 0, 1);
     setAnimation("default");
 }
-void Idk::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres)
+void Idk::onCollision(Entity *other)
+{
+    if (typeid(*other) == typeid(Object))
+    {
+        setPosition(position);
+        switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
+        {
+        case CollisionInfo::Left:
+            if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0)) // in case of stairs
+            {
+                position.x = other->getBounds().left + other->getBounds().width;
+                velocity.x = 0;
+            }
+            break;
+        case CollisionInfo::Right:
+            if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
+            {
+                position.x = other->getBounds().left - getBounds().width;
+                velocity.x = 0;
+            }
+            break;
+        case CollisionInfo::Bottom:
+            if (velocity.y >= 0)
+            {
+                position.y = other->getBounds().top - getBounds().height;
+                velocity.y = 0;
+            }
+            break;
+        case CollisionInfo::Top:
+        {
+            position.y = other->getBounds().top + other->getBounds().height;
+            velocity.y = 0;
+
+            break;
+        }
+        default:
+            break;
+        }
+        setPosition(position);
+    }
+}
+void Idk::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
 {
     if (isOnScreen(gamemap.getPartBounds()))
     {
@@ -36,14 +77,13 @@ void Idk::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenre
         // Update position
         position += velocity * deltaTime;
         setPosition(position);
-        manageCollisions(gamemap.getObjectBounds());
 
         // Update animation
-        Animation::update(deltaTime,gamemap,screenres);
+        Animation::update(deltaTime, gamemap, screenres);
     }
 }
 
-void Idk::draw(sf::RenderWindow &window)const 
+void Idk::draw(sf::RenderWindow &window) const
 {
     Animation::draw(window);
 }
@@ -51,35 +91,4 @@ bool Idk::isOutOfBounds(const sf::Vector2u &windowSize) const
 {
     sf::FloatRect bounds = sprite.getGlobalBounds();
     return bounds.top > windowSize.y || bounds.left + bounds.width < 0 || bounds.left > windowSize.x;
-}
-
-void Idk::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
-{
-    sf::FloatRect platformBounds = sprite.getGlobalBounds();
-    for (const auto &obstacle : objectBounds)
-    {
-        CollisionInfo collision = checkCollision(platformBounds, {obstacle});
-        if (collision.collided)
-        {
-            switch (collision.side)
-            {
-            case CollisionSide::Left:
-            case CollisionSide::Right:
-                velocity.x = -velocity.x; // Reverse horizontal direction
-                movingRight = !movingRight;
-                break;
-            case CollisionSide::Bottom:
-                position.y = obstacle.top - platformBounds.height;
-                velocity.y = 0;
-                break;
-            case CollisionSide::Top:
-                position.y = obstacle.top + obstacle.height;
-                velocity.y = 0;
-                break;
-            default:
-                break;
-            }
-            setPosition(position);
-        }
-    }
 }

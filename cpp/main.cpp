@@ -111,7 +111,7 @@ int main()
                     window.setView(window.getDefaultView());
                     background.draw(window);
                     window.setView(originalView);
-                    map.draw();
+                   // map.draw();
                     map.drawEntities(window);
                 }
                 break;

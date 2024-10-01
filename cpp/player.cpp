@@ -1,9 +1,9 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position, GameMap &gamemap) : Animation(), CollisionDetector(),inventory(new Inventory(gamemap))
+Player::Player(sf::Vector2f position, GameMap &gamemap) : Animation(), CollisionDetector(), inventory(new Inventory(gamemap))
 {
-       priorityLayer=4;
+       priorityLayer = 4;
        gamemap.spawn(inventory);
        loadAnimations();
        loadShaders();
@@ -108,6 +108,7 @@ void Player::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &scree
               {
                      (*gamemap.gameOver) = true;
               }
+              updateAnimation();
               handleInput();
               if (isOnScreen(gamemap.getPartBounds()))
               {
@@ -115,15 +116,53 @@ void Player::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &scree
                      position += velocity * deltaTime;
               }
 
-              setPosition(position);
-              manageCollisions(gamemap.getObjectBounds());
               checkBounds(screenres, gamemap);
-              updateAnimation();
               Animation::update(deltaTime, gamemap, screenres);
+              isGrounded = false;
+              setPosition(position);
        }
 }
 void Player::onCollision(Entity *other)
 {
+       if (typeid(*other) == typeid(Object))
+       {
+              setPosition(position);
+              switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
+              {
+              case CollisionInfo::Left:
+                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0)) // in case of stairs
+                     {
+                            position.x = other->getBounds().left + other->getBounds().width;
+                            velocity.x = 0;
+                     }
+                     break;
+              case CollisionInfo::Right:
+                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
+                     {
+                            position.x = other->getBounds().left - getBounds().width;
+                            velocity.x = 0;
+                     }
+                     break;
+              case CollisionInfo::Bottom:
+                     if (velocity.y >= 0)
+                     {
+                            position.y = other->getBounds().top - getBounds().height;
+                            velocity.y = 0;
+                            isGrounded = true;
+                     }
+                     break;
+              case CollisionInfo::Top:
+              {
+                     position.y = other->getBounds().top + other->getBounds().height;
+                     velocity.y = 0;
+
+                     break;
+              }
+              default:
+                     break;
+              }
+              setPosition(position);
+       }
 }
 void Player::draw(sf::RenderWindow &window) const
 {
@@ -134,52 +173,6 @@ void Player::draw(sf::RenderWindow &window) const
        else
        {
               window.draw(sprite);
-       }
-}
-
-void Player::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
-{
-       sf::FloatRect playerBounds = sprite.getGlobalBounds();
-       isGrounded = false;
-
-       for (const auto &obstacle : objectBounds)
-       {
-              CollisionInfo collision = checkCollision(playerBounds, {obstacle});
-              if (collision.collided)
-              {
-                     switch (collision.side)
-                     {
-                     case CollisionSide::Left:
-                            if (!(obstacle.top > playerBounds.top && obstacle.top - playerBounds.top > 27 && velocity.y >= 0)) // in case of stairs
-                            {
-                                   position.x = obstacle.left - playerBounds.width;
-                                   velocity.x = 0;
-                            }
-                            break;
-                     case CollisionSide::Right:
-                            if (!(obstacle.top > playerBounds.top && obstacle.top - playerBounds.top > 27 && velocity.y >= 0))
-                            {
-                                   position.x = obstacle.left + obstacle.width;
-                                   velocity.x = 0;
-                            }
-                            break;
-                     case CollisionSide::Bottom:
-                            if (velocity.y > 0)
-                            {
-                                   position.y = obstacle.top - playerBounds.height;
-                                   velocity.y = 0;
-                                   isGrounded = true;
-                            }
-                            break;
-                     case CollisionSide::Top:
-                            position.y = obstacle.top + obstacle.height;
-                            velocity.y = 0;
-                            break;
-                     default:
-                            break;
-                     }
-                     setPosition(position);
-              }
        }
 }
 

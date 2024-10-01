@@ -21,7 +21,6 @@ Inventory *inventory;
 bool *gameover;
     void handleInput();
     void updateAnimation();
-    void manageCollisions(const std::vector<sf::FloatRect>& objectBounds);
     void checkBounds(const sf::Vector2u& screenres, GameMap& gamemap);
 
     float gravity;

@@ -19,10 +19,10 @@ public:
     void setPosition(const sf::Vector2f &pos);
     void setPosition(float x, float y);
     void scale(float scaleX, float scaleY); 
+    sf::Texture texture;
+    sf::Sprite sprite;
 
 protected:
     bool invisible;
     bool flipped;
-    sf::Texture texture;
-    sf::Sprite sprite;
 };

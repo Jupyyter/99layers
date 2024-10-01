@@ -30,11 +30,11 @@
 #include <condition_variable>
 #include "EntityFactory.hpp"
 #include "Entity.hpp"
+#include "sprite.hpp"
 #include "Object.hpp"
 #include "EditorMap.hpp"
 #include "GameMap.hpp"
 #include "CutScene.hpp"
-#include "sprite.hpp"
 #include "Animation.hpp"
 #include "HappyEnd.hpp"
 #include "CollisionDetector.hpp"

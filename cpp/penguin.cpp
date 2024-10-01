@@ -13,7 +13,47 @@ void Penguin::loadSprite() {
     addAnimation("spin", 0, 7);
     setAnimation("spin");
 }
+void Penguin::onCollision(Entity *other)
+{
+       if (typeid(*other) == typeid(Object))
+       {
+              setPosition(position);
+              switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
+              {
+              case CollisionInfo::Left:
+                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0)) // in case of stairs
+                     {
+                            position.x = other->getBounds().left + other->getBounds().width;
+                            velocity.x = 0;
+                     }
+                     break;
+              case CollisionInfo::Right:
+                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
+                     {
+                            position.x = other->getBounds().left - getBounds().width;
+                            velocity.x = 0;
+                     }
+                     break;
+              case CollisionInfo::Bottom:
+                     if (velocity.y >= 0)
+                     {
+                            position.y = other->getBounds().top - getBounds().height;
+                            velocity.y = 0;
+                     }
+                     break;
+              case CollisionInfo::Top:
+              {
+                     position.y = other->getBounds().top + other->getBounds().height;
+                     velocity.y = 0;
 
+                     break;
+              }
+              default:
+                     break;
+              }
+              setPosition(position);
+       }
+}
 void Penguin::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) {
     if (isOnScreen(gamemap.getPartBounds())) {
         velocity.y += gravity * deltaTime;
@@ -23,37 +63,10 @@ void Penguin::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& scre
         position.x += velocity.x;
 
         setPosition(position);
-        manageCollisions(gamemap.getObjectBounds());
         Animation::update(deltaTime,gamemap,screenres);
     }
 }
 
 void Penguin::draw(sf::RenderWindow& window)const  {
     Animation::draw(window);
-}
-
-void Penguin::manageCollisions(const std::vector<sf::FloatRect>& objectBounds) {
-    sf::FloatRect penguinBounds = sprite.getGlobalBounds();
-    for (const auto& obstacle : objectBounds) {
-        CollisionInfo collision = checkCollision(penguinBounds, {obstacle});
-        if (collision.collided) {
-            switch (collision.side) {
-                case CollisionSide::Bottom:
-                    position.y = obstacle.top - penguinBounds.height;
-                    velocity.y = 0;
-                    break;
-                case CollisionSide::Left:
-                case CollisionSide::Right:
-                    speed = -speed;
-                    break;
-                case CollisionSide::Top:
-                    position.y = obstacle.top + obstacle.height;
-                    velocity.y = 0;
-                    break;
-                default:
-                    break;
-            }
-            setPosition(position);
-        }
-    }
 }

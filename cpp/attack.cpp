@@ -106,7 +106,7 @@ akBullet::akBullet(sf::Vector2f sp, float rotangle,GameMap *gameMap) : Attack(sp
     }
 void akBullet::onCollision(Entity *other)
 {
-    if (typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(Boss))
+    if (typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(Boss)||typeid(*other) == typeid(Object))
     {
         shouldBeDead = true;
         gameMap->spawn("HappyEnd", position.x, position.y, 0);
@@ -118,21 +118,10 @@ void akBullet::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &scr
 
         // Move the bullet in its facing direction
         position += velocity * deltaTime;
-        manageCollisions(gamemap.getObjectBounds());
         setPosition(position);
     }
 void akBullet::draw(sf::RenderWindow &window)const  {
     Sprite::draw(window);
-}
-void akBullet::manageCollisions(const std::vector<sf::FloatRect>& objectBounds) {
-    sf::FloatRect penguinBounds = sprite.getGlobalBounds();
-    for (const auto& obstacle : objectBounds) {
-        CollisionInfo collision = checkCollision(penguinBounds, {obstacle});
-        if (collision.collided) {
-            gameMap->spawn("HappyEnd", position.x, position.y, 0);
-            shouldBeDead=true;
-        }
-    }
 }
 TableFall::TableFall(sf::Vector2f sp) : Attack(sp) {
     loadTexture("../imgs/table.png");

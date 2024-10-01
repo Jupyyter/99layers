@@ -38,14 +38,9 @@ public:
     EditorMap &operator=(const EditorMap &) = delete;
     ~EditorMap();
 
-    void draw();
-    void addObject(int x, int y, int w, int h);
-    void removeObject(int index);
-    void saveToFile(std::string fname);
+    void saveToFile(const std::string &fname);
     void changePart(int x, int y);
     sf::FloatRect getPartBounds();
-    std::vector<sf::FloatRect> getObjectBounds();
-    std::vector<sf::FloatRect> getEntityBounds();
 
     bool handleMenuClick(const sf::Vector2i &mousePosition, sf::RenderWindow &window);
     const std::string &getSelectedName() const;
@@ -54,7 +49,7 @@ public:
 
     void removeEntity(int x, int y);
     void removeEntity(int index);
-    void addEntity(int x, int y, const std::string &entityType);
+    void addEntity(int x, int y, int w, int h, const std::string &type);
     void drawEditorEntities(sf::RenderWindow &window, const Entity::PlacedEntity *selectedEntity, bool &isOpen);
     bool *gameOver;               // this should not be here
     std::vector<Item *> allItems; // this shoud also not be here but its kinda justified
@@ -88,9 +83,8 @@ public:
 
     PropertyEditor propertyEditor;
 
-private:
     static std::unordered_map<std::string, sf::Texture> entityTextures;
-    std::unordered_map<int, std::unordered_map<int, std::vector<Object *>>> obj;
+private:
     int mx, my, np;
     sf::View view;
     sf::RenderWindow &wndref;

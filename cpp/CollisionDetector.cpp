@@ -1,38 +1,40 @@
 #include "../hpp/libs.hpp"
 
-CollisionDetector::CollisionInfo CollisionDetector::checkCollision(const sf::FloatRect& bounds, const std::vector<sf::FloatRect>& obstacles) {
-        CollisionInfo result{false, CollisionSide::None, sf::FloatRect()};
-        float minOverlap = std::numeric_limits<float>::max();
-
-        for (const auto& obstacle : obstacles) {
-            sf::FloatRect intersection;
-            if (bounds.intersects(obstacle, intersection)) {
-                result.collided = true;
-                
-                float leftOverlap = intersection.left + intersection.width - obstacle.left;
-                float rightOverlap = obstacle.left + obstacle.width - intersection.left;
-                float topOverlap = intersection.top + intersection.height - obstacle.top;
-                float bottomOverlap = obstacle.top + obstacle.height - intersection.top;
-
-                float currentMinOverlap = std::min({leftOverlap, rightOverlap, topOverlap, bottomOverlap});
-
-                if (currentMinOverlap < minOverlap) {
-                    minOverlap = currentMinOverlap;
-                    result.intersection = intersection;
-
-                    if (minOverlap == leftOverlap) result.side = CollisionSide::Left;
-                    else if (minOverlap == rightOverlap) result.side = CollisionSide::Right;
-                    else if (minOverlap == topOverlap) result.side = CollisionSide::Bottom;
-                    else if (minOverlap == bottomOverlap) result.side = CollisionSide::Top;
-                }
-            }
-        }
-
-        return result;
+CollisionDetector::CollisionInfo CollisionDetector::CollisionSide(const sf::FloatRect &bounds1, const sf::FloatRect &bounds2)
+{
+    // First, check if the rectangles actually intersect
+    sf::FloatRect intersection;
+    if (!bounds1.intersects(bounds2, intersection))
+    {
+        return CollisionInfo::None;
     }
 
+    // Calculate the overlaps from bounds1's perspective
+    float leftOverlap = (bounds1.left + bounds1.width) - bounds2.left;
+    float rightOverlap = (bounds2.left + bounds2.width) - bounds1.left;
+    float topOverlap = (bounds1.top + bounds1.height) - bounds2.top;
+    float bottomOverlap = (bounds2.top + bounds2.height) - bounds1.top;
 
-static bool pointInRect(const sf::Vector2f& point, const sf::FloatRect& rect) {
-        return point.x >= rect.left && point.x <= rect.left + rect.width &&
-               point.y >= rect.top && point.y <= rect.top + rect.height;
+    // Find the smallest overlap
+    float minOverlap = std::min({leftOverlap, rightOverlap, topOverlap, bottomOverlap});
+
+    // Determine which side had the smallest overlap
+    if (minOverlap == leftOverlap)
+    {
+        return CollisionInfo::Right; // bounds1's right side hit bounds2's left side
     }
+    else if (minOverlap == rightOverlap)
+    {
+        return CollisionInfo::Left; // bounds1's left side hit bounds2's right side
+    }
+    else if (minOverlap == topOverlap)
+    {
+        return CollisionInfo::Bottom; // bounds1's bottom hit bounds2's top
+    }
+    else if (minOverlap == bottomOverlap)
+    {
+        return CollisionInfo::Top; // bounds1's top hit bounds2's bottom
+    }
+
+    return CollisionInfo::None; // Should never reach here if there's an intersection
+}

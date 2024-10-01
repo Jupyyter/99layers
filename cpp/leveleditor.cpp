@@ -142,14 +142,14 @@ int main()
                     lc = false;
                     if (placingTexture)
                     {
-                        map.addObject(std::min(sc.x, fc.x), std::min(sc.y, fc.y),
-                                      std::abs(sc.x - fc.x), std::abs(sc.y - fc.y));
+                        map.addEntity(std::min(sc.x, fc.x), std::min(sc.y, fc.y),
+                                      std::abs(sc.x - fc.x), std::abs(sc.y - fc.y),"Object");
                     }
                     else
                     {
                         sf::Vector2f entityPos = entityPreview.getPosition();
                         sf::Vector2f entitySize = sf::Vector2f(entityPreview.getGlobalBounds().width, entityPreview.getGlobalBounds().height);
-                        map.addEntity(entityPos.x - entitySize.x / 2, entityPos.y - entitySize.y / 2, map.getSelectedName());
+                        map.addEntity(entityPos.x - entitySize.x / 2, entityPos.y - entitySize.y / 2,0,0, map.getSelectedName());
                     }
                     sc = sf::Vector2i(0, 0);
                     transrect.setScale(1, 1);
@@ -211,38 +211,19 @@ int main()
                 while (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {} // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        {
+            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+            sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
+
+            for (int i = map.placedEntities.size() - 1; i >= 0; --i)
             {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
-
-                bool deleted = false;
-
-                // Check if an object is clicked
-                std::vector<sf::FloatRect> objBounds = map.getObjectBounds();
-                for (int i = 0; i < objBounds.size(); i++)
+                if (map.placedEntities[i]->sprite.getGlobalBounds().contains(worldPos))
                 {
-                    if (objBounds[i].contains(worldPos))
-                    {
-                        map.removeObject(i);
-                        deleted = true;
-                        break;
-                    }
-                }
-
-                // If no object was deleted, check for entities
-                if (!deleted)
-                {
-                    // Check for entity deletion
-                    for (int i = map.placedEntities.size() - 1; i >= 0; --i)
-                    {
-                        if (map.placedEntities[i]->sprite.getGlobalBounds().contains(worldPos))
-                        {
-                            map.removeEntity(i);
-                            break;
-                        }
-                    }
+                    map.removeEntity(i);
+                    break;
                 }
             }
+        }
         }
 
         // Apply property changes when Enter is pressed
@@ -253,7 +234,6 @@ int main()
 
         // Drawing
         window.clear(sf::Color::Black);
-        map.draw();
         map.drawEditorEntities(window, propertyEditor.selectedEntity, propertyEditor.isOpen);
         if (placingTexture && lc)
         {

@@ -22,7 +22,6 @@ void Npc::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenre
               velocity.y += gravity * deltaTime;
               position.y += velocity.y * deltaTime;
               setPosition(position);
-              manageCollisions(gamemap.getObjectBounds());
               checkCollisionWithPlayer(gamemap.playerRef->getBounds());
               Animation::update(deltaTime, gamemap, screenres);
 
@@ -64,31 +63,43 @@ void Npc::checkCollisionWithPlayer(const sf::FloatRect &playerBounds)
 }
 void Npc::onCollision(Entity *other)
 {
-       // std::cout<<"tttttttttttuuuuuuuu";
-}
-void Npc::manageCollisions(const std::vector<sf::FloatRect> &objectBounds)
-{
-       sf::FloatRect npcBounds = sprite.getGlobalBounds();
-       for (const auto &obstacle : objectBounds)
+       if (typeid(*other) == typeid(Object))
        {
-              CollisionInfo collision = checkCollision(npcBounds, {obstacle});
-              if (collision.collided)
+              setPosition(position);
+              switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
               {
-                     switch (collision.side)
+              case CollisionInfo::Left:
+                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0)) // in case of stairs
                      {
-                     case CollisionSide::Bottom:
-                            position.y = obstacle.top - npcBounds.height;
-                            velocity.y = 0;
-                            break;
-                     case CollisionSide::Top:
-                            position.y = obstacle.top + obstacle.height;
-                            velocity.y = 0;
-                            break;
-                     default:
-                            break;
+                            position.x = other->getBounds().left + other->getBounds().width;
+                            velocity.x = 0;
                      }
-                     setPosition(position);
+                     break;
+              case CollisionInfo::Right:
+                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
+                     {
+                            position.x = other->getBounds().left - getBounds().width;
+                            velocity.x = 0;
+                     }
+                     break;
+              case CollisionInfo::Bottom:
+                     if (velocity.y >= 0)
+                     {
+                            position.y = other->getBounds().top - getBounds().height;
+                            velocity.y = 0;
+                     }
+                     break;
+              case CollisionInfo::Top:
+              {
+                     position.y = other->getBounds().top + other->getBounds().height;
+                     velocity.y = 0;
+
+                     break;
               }
+              default:
+                     break;
+              }
+              setPosition(position);
        }
 }
 std::vector<std::pair<std::string, std::string>> Npc::getEditableProperties() const

@@ -9,7 +9,6 @@ class GameMap
 {
 
 public:
-bool checkPixelPerfectCollision( sf::Sprite s1,  sf::Sprite s2,int step = 4);
     void spawn(const std::string& entityName, float x=0, float y=0, float rotation=0);
     void spawn(Entity* entity);
     void loadFromFile(const std::string& fname);
@@ -22,7 +21,6 @@ bool checkPixelPerfectCollision( sf::Sprite s1,  sf::Sprite s2,int step = 4);
     void draw()const;
     void changePart(int x, int y);
     sf::FloatRect getPartBounds() const;
-    std::vector<sf::FloatRect> getObjectBounds() const;
 
     void resetEntities();
     void spawnEntities();
@@ -37,6 +35,7 @@ bool checkPixelPerfectCollision( sf::Sprite s1,  sf::Sprite s2,int step = 4);
     sf::RenderWindow &wndref;
     std::vector<std::unique_ptr<Entity::PlacedEntity>> placedEntities;
 void removeDeadEntities();
+
 private:
     static bool checkCollision(const sf::Sprite& sprite1, const sf::Sprite& sprite2) {
         const auto& bounds1 = getTransformedBounds(sprite1);
@@ -87,7 +86,6 @@ private:
 
         return true;
     }
-    std::unordered_map<int, std::unordered_map<int, std::vector<std::unique_ptr<Object>>>> obj;
     int mx, my, np;
     sf::View view;
 };
