@@ -3,8 +3,8 @@
 Attack::Attack(sf::Vector2f sp) : Sprite(),offScreenTimer(), timeOffScreen(0.f) {
     setPosition(sp);
 }
-void Attack::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
-    if (!isOnScreen(gamemap.getPartBounds())) {
+void Attack::update(float deltaTime, const sf::Vector2u &screenres) {
+    if (!isOnScreen(world->getPartBounds())) {
         timeOffScreen += offScreenTimer.restart().asSeconds();
         if (timeOffScreen >= 1.0f) {
             shouldBeDead = true;
@@ -21,7 +21,7 @@ HammerThrow::HammerThrow(sf::Vector2f sp) : Attack(sp), fc(true) {
     position.x-=sprite.getGlobalBounds().height;
 }
 
-void HammerThrow::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
+void HammerThrow::update(float deltaTime, const sf::Vector2u &screenres) {
     
 }
 
@@ -32,24 +32,24 @@ Plank::Plank(sf::Vector2f sp) : Attack(sp), fc(true) {
     secondSprite.setScale(20.0f / texture.getSize().x, 100.0f / texture.getSize().y);
 }
 
-void Plank::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
+void Plank::update(float deltaTime, const sf::Vector2u &screenres) {
     float elapsedTime = timer.getElapsedTime().asSeconds();
     if (elapsedTime < 0.9f) {
         if (fc) {
-            setPosition(gamemap.playerRef->getBounds().left, gamemap.playerRef->getBounds().top);
+            setPosition(world->playerRef->getBounds().left, world->playerRef->getBounds().top);
             fc = false;
         }
-        sprite.setPosition(sf::Vector2f(position.x - 5 * gamemap.playerRef->getBounds().width, position.y - 20));
-        secondSprite.setPosition(sf::Vector2f(position.x + 5 * gamemap.playerRef->getBounds().width, position.y - 20));
+        sprite.setPosition(sf::Vector2f(position.x - 5 * world->playerRef->getBounds().width, position.y - 20));
+        secondSprite.setPosition(sf::Vector2f(position.x + 5 * world->playerRef->getBounds().width, position.y - 20));
     } else {
-        sprite.setPosition(sf::Vector2f(position.x - 5 * gamemap.playerRef->getBounds().width + 500 * (elapsedTime - 0.9f), position.y - 20));
-        secondSprite.setPosition(sf::Vector2f(position.x + 5 * gamemap.playerRef->getBounds().width - 500 * (elapsedTime - 0.9f), position.y - 20));
+        sprite.setPosition(sf::Vector2f(position.x - 5 * world->playerRef->getBounds().width + 500 * (elapsedTime - 0.9f), position.y - 20));
+        secondSprite.setPosition(sf::Vector2f(position.x + 5 * world->playerRef->getBounds().width - 500 * (elapsedTime - 0.9f), position.y - 20));
 
         if (sprite.getPosition().x >= position.x)
             shouldBeDead=true;
     }
-    if (sprite.getGlobalBounds().intersects(gamemap.playerRef->getBounds()) || secondSprite.getGlobalBounds().intersects(gamemap.playerRef->getBounds()))
-        (*gamemap.gameOver)=true;
+    if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()) || secondSprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
+        (*world->gameOver)=true;
 }
 
 void Plank::draw(sf::RenderWindow &window)const  {
@@ -66,18 +66,18 @@ LaserBeam::LaserBeam(sf::Vector2f sp, float rotangle) : Attack(sp), fc(true) {
 void LaserBeam::onCollision(Entity *other)
 {
     // claudeai showed this trick to me
-    akBullet* attack = dynamic_cast<akBullet*>(other);
-    
-    if (attack)
+    if (typeid(*other) == typeid(akBullet)||typeid(*other) == typeid(Object))
     {
-        shouldBeDead=true;
+        shouldBeDead = true;
+        world->spawn("LaserEnd", position.x, position.y, 0);
+        
     }
 }
-void LaserBeam::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
-    Attack::update(deltaTime, gamemap, screenres);  // Call base class update for off-screen check
+void LaserBeam::update(float deltaTime, const sf::Vector2u &screenres) {
+    Attack::update(deltaTime, screenres);  // Call base class update for off-screen check
     
     if (fc) {
-        velocity = sf::Vector2f(gamemap.playerRef->getBounds().left + gamemap.playerRef->getBounds().width / 2.0f, gamemap.playerRef->getBounds().top +gamemap.playerRef->getBounds().height/ 2.0f) - position;
+        velocity = sf::Vector2f(world->playerRef->getBounds().left + world->playerRef->getBounds().width / 2.0f, world->playerRef->getBounds().top +world->playerRef->getBounds().height/ 2.0f) - position;
         float length = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
         velocity /= length;
         velocity *= 20.0f;
@@ -89,10 +89,10 @@ void LaserBeam::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &sc
         setPosition(position);
     }
     
-    if (sprite.getGlobalBounds().intersects(gamemap.playerRef->getBounds()))
-        (*gamemap.gameOver) = true;
+    if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
+        (*world->gameOver) = true;
 }
-akBullet::akBullet(sf::Vector2f sp, float rotangle,GameMap *gameMap) : Attack(sp),CollisionDetector(),gameMap(gameMap) {
+akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp),CollisionDetector() {
         loadTexture("../imgs/akBullet.png");
         priorityLayer = 5;
         
@@ -109,12 +109,12 @@ void akBullet::onCollision(Entity *other)
     if (typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(Boss)||typeid(*other) == typeid(Object))
     {
         shouldBeDead = true;
-        gameMap->spawn("HappyEnd", position.x, position.y, 0);
+        world->spawn("HappyEnd", position.x, position.y, 0);
         
     }
 }
-void akBullet::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
-        Attack::update(deltaTime, gamemap, screenres);  // Call base class update for off-screen check
+void akBullet::update(float deltaTime,  const sf::Vector2u &screenres) {
+        Attack::update(deltaTime, screenres);  // Call base class update for off-screen check
 
         // Move the bullet in its facing direction
         position += velocity * deltaTime;
@@ -129,13 +129,13 @@ TableFall::TableFall(sf::Vector2f sp) : Attack(sp) {
     this->sprite.scale(60.0f / texture.getSize().x, 30.0f / texture.getSize().y);
 }
 
-void TableFall::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
-    Attack::update(deltaTime, gamemap, screenres);  // Call base class update for off-screen check
+void TableFall::update(float deltaTime, const sf::Vector2u &screenres) {
+    Attack::update(deltaTime, screenres);  // Call base class update for off-screen check
     
     velocity.y += 0.5f;
     position += velocity;
     setPosition(position);
     
-    if (sprite.getGlobalBounds().intersects(gamemap.playerRef->getBounds()))
-        (*gamemap.gameOver) = true;
+    if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
+        (*world->gameOver) = true;
 }

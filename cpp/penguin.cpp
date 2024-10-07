@@ -54,8 +54,8 @@ void Penguin::onCollision(Entity *other)
               setPosition(position);
        }
 }
-void Penguin::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) {
-    if (isOnScreen(gamemap.getPartBounds())) {
+void Penguin::update(float deltaTime, const sf::Vector2u& screenres) {
+    if (isOnScreen(world->getPartBounds())) {
         velocity.y += gravity * deltaTime;
         position.y += velocity.y * deltaTime;
         
@@ -63,7 +63,7 @@ void Penguin::update(float deltaTime, GameMap& gamemap, const sf::Vector2u& scre
         position.x += velocity.x;
 
         setPosition(position);
-        Animation::update(deltaTime,gamemap,screenres);
+        Animation::update(deltaTime,screenres);
     }
 }
 

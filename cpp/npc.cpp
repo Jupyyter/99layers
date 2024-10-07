@@ -3,6 +3,7 @@ class TextBox;
 Npc::Npc(sf::Vector2f position)
     : Animation(), CollisionDetector(), gravity(980.0f), isColliding(false)
 {
+       priorityLayer=-778;
        textBox = std::make_unique<TextBox>("", 0.007f);
        setPosition(position);
        loadSprite();
@@ -15,15 +16,15 @@ void Npc::loadSprite()
        setAnimation("idle");
 }
 
-void Npc::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
+void Npc::update(float deltaTime,  const sf::Vector2u &screenres)
 {
-       if (isOnScreen(gamemap.getPartBounds()))
+       if (isOnScreen(world->getPartBounds()))
        {
               velocity.y += gravity * deltaTime;
               position.y += velocity.y * deltaTime;
               setPosition(position);
-              checkCollisionWithPlayer(gamemap.playerRef->getBounds());
-              Animation::update(deltaTime, gamemap, screenres);
+              checkCollisionWithPlayer(world->playerRef->getBounds());
+              Animation::update(deltaTime, screenres);
 
               if (textBox)
               {
@@ -114,4 +115,12 @@ void Npc::setProperty(const std::string &text, const std::string &value)
        {
               this->text = value;
        }
+}
+std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {
+    return {
+        {"text", "",
+            [](Entity* e, const std::string& v) { static_cast<Npc*>(e)->text = v; },  // Direct assignment to string
+            [](const Entity* e) { return static_cast<const Npc*>(e)->text; }  // Return string directly
+        }
+    };
 }

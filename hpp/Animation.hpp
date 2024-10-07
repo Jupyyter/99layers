@@ -11,7 +11,7 @@ public:
     void addAnimation(const std::string& name, int row, int frameCount);
 
     // Update the current animation
-    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
+    void update(float deltaTime, const sf::Vector2u& screenres) override;
 
     // Set the current animation
     void setAnimation(const std::string& name);

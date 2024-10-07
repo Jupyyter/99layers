@@ -3,39 +3,37 @@ class Animation;
 class CollisionDetector;
 class GameMap;
 class EditorMap;
+class Entity;
+
+struct PropertyDescriptor
+{
+    std::string name;
+    std::string defaultValue;
+    std::function<void(Entity *, const std::string &)> setter;
+    std::function<std::string(const Entity *)> getter;
+};
+
 class Entity
 {
 public:
     Entity();
     virtual ~Entity() = default;
 
-    virtual void update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenrese) = 0;
-    virtual void draw(sf::RenderWindow &window)const  = 0;
-    virtual void onCollision(Entity* other)  {}
+    virtual void update(float deltaTime, const sf::Vector2u &screenrese) = 0;
+    virtual void draw(sf::RenderWindow &window) const = 0;
+    virtual void onCollision(Entity *other) {}
     virtual sf::FloatRect getBounds() const = 0;
-    const virtual sf::Sprite getSprite()const = 0;
-    virtual std::vector<std::pair<std::string, std::string>> getEditableProperties() const
-    {
-        return {};
-    }
-    virtual void setProperty(const std::string &name, const std::string &value)
-    {
-    }
+    virtual const sf::Sprite getSprite() const = 0;
 
-    sf::Vector2f getPosition() const;
-    void move(const sf::Vector2f &offset);
+    static std::vector<PropertyDescriptor> getPropertyDescriptors() { return {}; }
+
+    sf::Vector2f getPosition() const { return position; }
+    void setPosition(const sf::Vector2f &pos) { position = pos; }
+    void move(const sf::Vector2f &offset) { position += offset; }
     bool isOnScreen(sf::FloatRect screen);
-    int priorityLayer;
 
-    bool shouldBeDead;
-
-    struct PlacedEntity
-    {
-        sf::Sprite sprite;
-        std::string type;
-        std::unique_ptr<Entity> entity;
-    };
-
+    int priorityLayer = 0;
+    bool shouldBeDead = false;
     sf::Vector2f position;
 
 protected:

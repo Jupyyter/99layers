@@ -1,12 +1,11 @@
 #include "../hpp/libs.hpp"
 
-Inventory::Inventory(GameMap &gamemap)
+Inventory::Inventory()
     : pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), movingItem(false), active{nullptr, nullptr, nullptr},
       activeSlots(3, -1)
 {
     priorityLayer = 777;
-    loadPanel(gamemap);
-    allItems = &gamemap.allItems;
+    loadPanel();
     loadItems();
     loadTexts();
     borderHighlight.setSize(sf::Vector2f(cellTex.getSize()));
@@ -15,15 +14,15 @@ Inventory::Inventory(GameMap &gamemap)
     borderHighlight.setOutlineThickness(-2.0f);
 }
 
-void Inventory::loadPanel(GameMap &gamemap)
+void Inventory::loadPanel()
 {
     font.loadFromFile("../fonts/font.ttf");
     bpTex.loadFromFile("../imgs/BigPanel.jpg");
     cellTex.loadFromFile("../imgs/Cell.png");
 
     bpSprite.setTexture(bpTex);
-    bpSprite.setPosition(gamemap.getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
-                         gamemap.getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f);
+    bpSprite.setPosition(world->getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
+                         world->getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f);
 
     for (int i = 0; i < 40; i++)
     {
@@ -89,7 +88,7 @@ void Inventory::loadTexts()
 }
 void Inventory::loadItems()
 {
-    unownedItems.resize((*allItems).size());
+    unownedItems.resize((allItems).size());
     std::iota(unownedItems.begin(), unownedItems.end(), 0);
 }
 
@@ -98,7 +97,7 @@ void Inventory::selectItem(int i, bool isActiveSlot)
     selectedItem = isActiveSlot ? activeSlots[i] : ownedItems[i];
     if (selectedItem != -1)
     {
-        Item *item = (*allItems)[selectedItem];
+        Item *item = (allItems)[selectedItem];
         selectedItemS.setTexture(item->texture, true);
         selectedItemS.setScale(item->sprite.getScale());
         if (isActiveSlot)
@@ -158,7 +157,7 @@ void Inventory::moveItemToActiveSlot(int itemIndex, int slotIndex)
                 break;
             }
         ownedItems.erase(ownedItems.begin() + itemIndex);
-        active[slotIndex] = dynamic_cast<Item::Active *>((*allItems)[itemId]);
+        active[slotIndex] = dynamic_cast<Item::Active *>((allItems)[itemId]);
         activeSlots[slotIndex] = itemId;
         updateItemPositions();
     }
@@ -167,39 +166,33 @@ void Inventory::moveItemToActiveSlot(int itemIndex, int slotIndex)
 void Inventory::updateItemPositions()
 {
     for (size_t i = 0; i < ownedItems.size(); i++)
-        (*allItems)[ownedItems[i]]->setPosition(cellSprite[i].getPosition());
+        (allItems)[ownedItems[i]]->setPosition(cellSprite[i].getPosition());
     for (int i = 0; i < 3; i++)
         if (activeSlots[i] != -1)
-            (*allItems)[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
+            (allItems)[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
 }
-
-void Inventory::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
+void Inventory::addItem(Item* item) {
+    allItems.push_back(item);
+    int newItemIndex = allItems.size() - 1;
+    ownedItems.push_back(newItemIndex);
+    
+    item->setPosition(cellSprite[ownedItems.size() - 1].getPosition());
+    item->sprite.setScale(cellSprite[0].getGlobalBounds().width / item->sprite.getGlobalBounds().width,
+                          cellSprite[0].getGlobalBounds().height / item->sprite.getGlobalBounds().height);
+    
+    item->applyItemChanges();
+    item->shouldApplyItemChangesToPlayer = false;
+    
+    updateItemPositions();
+}
+void Inventory::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    for (auto it = unownedItems.begin(); it != unownedItems.end();)
-    {
-        int i = *it;
-        if ((*allItems)[i]->shouldApplyItemChangesToPlayer)
-        {
-            (*allItems)[i]->applyItemChanges(gamemap);
-            (*allItems)[i]->shouldApplyItemChangesToPlayer = false;
-            (*allItems)[i]->sprite.setPosition(cellSprite[ownedItems.size()].getPosition());
-            (*allItems)[i]->sprite.setScale(cellSprite[0].getGlobalBounds().width / (*allItems)[i]->sprite.getGlobalBounds().width,
-                                            cellSprite[0].getGlobalBounds().height / (*allItems)[i]->sprite.getGlobalBounds().height);
-            ownedItems.push_back(i);
-            it = unownedItems.erase(it);
-            break;
-        }
-        else
-        {
-            ++it;
-        }
-    }
 
     for (int i : ownedItems)
-        (*allItems)[i]->updateOwned(gamemap.playerRef);
+        (allItems)[i]->updateOwned(world->playerRef);
     for (int i = 0; i < 3; i++)
         if (activeSlots[i] != -1)
-            (*allItems)[activeSlots[i]]->updateOwned(gamemap.playerRef);
+            (allItems)[activeSlots[i]]->updateOwned(world->playerRef);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !movingItem)
     {
@@ -208,7 +201,7 @@ void Inventory::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &sc
             shouldDraw = !shouldDraw;
             if (!shouldDraw)
                 selectedItem = -1;
-            for (auto &item : (*allItems))
+            for (auto &item : (allItems))
                 item->invisible = !item->invisible;
             fc = false;
         }
@@ -221,9 +214,9 @@ void Inventory::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &sc
     if (shouldDraw)
     {
         for (int i : ownedItems)
-            (*allItems)[i]->invisible = false;
+            (allItems)[i]->invisible = false;
 
-        sf::Vector2i mousePos = sf::Mouse::getPosition(gamemap.wndref);
+        sf::Vector2i mousePos = sf::Mouse::getPosition(world->wndref);
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
@@ -246,7 +239,7 @@ void Inventory::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &sc
         {
             if (movingItem)
             {
-                (*allItems)[movedItem]->setPosition(sf::Vector2f(mousePos) - cellSprite[0].getGlobalBounds().getSize() / 2.0f);
+                (allItems)[movedItem]->setPosition(sf::Vector2f(mousePos) - cellSprite[0].getGlobalBounds().getSize() / 2.0f);
             }
             else
             {
@@ -271,14 +264,14 @@ void Inventory::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &sc
         }
         else if (movingItem)
         {
-            int hoverCell = getHoverCell(gamemap.wndref), activeHoverCell = getActiveHoverCell(gamemap.wndref);
+            int hoverCell = getHoverCell(world->wndref), activeHoverCell = getActiveHoverCell(world->wndref);
             if (hoverCell != -1 && hoverCell <= ownedItems.size())
             {
                 ownedItems.insert(ownedItems.begin() + hoverCell, movedItem);
             }
-            else if (activeHoverCell != -1 && dynamic_cast<Item::Active *>((*allItems)[movedItem]))
+            else if (activeHoverCell != -1 && dynamic_cast<Item::Active *>((allItems)[movedItem]))
             {
-                active[activeHoverCell] = dynamic_cast<Item::Active *>((*allItems)[movedItem]);
+                active[activeHoverCell] = dynamic_cast<Item::Active *>((allItems)[movedItem]);
                 activeSlots[activeHoverCell] = movedItem;
             }
             else
@@ -322,7 +315,7 @@ void Inventory::draw(sf::RenderWindow &window) const
 
         for (size_t i = 0; i < ownedItems.size(); i++)
         {
-            (*allItems)[ownedItems[i]]->draw(window);
+            (allItems)[ownedItems[i]]->draw(window);
             if (ownedItems[i] == selectedItem)
             {
                 window.draw(borderHighlight);
@@ -333,8 +326,8 @@ void Inventory::draw(sf::RenderWindow &window) const
         {
             if (activeSlots[i] != -1)
             {
-                (*allItems)[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
-                (*allItems)[activeSlots[i]]->draw(window);
+                (allItems)[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
+                (allItems)[activeSlots[i]]->draw(window);
                 if (activeSlots[i] == selectedItem)
                 {
                     window.draw(borderHighlight);
@@ -348,7 +341,7 @@ void Inventory::draw(sf::RenderWindow &window) const
             window.draw(text);
         }
         if (movingItem)
-            (*allItems)[movedItem]->draw(window);
+            (allItems)[movedItem]->draw(window);
 
         window.setView(originalView);
     }
@@ -362,7 +355,7 @@ void Inventory::reset(Player *player)
     fc = true;
     ownedItems.clear();
     unownedItems.clear();
-    unownedItems.resize((*allItems).size());
+    unownedItems.resize((allItems).size());
     std::iota(unownedItems.begin(), unownedItems.end(), 0);
     std::fill(active, active + 3, nullptr);
     std::fill(activeSlots.begin(), activeSlots.end(), -1);

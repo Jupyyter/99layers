@@ -53,9 +53,9 @@ void Idk::onCollision(Entity *other)
         setPosition(position);
     }
 }
-void Idk::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
+void Idk::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    if (isOnScreen(gamemap.getPartBounds()))
+    if (isOnScreen(world->getPartBounds()))
     {
         velocity.y += gravity * deltaTime;
         if (movingRight)
@@ -79,7 +79,7 @@ void Idk::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenre
         setPosition(position);
 
         // Update animation
-        Animation::update(deltaTime, gamemap, screenres);
+        Animation::update(deltaTime, screenres);
     }
 }
 

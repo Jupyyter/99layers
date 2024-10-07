@@ -5,20 +5,20 @@ class AK47;
 
 class Inventory : public Sprite {
 public:
-    Inventory(GameMap& gamemap);
+    Inventory();
     ~Inventory() = default;
 
-    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
+    void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow &window) const override;
     void reset(Player* player);
     sf::RectangleShape borderHighlight;
     std::vector<int> activeSlots;
     void moveItemToInventory(int slotIndex);
     void moveItemToActiveSlot(int itemIndex, int slotIndex);
-
+void addItem(Item* item);
 private:
     void updateItemPositions();
-    void loadPanel(GameMap& gamemap);
+    void loadPanel();
     void loadItems();
     void loadTexts();
     void selectItem(int i, bool isActiveSlot = false);
@@ -29,7 +29,7 @@ private:
     sf::Text text;
     sf::Texture bpTex, cellTex;
     sf::Sprite bpSprite, cellSprite[40], selectedSquare, selectedItemS, activeCellS[3];
-    std::vector<Item*> *allItems;
+    std::vector<Item*> allItems;
     Item::Active* active[3];
     std::vector<int> ownedItems, unownedItems;
     int selectedItem, pgcount, movedItem;

@@ -23,7 +23,7 @@ public:
         std::vector<sf::Texture> entityTextures;
         std::vector<std::string> entityNames;
         std::vector<sf::Texture> textures;
-        std::vector<std::string> textureNames;
+        static std::vector<std::string> textureNames;
 
         const std::string &getSelectedName() const;
 
@@ -31,9 +31,16 @@ public:
         sf::RenderWindow &window;
         std::string getFileNameWithoutExtension(const std::string &path);
     };
+struct PlacedEntity {
+    sf::Sprite sprite;
+    std::string type;
+    std::unordered_map<std::string, std::string> properties;
+    std::string texturePath;
+    sf::Texture texture;
+};
 
     EditorMap(sf::RenderWindow &wndref);
-    EditorMap(std::string fname, sf::RenderWindow &wndref);
+    EditorMap(const std::string fname, sf::RenderWindow &wndref);
     EditorMap(const EditorMap &) = delete;
     EditorMap &operator=(const EditorMap &) = delete;
     ~EditorMap();
@@ -47,25 +54,25 @@ public:
     const sf::Texture *getSelectedTexture() const;
     const sf::Texture *getEntityTexture(const std::string &entityName) const;
 
+    void updateEntityProperty(int index, const std::string& property, const std::string& value);
     void removeEntity(int x, int y);
     void removeEntity(int index);
     void addEntity(int x, int y, int w, int h, const std::string &type);
-    void drawEditorEntities(sf::RenderWindow &window, const Entity::PlacedEntity *selectedEntity, bool &isOpen);
-    bool *gameOver;               // this should not be here
-    std::vector<Item *> allItems; // this shoud also not be here but its kinda justified
+    void loadFromFile(const std::string& fname);
+    void drawEditorEntities(sf::RenderWindow &window, const PlacedEntity *selectedEntity, bool &isOpen);
     Menu menu;
-    std::vector<std::unique_ptr<Entity::PlacedEntity>> placedEntities;
+    std::vector<PlacedEntity> placedEntities;
 
     class PropertyEditor
     {
     public:
         void setup(sf::Font &loadedFont);
-        void updateForEntity(Entity::PlacedEntity *entity, sf::Font &font);
+        void updateForEntity(PlacedEntity *entity, sf::Font &font);
         void draw(sf::RenderWindow &window);
         void handleInput(sf::Event &event, sf::RenderWindow &window);
         void applyChanges();
         bool isOpen = false;
-        Entity::PlacedEntity *selectedEntity = nullptr;
+        PlacedEntity *selectedEntity = nullptr;
 
     private:
         void wrapText(sf::Text &text, float maxWidth);

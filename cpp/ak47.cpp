@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-AK47::AK47(GameMap &gamemap) : Sprite(), playerRef(gamemap.playerRef)
+AK47::AK47() : Sprite(), playerRef(world->playerRef)
 {
     loadTexture("../imgs/ak47.png");
     priorityLayer = 5;
@@ -9,25 +9,16 @@ AK47::AK47(GameMap &gamemap) : Sprite(), playerRef(gamemap.playerRef)
     sprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 
-AK47::AK47() : Sprite()
-{
-    loadTexture("../imgs/ak47.png");
-
-    // Set the origin to the center of the sprite
-    sf::FloatRect bounds = sprite.getLocalBounds();
-    sprite.setOrigin(bounds.width / 2, bounds.height / 2);
-}
-
-void AK47::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) {
-    sf::Vector2i mousePosition = sf::Mouse::getPosition(gamemap.wndref);
+void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
+    sf::Vector2i mousePosition = sf::Mouse::getPosition(world->wndref);
     updatePosition();
 
     if (playerRef) {
         // Get the current view
-        sf::View currentView = gamemap.wndref.getView();
+        sf::View currentView = world->wndref.getView();
         
         // Convert mouse position to world coordinates
-        sf::Vector2f worldMousePos = gamemap.wndref.mapPixelToCoords(mousePosition, currentView);
+        sf::Vector2f worldMousePos = world->wndref.mapPixelToCoords(mousePosition, currentView);
 
         sf::Vector2f gunCenter = getPosition();
         sf::Vector2f direction = worldMousePos - gunCenter;
@@ -46,7 +37,7 @@ void AK47::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
             // Check if enough time has passed since the last shot
             if (shootCooldown.getElapsedTime().asSeconds() >= shootCooldownTime) {
                 // Spawn a bullet
-                gamemap.spawn("akBullet", gunCenter.x, gunCenter.y, sprite.getRotation());
+                world->spawn("akBullet", gunCenter.x, gunCenter.y, sprite.getRotation());
 
                 // Reset the cooldown timer
                 shootCooldown.restart();

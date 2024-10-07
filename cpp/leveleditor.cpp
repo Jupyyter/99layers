@@ -34,19 +34,22 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1024, 768), "Level Editor", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
-    EditorMap map("../map.mib", window);
+    EditorMap map(window);
+    map.loadFromFile("../map.mib");
+
     sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
-    sf::Sprite transrect;        // This is the transparent placeholder sprite for textures
-    sf::Sprite entityPreview;    // This is the preview sprite for entities
+    sf::Sprite transrect;            // This is the transparent placeholder sprite for textures
+    sf::Sprite entityPreview;        // This is the preview sprite for entities
     sf::Vector2i fc(0, 0), sc(0, 0); // Stands for first click, second click
-    bool lc = false;             // Stands for left click, used to determine if the left click is currently being pressed
-    bool placingTexture = false; // True for texture, false for entity
+    bool lc = false;                 // Stands for left click, used to determine if the left click is currently being pressed
+    bool placingTexture = false;     // True for texture, false for entity
 
     window.setView(view);
 
     transrect.setColor(sf::Color(255, 255, 255, 128));
-    const sf::Texture* initialTexture = map.getSelectedTexture();
-    if (initialTexture) {
+    const sf::Texture *initialTexture = map.getSelectedTexture();
+    if (initialTexture)
+    {
         transrect.setTexture(*initialTexture, true);
     }
 
@@ -54,26 +57,23 @@ int main()
     const sf::Texture *initialEntityTexture = map.getEntityTexture(map.getSelectedName());
     updateEntityPreview(entityPreview, initialEntityTexture);
 
-    EditorMap::PropertyEditor propertyEditor;
     sf::Font font;
     if (!font.loadFromFile("../fonts/Arial.ttf"))
     {
-        // Handle font loading error
         std::cerr << "Failed to load font!" << std::endl;
         return -1;
     }
-    propertyEditor.setup(font);
+    map.propertyEditor.setup(font);
 
     // Frame rate control
     sf::Clock frameClock;
-    sf::Clock updateClock;
     const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
-    const float maxDeltaTime = 1.0f / 30.0f; // Maximum allowed delta time
+    const float maxDeltaTime = 1.0f / 30.0f;
 
     while (window.isOpen())
     {
         sf::Time frameTime = frameClock.restart();
-        float deltaTime = std::min(frameTime.asSeconds(), maxDeltaTime); // Cap delta time
+        float deltaTime = std::min(frameTime.asSeconds(), maxDeltaTime);
 
         // Handle events
         sf::Event event;
@@ -83,7 +83,7 @@ int main()
                 window.close();
             else if (event.type == sf::Event::KeyPressed)
             {
-                if (event.key.code == sf::Keyboard::E && !propertyEditor.isOpen)
+                if (event.key.code == sf::Keyboard::E && !map.propertyEditor.isOpen)
                 {
                     map.menu.isOpen = !map.menu.isOpen;
                 }
@@ -93,7 +93,7 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    if (map.handleMenuClick(mousePos,window))
+                    if (map.handleMenuClick(mousePos, window))
                     {
                         if (map.menu.isEntitySelected())
                         {
@@ -104,13 +104,14 @@ int main()
                         else
                         {
                             placingTexture = true;
-                            const sf::Texture* selectedTexture = map.getSelectedTexture();
-                            if (selectedTexture) {
+                            const sf::Texture *selectedTexture = map.getSelectedTexture();
+                            if (selectedTexture)
+                            {
                                 transrect.setTexture(*selectedTexture, true);
                             }
                         }
                     }
-                    else if (!map.menu.isOpen && !propertyEditor.isOpen)
+                    else if (!map.menu.isOpen && !map.propertyEditor.isOpen)
                     {
                         fc = mousePos;
                         lc = true;
@@ -121,130 +122,147 @@ int main()
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                     sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
 
-                    Entity::PlacedEntity *clickedEntity = nullptr;
-                    for (auto &placedEntity : map.placedEntities)
+                    EditorMap::PlacedEntity *clickedEntity = nullptr;
+                    for (auto &entity : map.placedEntities)
                     {
-                        if (placedEntity->sprite.getGlobalBounds().contains(worldPos))
+                        if (entity.sprite.getGlobalBounds().contains(worldPos))
                         {
-                            map.menu.isOpen = false;
-                            clickedEntity = placedEntity.get();
+                            clickedEntity = &entity;
                             break;
                         }
                     }
 
-                    propertyEditor.updateForEntity(clickedEntity, font);
+                    map.propertyEditor.updateForEntity(clickedEntity, font);
                 }
             }
-            else if (event.type == sf::Event::MouseButtonReleased && !map.menu.isOpen && !propertyEditor.isOpen)
+            else if (event.type == sf::Event::MouseButtonReleased)
             {
-                if (event.mouseButton.button == sf::Mouse::Left)
+                if (event.mouseButton.button == sf::Mouse::Left && !map.menu.isOpen && !map.propertyEditor.isOpen)
                 {
                     lc = false;
                     if (placingTexture)
                     {
-                        map.addEntity(std::min(sc.x, fc.x), std::min(sc.y, fc.y),
-                                      std::abs(sc.x - fc.x), std::abs(sc.y - fc.y),"Object");
+                        map.addEntity(
+                            std::min(sc.x, fc.x), std::min(sc.y, fc.y),
+                            std::abs(sc.x - fc.x), std::abs(sc.y - fc.y),
+                            "Object");
                     }
                     else
                     {
                         sf::Vector2f entityPos = entityPreview.getPosition();
-                        sf::Vector2f entitySize = sf::Vector2f(entityPreview.getGlobalBounds().width, entityPreview.getGlobalBounds().height);
-                        map.addEntity(entityPos.x - entitySize.x / 2, entityPos.y - entitySize.y / 2,0,0, map.getSelectedName());
+                        sf::Vector2f entitySize = sf::Vector2f(
+                            entityPreview.getGlobalBounds().width,
+                            entityPreview.getGlobalBounds().height);
+                        map.addEntity(
+                            entityPos.x - entitySize.x / 2,
+                            entityPos.y - entitySize.y / 2,
+                            0, 0,
+                            map.getSelectedName());
                     }
                     sc = sf::Vector2i(0, 0);
                     transrect.setScale(1, 1);
                 }
             }
-            else if (event.type == sf::Event::MouseMoved && !propertyEditor.isOpen)
+            else if (event.type == sf::Event::MouseMoved && !map.propertyEditor.isOpen)
             {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
                 entityPreview.setPosition(worldPos);
+
             }
 
-            propertyEditor.handleInput(event, window);
+            map.propertyEditor.handleInput(event, window);
         }
-
         if (lc && placingTexture)
-        {
-            sc = sf::Mouse::getPosition(window);
-            sf::Vector2f size(std::abs(sc.x - fc.x), std::abs(sc.y - fc.y));
-            sf::Vector2f position(std::min(sc.x, fc.x) + map.getPartBounds().left,
-                                  std::min(sc.y, fc.y) + map.getPartBounds().top);
-            
-            transrect.setPosition(position);
-            if (transrect.getTexture()) {
-                transrect.setScale(
-                    size.x / transrect.getTexture()->getSize().x,
-                    size.y / transrect.getTexture()->getSize().y
-                );
-            }
-        }
+                {
+                    sc = sf::Mouse::getPosition(window);
+                    sf::Vector2f size(std::abs(sc.x - fc.x), std::abs(sc.y - fc.y));
+                    sf::Vector2f position(std::min(sc.x, fc.x) + map.getPartBounds().left,
+                                          std::min(sc.y, fc.y) + map.getPartBounds().top);
 
-        if (!propertyEditor.isOpen)
+                    transrect.setPosition(position);
+                    if (transrect.getTexture())
+                    {
+                        transrect.setScale(
+                            size.x / transrect.getTexture()->getSize().x,
+                            size.y / transrect.getTexture()->getSize().y);
+                    }
+                }
+
+        if (!map.propertyEditor.isOpen)
         {
             // Handle keyboard input for map navigation and saving
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
             {
                 map.saveToFile("../map.mib");
                 std::cout << "\nsaved map";
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {} // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+                {
+                } // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
             {
                 map.changePart(-1, 0);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {} // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+                {
+                } // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             {
                 map.changePart(1, 0);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {} // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+                {
+                } // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
             {
                 map.changePart(0, -1);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {} // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+                {
+                } // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
                 map.changePart(0, 1);
-                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {} // Wait for key release
+                while (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+                {
+                } // Wait for key release
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        {
-            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-            sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
-
-            for (int i = map.placedEntities.size() - 1; i >= 0; --i)
             {
-                if (map.placedEntities[i]->sprite.getGlobalBounds().contains(worldPos))
+                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
+
+                for (int i = map.placedEntities.size() - 1; i >= 0; --i)
                 {
-                    map.removeEntity(i);
-                    break;
+                    if (map.placedEntities[i].sprite.getGlobalBounds().contains(worldPos))
+                    {
+                        map.removeEntity(i);
+                        break;
+                    }
                 }
             }
-        }
         }
 
         // Apply property changes when Enter is pressed
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
         {
-            propertyEditor.applyChanges();
+            map.propertyEditor.applyChanges();
         }
 
         // Drawing
         window.clear(sf::Color::Black);
-        map.drawEditorEntities(window, propertyEditor.selectedEntity, propertyEditor.isOpen);
+        map.drawEditorEntities(window, map.propertyEditor.selectedEntity, map.propertyEditor.isOpen);
         if (placingTexture && lc)
         {
             window.draw(transrect);
         }
-        if (!placingTexture && !map.menu.isOpen && !propertyEditor.isOpen)
+        if (!placingTexture && !map.menu.isOpen && !map.propertyEditor.isOpen)
         {
             window.draw(entityPreview);
         }
         map.menu.draw();
-        propertyEditor.draw(window);
+        map.propertyEditor.draw(window);
         window.display();
 
         // Frame rate control

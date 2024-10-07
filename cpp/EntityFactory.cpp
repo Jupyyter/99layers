@@ -1,10 +1,10 @@
 #include "../hpp/libs.hpp"
 class HappyEnd;
-Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable transform, GameMap &gamemap, bool additemsToinventory)
+Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable transform, bool additemsToinventory)
 {
     if (type == "pacman")
     {
-        return new PacMan(transform.getPosition(), *gamemap.gameOver);
+        return new PacMan(transform.getPosition(), *world->gameOver);
     }
     else if (type == "arrow")
     {
@@ -23,7 +23,7 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         HB *item = new HB(transform.getPosition());
         if (additemsToinventory)
         {
-            gamemap.allItems.push_back(item);
+            world->allItems.push_back(item);
         }
         return item;
     }
@@ -32,7 +32,7 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         RP *item = new RP(transform.getPosition());
         if (additemsToinventory)
         {
-            gamemap.allItems.push_back(item);
+            world->allItems.push_back(item);
         }
         return item;
     }
@@ -41,7 +41,7 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         GB *item = new GB(transform.getPosition());
         if (additemsToinventory)
         {
-            gamemap.allItems.push_back(item);
+            world->allItems.push_back(item);
         }
         return item;
     }
@@ -50,7 +50,7 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         CTP *item = new CTP(transform.getPosition());
         if (additemsToinventory)
         {
-            gamemap.allItems.push_back(item);
+            world->allItems.push_back(item);
         }
         return item;
     }
@@ -58,7 +58,7 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         II *item = new II(transform.getPosition());
         if (additemsToinventory)
         {
-            gamemap.allItems.push_back(item);
+            world->allItems.push_back(item);
         }
         return item;
     }
@@ -75,99 +75,8 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
         return new TableFall(transform.getPosition());
     }
     else if (type=="adidas"){
-        Player *player = new Player(transform.getPosition(),gamemap);
-        gamemap.playerRef=player;
-        return player;
-    }
-    else if(type=="ak47"){
-        return new AK47(gamemap);
-    }
-    else if(type=="ak47item"){
-        AK *item = new AK(transform.getPosition());
-        if (additemsToinventory)
-        {
-            gamemap.allItems.push_back(item);
-        }
-        return item;
-    }
-    else if(type=="inventory"){
-        return new Inventory(gamemap);
-    }
-    else if(type=="akBullet"){
-         return new akBullet(transform.getPosition(),transform.getRotation(),&gamemap);
-    }
-    else if(type=="HappyEnd"){
-        return new HappyEnd(transform.getPosition());
-    }
-    return nullptr;
-}
-Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable transform, EditorMap &editormap, bool additemsToinventory)
-{
-    if (type == "pacman")
-    {
-        return new PacMan(transform.getPosition(), *editormap.gameOver);
-    }
-    else if (type == "arrow")
-    {
-        return new Idk(transform.getPosition(), 200);
-    }
-    else if (type == "capybaraa")
-    {
-        return new Npc(transform.getPosition());
-    }
-    else if (type == "pengu")
-    {
-        return new Penguin(transform.getPosition());
-    }
-    else if (type == "HorusBrogans")
-    {
-        HB *item = new HB(transform.getPosition());
-        if (additemsToinventory)
-        {
-            editormap.allItems.push_back(item);
-        }
-        return item;
-    }
-    else if (type == "runnerspact")
-    {
-        RP *item = new RP(transform.getPosition());
-        if (additemsToinventory)
-        {
-            editormap.allItems.push_back(item);
-        }
-        return item;
-    }
-    else if (type == "groundbreaker")
-    {
-        GB *item = new GB(transform.getPosition());
-        if (additemsToinventory)
-        {
-            editormap.allItems.push_back(item);
-        }
-        return item;
-    }
-    else if (type == "chronostimepiece")
-    {
-        CTP *item = new CTP(transform.getPosition());
-        if (additemsToinventory)
-        {
-            editormap.allItems.push_back(item);
-        }
-        return item;
-    }
-    else if(type=="poketIkeaman"){
-        II *item = new II(transform.getPosition());
-        if (additemsToinventory)
-        {
-            editormap.allItems.push_back(item);
-        }
-        return item;
-    }
-    else if(type=="ikeaman"){
-        return new Boss(transform.getPosition());
-    }
-    else if (type=="adidas"){
         Player *player = new Player(transform.getPosition());
+        world->playerRef=player;
         return player;
     }
     else if(type=="ak47"){
@@ -177,12 +86,75 @@ Entity *EntityFactory::createEntity(const std::string &type, sf::Transformable t
         AK *item = new AK(transform.getPosition());
         if (additemsToinventory)
         {
-            editormap.allItems.push_back(item);
+            world->allItems.push_back(item);
         }
         return item;
+    }
+    else if(type=="inventory"){
+        return new Inventory();
+    }
+    else if(type=="akBullet"){
+         return new akBullet(transform.getPosition(),transform.getRotation());
     }
     else if(type=="HappyEnd"){
         return new HappyEnd(transform.getPosition());
     }
+    else if(type=="LaserEnd"){
+        return new LaserEnd(transform.getPosition());
+    }
     return nullptr;
+}
+std::vector<PropertyDescriptor> EntityFactory::getPropertyDescriptors(const std::string& type)
+{
+    if (type == "pacman")
+    {
+        return PacMan::getPropertyDescriptors();
+    }
+    else if (type == "arrow")
+    {
+        return Idk::getPropertyDescriptors();
+    }
+    else if (type == "capybaraa")
+    {
+        return Npc::getPropertyDescriptors();
+    }
+    else if (type == "pengu")
+    {
+        return Penguin::getPropertyDescriptors();
+    }
+    else if (type == "HorusBrogans")
+    {
+        return HB::getPropertyDescriptors();
+    }
+    else if (type == "runnerspact")
+    {
+        return RP::getPropertyDescriptors();
+    }
+    else if (type == "groundbreaker")
+    {
+        return GB::getPropertyDescriptors();
+    }
+    else if (type == "chronostimepiece")
+    {
+        return CTP::getPropertyDescriptors();
+    }
+    else if(type=="poketIkeaman"){
+        return II::getPropertyDescriptors();
+    }
+    else if(type=="ikeaman"){
+        return Boss::getPropertyDescriptors();
+    }
+    else if (type=="adidas"){
+        return Player::getPropertyDescriptors();
+        
+    }
+    else if(type=="ak47"){
+        return AK47::getPropertyDescriptors();
+    }
+    else if(type=="ak47item"){
+        return AK::getPropertyDescriptors();
+    }
+    else /*if(type=="HappyEnd")*/{
+        return HappyEnd::getPropertyDescriptors();
+    }
 }

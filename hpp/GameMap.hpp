@@ -33,7 +33,7 @@ public:
 
     bool *gameOver;
     sf::RenderWindow &wndref;
-    std::vector<std::unique_ptr<Entity::PlacedEntity>> placedEntities;
+    std::vector<EditorMap::PlacedEntity> placedEntities;
 void removeDeadEntities();
 
 private:
@@ -89,3 +89,4 @@ private:
     int mx, my, np;
     sf::View view;
 };
+inline std::unique_ptr<GameMap> world;

@@ -1,3 +1,5 @@
+//please dont hate on me
+//i was against this, but now im too lazy to do anything about it
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <string>
@@ -17,6 +19,7 @@
 #include <iostream>//only used for debugging can be removed
 #include <stdexcept>
 #include <fstream>
+#include <typeinfo> // for typeid
 #include <sstream>
 #include <random>
 #include <algorithm>
@@ -37,6 +40,7 @@
 #include "CutScene.hpp"
 #include "Animation.hpp"
 #include "HappyEnd.hpp"
+#include "laserEnd.hpp"
 #include "CollisionDetector.hpp"
 #include "TextBox.hpp"
 #include "idk.hpp"

@@ -8,6 +8,6 @@ class Idk;
 
 class EntityFactory {
 public:
-    static Entity* createEntity(const std::string& type, const sf::Transformable position , GameMap& gamemap,bool additemsToinventory=false);
-    static Entity* createEntity(const std::string& type, const sf::Transformable position , EditorMap& editormap,bool additemsToinventory=false);
+    static Entity* createEntity(const std::string& type, const sf::Transformable position ,bool additemsToinventory=false);
+    static std::vector<PropertyDescriptor> getPropertyDescriptors(const std::string& type);
 };

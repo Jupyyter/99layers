@@ -11,10 +11,10 @@ HappyEnd::HappyEnd(const sf::Vector2f &initialPosition) : Animation(), animation
        sprite.setOrigin(16, 16);
 }
 
-void HappyEnd::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
+void HappyEnd::update(float deltaTime, const sf::Vector2u &screenres)
 {
 
-       Animation::update(deltaTime, gamemap, screenres);
+       Animation::update(deltaTime, screenres);
 
        // Check if the animation has completed one full cycle
        if (currentFrame == 4)

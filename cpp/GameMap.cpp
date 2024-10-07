@@ -26,11 +26,9 @@ GameMap::~GameMap()
     }
 }
 
-void GameMap::loadFromFile(const std::string &fname)
-{
+void GameMap::loadFromFile(const std::string& fname) {
     std::ifstream file(fname, std::ios::binary);
-    if (!file)
-    {
+    if (!file) {
         std::cerr << "Failed to open file for reading: " << fname << std::endl;
         return;
     }
@@ -39,111 +37,65 @@ void GameMap::loadFromFile(const std::string &fname)
     activeEntities.clear();
     placedEntities.clear();
 
-    // Read the number of entities
     int entityCount;
-    file.read(reinterpret_cast<char *>(&entityCount), sizeof(int));
+    file.read(reinterpret_cast<char*>(&entityCount), sizeof(int));
 
-    for (int i = 0; i < entityCount; ++i)
-    {
+    for (int i = 0; i < entityCount; ++i) {
+       EditorMap::PlacedEntity entity;
+
         // Read entity type
         int typeLength;
-        file.read(reinterpret_cast<char *>(&typeLength), sizeof(int));
-        std::string type(typeLength, '\0');
-        file.read(&type[0], typeLength);
+        file.read(reinterpret_cast<char*>(&typeLength), sizeof(int));
+        entity.type.resize(typeLength);
+        file.read(&entity.type[0], typeLength);
 
-        // Read position
-        float x, y;
-        file.read(reinterpret_cast<char *>(&x), sizeof(float));
-        file.read(reinterpret_cast<char *>(&y), sizeof(float));
+        // Read position and size
+        float x, y, width, height;
+        file.read(reinterpret_cast<char*>(&x), sizeof(float));
+        file.read(reinterpret_cast<char*>(&y), sizeof(float));
+        file.read(reinterpret_cast<char*>(&width), sizeof(float));
+        file.read(reinterpret_cast<char*>(&height), sizeof(float));
 
-        // Read size
-        float width, height;
-        file.read(reinterpret_cast<char *>(&width), sizeof(float));
-        file.read(reinterpret_cast<char *>(&height), sizeof(float));
+        // Read texture path
+        int texturePathLength;
+        file.read(reinterpret_cast<char*>(&texturePathLength), sizeof(int));
+        entity.texturePath.resize(texturePathLength);
+        file.read(&entity.texturePath[0], texturePathLength);
 
-        std::string texturePath;
-        if (type == "Object")
-        {
-            // Read texture info for Objects
-            int texIdLength;
-            file.read(reinterpret_cast<char *>(&texIdLength), sizeof(int));
-            texturePath.resize(texIdLength);
-            file.read(&texturePath[0], texIdLength);
-        }
-
-        // Create the entity and sprite
-        std::unique_ptr<Entity> newEntity;
-        sf::Sprite sprite;
-
-        if (type == "Object")
-        {
-            // Handle Object type
-            auto objectPtr = std::make_unique<Object>(x, y, width, height, texturePath);
-            sprite = objectPtr->sprite;
-            newEntity = std::move(objectPtr);
-        }
-        else
-        {
-            // Handle other entity types
-            sf::Transformable transform;
-            transform.setPosition(x, y);
-            transform.setRotation(0);
-
-            const sf::Texture &texture = EditorMap::entityTextures[type];
-            float scaleX = width / texture.getSize().x;
-            float scaleY = height / texture.getSize().y;
-            transform.setScale(scaleX, scaleY);
-
-            sprite.setTexture(texture);
-            sprite.setPosition(x, y);
-            sprite.setScale(scaleX, scaleY);
-
-            newEntity.reset(EntityFactory::createEntity(type, transform, *this, true));
-        }
-
-        // Read editable properties
-        int propertyCount;
-        file.read(reinterpret_cast<char*>(&propertyCount), sizeof(int));
-        
-        for (int j = 0; j < propertyCount; ++j)
-        {
-            // Read property name
-            int nameLength;
-            file.read(reinterpret_cast<char*>(&nameLength), sizeof(int));
-            std::string name(nameLength, '\0');
-            file.read(&name[0], nameLength);
-            
-            // Read property value
-            int valueLength;
-            file.read(reinterpret_cast<char*>(&valueLength), sizeof(int));
-            std::string value(valueLength, '\0');
-            file.read(&value[0], valueLength);
-            
-            // Set the property on the entity
-            if (newEntity)
-            {
-                newEntity->setProperty(name, value);
+        // Set up the sprite
+        entity.sprite.setPosition(x, y);
+        sf::Texture texture;
+        std::string fullTexturePath =entity.texturePath;
+        if (texture.loadFromFile(fullTexturePath)) {
+            entity.sprite.setTexture(texture);
+            if (entity.type == "Object") {
+                entity.sprite.setTextureRect(sf::IntRect(0, 0, width, height));
+            } else {
+                float scaleX = width / texture.getSize().x;
+                float scaleY = height / texture.getSize().y;
+                entity.sprite.setScale(scaleX, scaleY);
             }
         }
 
-        if (newEntity)
-        {
-            // Create and add the placed entity
-            auto placedEntity = std::make_unique<Entity::PlacedEntity>(Entity::PlacedEntity{
-                std::move(sprite),
-                type,
-                std::move(newEntity)});
+        // Read properties
+        int propertyCount;
+        file.read(reinterpret_cast<char*>(&propertyCount), sizeof(int));
+        for (int j = 0; j < propertyCount; ++j) {
+            int nameLength, valueLength;
+            file.read(reinterpret_cast<char*>(&nameLength), sizeof(int));
+            std::string name(nameLength, '\0');
+            file.read(&name[0], nameLength);
 
-            // Add the entity to placedEntities
-            placedEntities.push_back(std::move(placedEntity));
+            file.read(reinterpret_cast<char*>(&valueLength), sizeof(int));
+            std::string value(valueLength, '\0');
+            file.read(&value[0], valueLength);
+
+            entity.properties[name] = value;
         }
-        else
-        {
-            std::cerr << "Failed to create entity of type: " << type << std::endl;
-        }
+
+        placedEntities.push_back(std::move(entity));
     }
 }
-
 void GameMap::draw() const
 {
     for (const auto &entity : activeEntities)
@@ -176,49 +128,40 @@ void GameMap::resetEntities()
     spawnEntities();
 }
 
-void GameMap::spawnEntities()
-{
-    for (const auto &placedEntity : placedEntities)
-    {
-        const sf::Vector2f position = placedEntity->sprite.getPosition();
-        const sf::Vector2f scale = placedEntity->sprite.getScale();
-        const std::string &type = placedEntity->type;
-
-        sf::Transformable transform;
-        transform.setPosition(position);
-        transform.setScale(scale);
-
-        std::unique_ptr<Entity> entity;
-        if (type == "Object")
-        {
-            auto objectPtr = dynamic_cast<Object *>(placedEntity->entity.get());
-            if (objectPtr)
-            {
-                entity = std::make_unique<Object>(*objectPtr);
+void GameMap::spawnEntities() {
+    for (const auto& placedEntity : placedEntities) {
+        sf::Vector2f entityPos = placedEntity.sprite.getPosition();
+        sf::Vector2f entitySize = placedEntity.sprite.getGlobalBounds().getSize();
+        
+        if (placedEntity.type == "Object") {
+            auto objectPtr = std::make_unique<Object>(
+                static_cast<int>(entityPos.x), 
+                static_cast<int>(entityPos.y), 
+                static_cast<int>(entitySize.x), 
+                static_cast<int>(entitySize.y),
+                placedEntity.texturePath
+            );
+            spawn(objectPtr.release());
+        } else {
+             sf::Transformable transform;
+        transform.setPosition(placedEntity.sprite.getPosition());
+        transform.setScale(placedEntity.sprite.getScale());
+            Entity* newEntity = EntityFactory::createEntity(placedEntity.type,transform, false);
+            
+            if (newEntity) {
+                newEntity->setPosition(entityPos);
+                
+                // Set entity properties
+                auto descriptors = EntityFactory::getPropertyDescriptors(placedEntity.type);
+                for (const auto& desc : descriptors) {
+                    auto it = placedEntity.properties.find(desc.name);
+                    if (it != placedEntity.properties.end() && desc.setter) {
+                        desc.setter(newEntity, it->second);
+                    }
+                }
+                
+                spawn(newEntity);
             }
-        }
-        else
-        {
-            entity.reset(EntityFactory::createEntity(type, transform, *this, true));
-        }
-
-        if (entity)
-        {
-            // Copy properties from placedEntity to the new entity
-            auto properties = placedEntity->entity->getEditableProperties();
-            for (const auto &prop : properties)
-            {
-                entity->setProperty(prop.first, prop.second);
-            }
-
-            // Ensure the entity's position and scale match the placedEntity
-            if (auto *entitySprite = dynamic_cast<sf::Sprite *>(entity.get()))
-            {
-                entitySprite->setPosition(position);
-                entitySprite->setScale(scale);
-            }
-
-            spawn(entity.release());
         }
     }
 }
@@ -229,7 +172,7 @@ void GameMap::updateEntities(float deltaTime, const sf::Vector2u &windowSize)
     //first update all (physics and stuff)
     for (size_t i = 0; i < entityCount; ++i)
     {
-        activeEntities[i]->update(deltaTime, *this, windowSize);
+        activeEntities[i]->update(deltaTime, windowSize);
     }
     //override things based on collisions
     for (size_t i = 0; i < entityCount; ++i)
@@ -277,7 +220,7 @@ void GameMap::spawn(const std::string &entityName, float x, float y, float rotat
     sf::Transformable transform;
     transform.setPosition(x, y);
     transform.setRotation(rotation);
-    Entity *entity = EntityFactory::createEntity(entityName, transform, *this, true);
+    Entity *entity = EntityFactory::createEntity(entityName, transform, true);
     if (entity)
     {
         auto insertPos = std::lower_bound(activeEntities.begin(), activeEntities.end(), entity,

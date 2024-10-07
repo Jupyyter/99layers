@@ -21,10 +21,10 @@ void Boss::loadAndScaleImage()
     updateEyePosition();
 }
 
-void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
+void Boss::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    sf::Vector2f playerCenter(gamemap.playerRef->getBounds().left + gamemap.playerRef->getBounds().width / 2.0f,
-                              gamemap.playerRef->getBounds().top + gamemap.playerRef->getBounds().height / 2.0f);
+    sf::Vector2f playerCenter(world->playerRef->getBounds().left + world->playerRef->getBounds().width / 2.0f,
+                              world->playerRef->getBounds().top + world->playerRef->getBounds().height / 2.0f);
     sf::Vector2f direction = playerCenter - position;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -55,26 +55,26 @@ void Boss::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenr
     sprite.setRotation(angle);
 
     // Create Attacks
-    /*if (isOnScreen(gamemap.getPartBounds()))
+    if (isOnScreen(world->getPartBounds()))
     {
         if (ptimer.getElapsedTime().asSeconds() >= 3.5)
         {
-            gamemap.spawn("plank", position.x, position.y, 0);
+            world->spawn("plank", position.x, position.y, 0);
             ptimer.restart();
         }
 
         if (ltimer.getElapsedTime().asSeconds() >= 0.17)
         {
-            gamemap.spawn("laser", position.x, position.y, sprite.getRotation());
+            world->spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
         }
 
         if (ttimer.getElapsedTime().asSeconds() >= 2.3)
         {
-            gamemap.spawn("table", playerCenter.x, gamemap.getPartBounds().top, sprite.getRotation());
+            world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
             ttimer.restart();
         }
-    }*/
+    }
 }
 
 void Boss::draw(sf::RenderWindow &window)const 
@@ -106,18 +106,13 @@ void Boss::onCollision(Entity *other)
         sf::Color color = sprite.getColor();
         
         // Subtract 10 from each component, starting with red
-        if (color.r > 0)
-        {
-            color.r = std::max(0, color.r - 10);
-        }
-        else if (color.g > 0)
-        {
-            color.g = std::max(0, color.g - 10);
-        }
-        else if (color.b > 0)
-        {
-            color.b = std::max(0, color.b - 10);
-        }
+
+            color.r = std::max(0, color.r - 2);
+
+            color.g = std::max(0, color.g - 2);
+
+
+            color.b = std::max(0, color.b - 2);
         
         // Set the new color
         sprite.setColor(color);

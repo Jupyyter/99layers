@@ -12,7 +12,7 @@ public:
     }
     Sprite();
     void loadTexture(const std::string &filename);
-    void update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres) override;
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
     void draw(sf::RenderWindow &window) const override;
     sf::FloatRect getBounds() const override;
     const sf::Sprite getSprite()const override;
@@ -21,8 +21,8 @@ public:
     void scale(float scaleX, float scaleY); 
     sf::Texture texture;
     sf::Sprite sprite;
+    bool invisible;
 
 protected:
-    bool invisible;
     bool flipped;
 };

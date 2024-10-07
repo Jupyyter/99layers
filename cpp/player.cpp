@@ -1,24 +1,10 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position, GameMap &gamemap) : Animation(), CollisionDetector(), inventory(new Inventory(gamemap))
+Player::Player(sf::Vector2f position) : Animation(), CollisionDetector(), inventory(new Inventory())
 {
        priorityLayer = 4;
-       gamemap.spawn(inventory);
-       loadAnimations();
-       loadShaders();
-       setPosition(position);
-
-       gravity = 980.0f;
-       jumpForce = -500.0f;
-       moveSpeed = 200.0f;
-       isGrounded = false;
-       onehitinvin = false;
-       gothitinv = false;
-       isStasis = false;
-}
-Player::Player(sf::Vector2f position) : Animation(), CollisionDetector()
-{
+       world->spawn(inventory);
        loadAnimations();
        loadShaders();
        setPosition(position);
@@ -100,24 +86,24 @@ void Player::updateAnimation()
        }
 }
 
-void Player::update(float deltaTime, GameMap &gamemap, const sf::Vector2u &screenres)
+void Player::update(float deltaTime, const sf::Vector2u &screenres)
 {
        if (!isStasis)
        {
               if (velocity.y > 5777)
               {
-                     (*gamemap.gameOver) = true;
+                     *(world->gameOver) = true;
               }
               updateAnimation();
               handleInput();
-              if (isOnScreen(gamemap.getPartBounds()))
+              if (isOnScreen(world->getPartBounds()))
               {
                      velocity.y += gravity * deltaTime;
                      position += velocity * deltaTime;
               }
 
-              checkBounds(screenres, gamemap);
-              Animation::update(deltaTime, gamemap, screenres);
+              checkBounds(screenres);
+              Animation::update(deltaTime, screenres);
               isGrounded = false;
               setPosition(position);
        }
@@ -163,6 +149,16 @@ void Player::onCollision(Entity *other)
               }
               setPosition(position);
        }
+       else
+       {
+              Item *item = dynamic_cast<Item *>(other);
+
+              if (item)
+              {
+                     item->invisible=true;
+                     inventory->addItem(item);
+              }
+       }
 }
 void Player::draw(sf::RenderWindow &window) const
 {
@@ -176,24 +172,24 @@ void Player::draw(sf::RenderWindow &window) const
        }
 }
 
-void Player::checkBounds(const sf::Vector2u &screenres, GameMap &gamemap)
+void Player::checkBounds(const sf::Vector2u &screenres)
 {
-       auto bounds = gamemap.getPartBounds();
+       auto bounds = world->getPartBounds();
        if (this->position.x > bounds.left + bounds.width)
        {
-              gamemap.changePart(1, 0);
+              world->changePart(1, 0);
        }
        else if (this->position.x < bounds.left)
        {
-              gamemap.changePart(-1, 0);
+              world->changePart(-1, 0);
        }
        else if (this->position.y < bounds.top)
        {
-              gamemap.changePart(0, -1);
+              world->changePart(0, -1);
        }
        else if (this->position.y > bounds.top + bounds.height)
        {
-              gamemap.changePart(0, 1);
+              world->changePart(0, 1);
        }
 }
 // what am i doing idk i seem to be too incapable to code which is paradoxically is the only thing i know how to do (or not this is subjective) well that is unfortunate

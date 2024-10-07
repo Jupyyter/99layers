@@ -4,7 +4,7 @@ class Penguin : public Animation, public CollisionDetector {
 public:
     Penguin(sf::Vector2f position);
     
-    void update(float deltaTime, GameMap& gamemap, const sf::Vector2u& screenres) override;
+    void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow& window) const  override;
 
 

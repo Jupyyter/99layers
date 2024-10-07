@@ -19,7 +19,7 @@ int main()
     };
     bool gameOver = false;
     CutScene cutScene(cutSceneImages, window.getSize());
-    GameMap map("../map.mib", window, gameOver);
+    world = std::make_unique<GameMap>("../map.mib",window, gameOver);
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
     Sprite background;
@@ -53,7 +53,7 @@ int main()
                 case GameState::Menu:
                     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
                     {
-                        map.resetEntities();
+                        world->resetEntities();
                         gameOver = false;
                         currentState = GameState::CutScene;
                         updateClock.restart();
@@ -88,8 +88,8 @@ int main()
                 }
                 else
                 {
-                    map.updateEntities(deltaTime, window.getSize());
-                    map.removeDeadEntities();
+                    world->updateEntities(deltaTime, window.getSize());
+                    world->removeDeadEntities();
                 }
                 break;
         }
@@ -112,7 +112,7 @@ int main()
                     background.draw(window);
                     window.setView(originalView);
                    // map.draw();
-                    map.drawEntities(window);
+                    world->drawEntities(window);
                 }
                 break;
             case GameState::GameOver:

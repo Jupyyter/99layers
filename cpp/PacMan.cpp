@@ -9,6 +9,7 @@ PacMan::PacMan(sf::Vector2f spawnPosition, bool &gameOver)
       lifeDuration(5.0f), speed(100.0f), degrees(0.0f), gameOver(&gameOver)
 {
     setPosition(spawnPosition);
+     position = spawnPosition;
     loadSprite();
 }
 
@@ -32,11 +33,11 @@ void PacMan::updateDirection()
     sprite.setRotation(rotation);
 }
 
-void PacMan::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &screenres)
+void PacMan::update(float deltaTime,const sf::Vector2u &screenres)
 {
     if (!hasAppearedOnScreen)
     {
-        if (isOnScreen(gamemap.getPartBounds()))
+        if (isOnScreen(world->getPartBounds()))
         {
             hasAppearedOnScreen = true;
             lifeTimer = 0.0f;
@@ -52,7 +53,7 @@ void PacMan::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &scree
     setPosition(position);
 
     lifeTimer += deltaTime;
-    if(sprite.getGlobalBounds().intersects(gamemap.playerRef->getBounds())){
+    if(sprite.getGlobalBounds().intersects(world->playerRef->getBounds())){
         *gameOver = true;
     }
 
@@ -60,7 +61,7 @@ void PacMan::update(float deltaTime, GameMap& gamemap, const sf::Vector2u &scree
     {
         shouldBeDead = true;
     }
-    Animation::update(deltaTime,gamemap,screenres);
+    Animation::update(deltaTime,screenres);
 }
 
 bool PacMan::shouldRemove() { return lifeTimer >= lifeDuration; }
@@ -69,21 +70,24 @@ void PacMan::draw(sf::RenderWindow &window)const
 {
     Animation::draw(window);
 }
-std::vector<std::pair<std::string, std::string>> PacMan::getEditableProperties() const {
+std::vector<PropertyDescriptor> PacMan::getPropertyDescriptors() {
     return {
-        {"name", name},
-        {"speed", std::to_string(speed)},
-        {"degrees", std::to_string(degrees)}
+        {"speed", "100.0",
+            [](Entity* e, const std::string& v) { static_cast<PacMan*>(e)->speed = std::stof(v); },
+            [](const Entity* e) { return std::to_string(static_cast<const PacMan*>(e)->speed); }
+        },
+        {"degrees", "0.0",
+            [](Entity* e, const std::string& v) { 
+                static_cast<PacMan*>(e)->degrees = std::stof(v);},
+            [](const Entity* e) { return std::to_string(static_cast<const PacMan*>(e)->degrees); }
+        }
+        /*{"speed", "100.0", &PacMan::speed},
+        {"degrees", "0.0", &PacMan::degrees}*///this might work too, but the PropertyDescriptor should look like this:
+        /*struct PropertyDescriptor {
+    std::string name;
+    std::string defaultValue;
+    float Entity::*memberPtr;
+};
+ */ 
     };
-}
-
-void PacMan::setProperty(const std::string& name, const std::string& value) {
-    if (name == "name") {
-        this->name = value;
-    } else if (name == "speed") {
-        this->speed = std::stof(value);
-    } else if (name == "degrees") {
-        this->degrees = std::stof(value);
-        updateDirection();
-    }
 }
