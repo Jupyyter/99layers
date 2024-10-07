@@ -89,4 +89,5 @@ private:
     int mx, my, np;
     sf::View view;
 };
+//global world
 inline std::unique_ptr<GameMap> world;
