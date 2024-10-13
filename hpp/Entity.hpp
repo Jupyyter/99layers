@@ -30,7 +30,7 @@ public:
     sf::Vector2f getPosition() const { return position; }
     void setPosition(const sf::Vector2f &pos) { position = pos; }
     void move(const sf::Vector2f &offset) { position += offset; }
-    bool isOnScreen(sf::FloatRect screen);
+    virtual bool isOnScreen() const;
 
     int priorityLayer = 0;
     bool shouldBeDead = false;

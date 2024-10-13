@@ -96,7 +96,7 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
               }
               updateAnimation();
               handleInput();
-              if (isOnScreen(world->getPartBounds()))
+              if (isOnScreen())
               {
                      velocity.y += gravity * deltaTime;
                      position += velocity * deltaTime;
@@ -110,7 +110,7 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void Player::onCollision(Entity *other)
 {
-       if (typeid(*other) == typeid(Object))
+       if (typeid(*other) == typeid(Terrain))
        {
               setPosition(position);
               switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))

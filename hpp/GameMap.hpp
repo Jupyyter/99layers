@@ -28,7 +28,6 @@ public:
     void drawEntities(sf::RenderWindow &window)const;
 
     std::vector<Entity *> activeEntities;
-    std::vector<Item *> allItems;
     Player* playerRef;
 
     bool *gameOver;

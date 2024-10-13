@@ -34,7 +34,7 @@
 #include "EntityFactory.hpp"
 #include "Entity.hpp"
 #include "sprite.hpp"
-#include "Object.hpp"
+#include "Terrain.hpp"
 #include "EditorMap.hpp"
 #include "GameMap.hpp"
 #include "CutScene.hpp"

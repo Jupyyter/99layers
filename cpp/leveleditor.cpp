@@ -145,7 +145,7 @@ int main()
                         map.addEntity(
                             std::min(sc.x, fc.x), std::min(sc.y, fc.y),
                             std::abs(sc.x - fc.x), std::abs(sc.y - fc.y),
-                            "Object");
+                            "Terrain");
                     }
                     else
                     {

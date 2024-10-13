@@ -14,7 +14,7 @@ void Idk::loadSprite()
 }
 void Idk::onCollision(Entity *other)
 {
-    if (typeid(*other) == typeid(Object))
+    if (typeid(*other) == typeid(Terrain))
     {
         setPosition(position);
         switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
@@ -55,7 +55,7 @@ void Idk::onCollision(Entity *other)
 }
 void Idk::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    if (isOnScreen(world->getPartBounds()))
+    if (isOnScreen())
     {
         velocity.y += gravity * deltaTime;
         if (movingRight)

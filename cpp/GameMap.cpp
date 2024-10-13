@@ -20,10 +20,6 @@ GameMap::~GameMap()
     {
         delete entity;
     }
-    for (auto *item : allItems)
-    {
-        delete item;
-    }
 }
 
 void GameMap::loadFromFile(const std::string& fname) {
@@ -68,7 +64,7 @@ void GameMap::loadFromFile(const std::string& fname) {
         std::string fullTexturePath =entity.texturePath;
         if (texture.loadFromFile(fullTexturePath)) {
             entity.sprite.setTexture(texture);
-            if (entity.type == "Object") {
+            if (entity.type == "Terrain") {
                 entity.sprite.setTextureRect(sf::IntRect(0, 0, width, height));
             } else {
                 float scaleX = width / texture.getSize().x;
@@ -124,7 +120,6 @@ void GameMap::resetEntities()
 {
     changePart(0, 0);
     activeEntities.clear();
-    allItems.clear();
     spawnEntities();
 }
 
@@ -133,8 +128,8 @@ void GameMap::spawnEntities() {
         sf::Vector2f entityPos = placedEntity.sprite.getPosition();
         sf::Vector2f entitySize = placedEntity.sprite.getGlobalBounds().getSize();
         
-        if (placedEntity.type == "Object") {
-            auto objectPtr = std::make_unique<Object>(
+        if (placedEntity.type == "Terrain") {
+            auto objectPtr = std::make_unique<Terrain>(
                 static_cast<int>(entityPos.x), 
                 static_cast<int>(entityPos.y), 
                 static_cast<int>(entitySize.x), 
@@ -146,7 +141,7 @@ void GameMap::spawnEntities() {
              sf::Transformable transform;
         transform.setPosition(placedEntity.sprite.getPosition());
         transform.setScale(placedEntity.sprite.getScale());
-            Entity* newEntity = EntityFactory::createEntity(placedEntity.type,transform, false);
+            Entity* newEntity = EntityFactory::createEntity(placedEntity.type,transform);
             
             if (newEntity) {
                 newEntity->setPosition(entityPos);
@@ -220,7 +215,7 @@ void GameMap::spawn(const std::string &entityName, float x, float y, float rotat
     sf::Transformable transform;
     transform.setPosition(x, y);
     transform.setRotation(rotation);
-    Entity *entity = EntityFactory::createEntity(entityName, transform, true);
+    Entity *entity = EntityFactory::createEntity(entityName, transform);
     if (entity)
     {
         auto insertPos = std::lower_bound(activeEntities.begin(), activeEntities.end(), entity,

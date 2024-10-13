@@ -2,6 +2,6 @@
 
 Entity::Entity() : position(0,0), velocity(0, 0),shouldBeDead(false),priorityLayer(0) {}
 
-bool Entity::isOnScreen(sf::FloatRect screen) {
-    return screen.contains(position);
+bool Entity::isOnScreen() const {
+    return world->getPartBounds().contains(position);
 }

@@ -55,7 +55,7 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
     sprite.setRotation(angle);
 
     // Create Attacks
-    if (isOnScreen(world->getPartBounds()))
+    if (isOnScreen())
     {
         if (ptimer.getElapsedTime().asSeconds() >= 3.5)
         {

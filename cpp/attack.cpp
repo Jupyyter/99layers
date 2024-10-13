@@ -4,7 +4,7 @@ Attack::Attack(sf::Vector2f sp) : Sprite(),offScreenTimer(), timeOffScreen(0.f) 
     setPosition(sp);
 }
 void Attack::update(float deltaTime, const sf::Vector2u &screenres) {
-    if (!isOnScreen(world->getPartBounds())) {
+    if (!isOnScreen()) {
         timeOffScreen += offScreenTimer.restart().asSeconds();
         if (timeOffScreen >= 1.0f) {
             shouldBeDead = true;
@@ -66,7 +66,7 @@ LaserBeam::LaserBeam(sf::Vector2f sp, float rotangle) : Attack(sp), fc(true) {
 void LaserBeam::onCollision(Entity *other)
 {
     // claudeai showed this trick to me
-    if (typeid(*other) == typeid(akBullet)||typeid(*other) == typeid(Object))
+    if (typeid(*other) == typeid(akBullet)||typeid(*other) == typeid(Terrain))
     {
         shouldBeDead = true;
         world->spawn("LaserEnd", position.x, position.y, 0);
@@ -106,7 +106,7 @@ akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp),CollisionDetect
     }
 void akBullet::onCollision(Entity *other)
 {
-    if (typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(Boss)||typeid(*other) == typeid(Object))
+    if (typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(Boss)||typeid(*other) == typeid(Terrain))
     {
         shouldBeDead = true;
         world->spawn("HappyEnd", position.x, position.y, 0);

@@ -15,7 +15,7 @@ void Penguin::loadSprite() {
 }
 void Penguin::onCollision(Entity *other)
 {
-       if (typeid(*other) == typeid(Object))
+       if (typeid(*other) == typeid(Terrain))
        {
               setPosition(position);
               switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
@@ -55,7 +55,7 @@ void Penguin::onCollision(Entity *other)
        }
 }
 void Penguin::update(float deltaTime, const sf::Vector2u& screenres) {
-    if (isOnScreen(world->getPartBounds())) {
+    if (isOnScreen()) {
         velocity.y += gravity * deltaTime;
         position.y += velocity.y * deltaTime;
         

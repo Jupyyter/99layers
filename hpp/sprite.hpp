@@ -22,6 +22,7 @@ public:
     sf::Texture texture;
     sf::Sprite sprite;
     bool invisible;
+    bool isOnScreen() const override;
 
 protected:
     bool flipped;

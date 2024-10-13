@@ -65,7 +65,7 @@ void EditorMap::loadFromFile(const std::string& fname) {
         entity.sprite.setTexture(entity.texture);
         entity.sprite.setPosition(x, y);
         
-        if (entity.type == "Object") {
+        if (entity.type == "Terrain") {
             const_cast<sf::Texture&>(entity.texture).setRepeated(true);
             entity.sprite.setTextureRect(sf::IntRect(0, 0, width, height));
         } else {
@@ -204,7 +204,7 @@ void EditorMap::addEntity(int x, int y, int w, int h, const std::string &type)
     PlacedEntity entity;
     entity.type = type;
 
-    if (type == "Object")
+    if (type == "Terrain")
     {
         // Get the selected texture name from the menu
         if (!menu.isEntitySelected() && menu.selectedIndex - menu.entityTextures.size() < menu.textures.size())
@@ -263,7 +263,7 @@ void EditorMap::drawEditorEntities(sf::RenderWindow &window, const PlacedEntity 
         window.draw(entitySprite);
 
         // If it's an Object, draw its outline
-        if (entity.type == "Object")
+        if (entity.type == "Terrain")
         {
             sf::RectangleShape outline(entitySprite.getGlobalBounds().getSize());
             outline.setPosition(entitySprite.getPosition());

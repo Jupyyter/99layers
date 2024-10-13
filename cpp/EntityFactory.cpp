@@ -1,10 +1,10 @@
 #include "../hpp/libs.hpp"
 class HappyEnd;
-Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable transform, bool additemsToinventory)
+Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable transform)
 {
     if (type == "pacman")
     {
-        return new PacMan(transform.getPosition(), *world->gameOver);
+        return new PacMan(transform.getPosition());
     }
     else if (type == "arrow")
     {
@@ -20,47 +20,22 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
     }
     else if (type == "HorusBrogans")
     {
-        HB *item = new HB(transform.getPosition());
-        if (additemsToinventory)
-        {
-            world->allItems.push_back(item);
-        }
-        return item;
+        return new HB(transform.getPosition());
     }
     else if (type == "runnerspact")
     {
-        RP *item = new RP(transform.getPosition());
-        if (additemsToinventory)
-        {
-            world->allItems.push_back(item);
-        }
-        return item;
+        return new RP(transform.getPosition());;
     }
     else if (type == "groundbreaker")
     {
-        GB *item = new GB(transform.getPosition());
-        if (additemsToinventory)
-        {
-            world->allItems.push_back(item);
-        }
-        return item;
+        return new GB(transform.getPosition());
     }
     else if (type == "chronostimepiece")
     {
-        CTP *item = new CTP(transform.getPosition());
-        if (additemsToinventory)
-        {
-            world->allItems.push_back(item);
-        }
-        return item;
+        return new CTP(transform.getPosition());
     }
     else if(type=="poketIkeaman"){
-        II *item = new II(transform.getPosition());
-        if (additemsToinventory)
-        {
-            world->allItems.push_back(item);
-        }
-        return item;
+        return new II(transform.getPosition());
     }
     else if(type=="ikeaman"){
         return new Boss(transform.getPosition());
@@ -84,10 +59,6 @@ Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable tr
     }
     else if(type=="ak47item"){
         AK *item = new AK(transform.getPosition());
-        if (additemsToinventory)
-        {
-            world->allItems.push_back(item);
-        }
         return item;
     }
     else if(type=="inventory"){

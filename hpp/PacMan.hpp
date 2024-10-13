@@ -2,7 +2,7 @@
 
 class PacMan : public Animation, public CollisionDetector {
 public:
-    PacMan(sf::Vector2f spawnPosition, bool &gameOver);
+    PacMan(sf::Vector2f spawnPosition);
     void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow& window)const  override;
     bool shouldRemove();
@@ -13,7 +13,6 @@ private:
     bool hasAppearedOnScreen;
     float lifeTimer;
     const float lifeDuration;
-    bool *gameOver;
     std::string customString;
     float customFloat;
     void loadSprite();

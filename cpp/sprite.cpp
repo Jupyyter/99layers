@@ -47,3 +47,6 @@ sf::FloatRect Sprite::getBounds() const {
 const sf::Sprite Sprite::getSprite()const{
     return sprite;
 }
+bool Sprite::isOnScreen() const {
+    return world->getPartBounds().intersects(this->getBounds());
+}
