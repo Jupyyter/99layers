@@ -4,13 +4,13 @@ class GameMap;
 std::unordered_map<std::string, sf::Texture> EditorMap::entityTextures;
 std::vector<std::string> EditorMap::Menu::textureNames;
 EditorMap::EditorMap(sf::RenderWindow &wndref)
-    : mx(0), my(0), np(1), wndref(wndref),
+    : mx(0), my(0), wndref(wndref),
       menu({"../imgs/adidas.png", "../imgs/pacman.png", "../imgs/capybaraa.png",
             "../imgs/ikeaman.png","../imgs/ak47.png","../imgs/ak47item.png",
             "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png",
-            "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",
+            "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",//not terrain
             "../imgs/poketIkeaman.png"},
-           {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png"},
+           {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png"},//terrain
            wndref)
 {
     view.setSize(wndref.getSize().x, wndref.getSize().y);
@@ -99,7 +99,7 @@ void EditorMap::loadFromFile(const std::string& fname) {
         placedEntities.push_back(std::move(entity));
     }
 
-    std::cout << "Loaded " << placedEntities.size() << " entities from " << fname << std::endl;
+    std::cout << "\nLoaded " << placedEntities.size() << " entities from " << fname << std::endl;
 }
 EditorMap::~EditorMap()
 {
@@ -108,6 +108,7 @@ EditorMap::~EditorMap()
 
 void EditorMap::saveToFile(const std::string& fname) {
     std::ofstream file(fname, std::ios::binary);
+    std::cout<<"saved "<< fname<<"\n";
     if (!file) {
         std::cerr << "Failed to open file for writing: " << fname << std::endl;
         return;
@@ -166,8 +167,6 @@ void EditorMap::changePart(int x, int y)
 {
     mx += x;
     my += y;
-    //if (obj[mx][my].empty())
-        np++;
     int wx = wndref.getSize().x, wy = wndref.getSize().y;
     view.setCenter(wx / 2 + wx * mx, wy / 2 + wy * my);
     wndref.setView(view);
@@ -181,12 +180,10 @@ sf::FloatRect EditorMap::getPartBounds()
 
 void EditorMap::removeEntity(int index) {
     if (index >= 0 && index < placedEntities.size()) {
-        std::string entityType = placedEntities[index].type;
         placedEntities.erase(placedEntities.begin() + index);
-        std::cout << "deleted \"" << entityType <<"\"\n";
+        std::cout << "deleted \"" << placedEntities[index].type <<"\"\n";
     }
 }
-
 void EditorMap::addEntity(int x, int y, int w, int h, const std::string &type)
 {
     // Ensure minimum size

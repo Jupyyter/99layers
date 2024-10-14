@@ -28,7 +28,7 @@ void Player::loadAnimations()
 
 void Player::loadShaders()
 {
-       assert(this->stasishad.loadFromFile("../shaders/stasis.frag", sf::Shader::Fragment));
+       //assert(this->stasishad.loadFromFile("../shaders/stasis.frag", sf::Shader::Fragment));
        this->stasishad.setUniform("texture", sf::Shader::CurrentTexture);
 }
 

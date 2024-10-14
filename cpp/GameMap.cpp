@@ -93,7 +93,6 @@ void GameMap::loadFromFile(const std::string &fname)
             file.read(reinterpret_cast<char *>(&valueLength), sizeof(int));
             std::string value(valueLength, '\0');
             file.read(&value[0], valueLength);
-            std::cout<<value<<" ";
             entity.properties[name] = value;
         }
 

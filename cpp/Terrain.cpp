@@ -14,10 +14,10 @@ Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : rotatio
         
         // Set the origin to the center of the sprite
         sprite.setOrigin(w / 2.0f, h / 2.0f);
-    }
-    
     // Adjust position to account for the new origin
     sprite.setPosition(x + w / 2.0f, y + h / 2.0f);
+    }
+    
 }
 
 void Terrain::draw(sf::RenderWindow &window) const
