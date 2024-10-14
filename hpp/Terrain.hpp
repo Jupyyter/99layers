@@ -7,11 +7,9 @@ public:
     Terrain(int x, int y, int w, int h, const std::string& tname);
     ~Terrain() = default;
 
+    void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow &window) const override;
+    static std::vector<PropertyDescriptor> getPropertyDescriptors();
 
-    sf::RectangleShape rect;
-    std::string texid;
-
-private:
-    void initializeObject(int x, int y, int w, int h, const std::string& tname);
+    float rotation=0.0f;
 };

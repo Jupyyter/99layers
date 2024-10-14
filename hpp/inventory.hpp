@@ -24,6 +24,7 @@ private:
     void selectItem(int i, bool isActiveSlot = false);
     int getHoverCell(sf::RenderWindow &window);
     int getActiveHoverCell(sf::RenderWindow &window);
+    bool isOnScreen() const override;
 
     sf::Font font;
     sf::Text text;
