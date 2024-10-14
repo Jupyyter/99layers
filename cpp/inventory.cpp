@@ -373,3 +373,6 @@ void Inventory::moveItemToInventory(int slotIndex)
         updateItemPositions();
     }
 }
+bool Inventory::isOnScreen() const {
+    return true;
+}

@@ -125,6 +125,9 @@ std::vector<PropertyDescriptor> EntityFactory::getPropertyDescriptors(const std:
     else if(type=="ak47item"){
         return AK::getPropertyDescriptors();
     }
+    else if(type=="Terrain"){
+        return Terrain::getPropertyDescriptors();
+    }
     else /*if(type=="HappyEnd")*/{
         return HappyEnd::getPropertyDescriptors();
     }

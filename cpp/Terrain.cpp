@@ -1,30 +1,40 @@
 #include "../hpp/libs.hpp"
-Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : rect(sf::Vector2f(w, h))
+
+Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : rotation(0.0f)
 {
-    priorityLayer=-1;
+    priorityLayer = -1;
     if (!texture.loadFromFile(tname)) {
         std::cerr << "Failed to load texture: " << tname << std::endl;
-        // Set a default color if texture loading fails
-        rect.setFillColor(sf::Color::Red);
     } else {
         sprite.setTexture(texture);
         // Set texture to repeat
         texture.setRepeated(true);
         // Set the texture rect to tile the texture if necessary
         sprite.setTextureRect(sf::IntRect(0, 0, w, h));
+        
+        // Set the origin to the center of the sprite
+        sprite.setOrigin(w / 2.0f, h / 2.0f);
     }
     
-    sprite.setPosition(x, y);
-    
-    rect.setPosition(x, y);
-    rect.setFillColor(sf::Color::Transparent);
-    rect.setSize(sf::Vector2f(w,h));
-
-    texid = tname;
+    // Adjust position to account for the new origin
+    sprite.setPosition(x + w / 2.0f, y + h / 2.0f);
 }
 
 void Terrain::draw(sf::RenderWindow &window) const
 {
-    window.draw(rect);
     window.draw(sprite);
+}
+
+void Terrain::update(float deltaTime, const sf::Vector2u& screenres)
+{
+    sprite.setRotation(sprite.getRotation() + rotation * deltaTime);
+}
+
+std::vector<PropertyDescriptor> Terrain::getPropertyDescriptors() {
+    return {
+        {"rotation", "0",
+            [](Entity* e, const std::string& v) { static_cast<Terrain*>(e)->rotation = std::stof(v); },
+            [](const Entity* e) { return std::to_string(static_cast<const Terrain*>(e)->rotation); }
+        },
+    };
 }

@@ -27,7 +27,9 @@ void TextBox::setString(const std::string& text)
         visible = false;
     }
 }
-
+std::string TextBox::getText(){
+    return textContent;
+}
 void TextBox::update(float deltaTime)
 {
     if (visible)

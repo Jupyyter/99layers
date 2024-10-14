@@ -103,19 +103,6 @@ void Npc::onCollision(Entity *other)
               setPosition(position);
        }
 }
-std::vector<std::pair<std::string, std::string>> Npc::getEditableProperties() const
-{
-       return {
-           {"text", text}};
-}
-
-void Npc::setProperty(const std::string &text, const std::string &value)
-{
-       if (text == "text")
-       {
-              this->text = value;
-       }
-}
 std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {
     return {
         {"text", "",
