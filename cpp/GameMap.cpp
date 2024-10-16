@@ -21,7 +21,7 @@ void GameMap::loadFromFile(const std::string &fname)
     std::ifstream file(fname, std::ios::binary);
     if (!file)
     {
-        std::cerr << "Failed to open file for reading: " << fname << std::endl;
+        std::cerr << "\nFailed to open file for reading: " << fname;
         return;
     }
 
@@ -259,7 +259,7 @@ void GameMap::spawn(Entity *entity)
         }
         catch (const std::bad_alloc &e)
         {
-            std::cerr << "Memory allocation failed: " << e.what() << std::endl;
+            std::cerr << "\nMemory allocation failed: " << e.what();
             delete entity;
         }
     }

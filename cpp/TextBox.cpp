@@ -32,6 +32,7 @@ std::string TextBox::getText(){
 }
 void TextBox::update(float deltaTime)
 {
+    //std::cout<<visible;
     if (visible)
     {
         elapsedTime += deltaTime;
