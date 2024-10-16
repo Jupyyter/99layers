@@ -12,14 +12,8 @@ GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover)
 {
     view.setSize(wndref.getSize().x, wndref.getSize().y);
     loadFromFile(fname);
-}
-
-GameMap::~GameMap()
-{
-    for (auto *entity : activeEntities)
-    {
-        delete entity;
-    }
+    collisionEntities.clear();
+    allEntities.clear();
 }
 
 void GameMap::loadFromFile(const std::string &fname)
@@ -32,8 +26,7 @@ void GameMap::loadFromFile(const std::string &fname)
     }
 
     // Clear existing entities
-    activeEntities.clear();
-    placedEntities.clear();
+    originalEntities.clear();
 
     int entityCount;
     file.read(reinterpret_cast<char *>(&entityCount), sizeof(int));
@@ -96,12 +89,12 @@ void GameMap::loadFromFile(const std::string &fname)
             entity.properties[name] = value;
         }
 
-        placedEntities.push_back(std::move(entity));
+        originalEntities.push_back(std::move(entity));
     }
 }
 void GameMap::draw() const
 {
-    for (const auto &entity : activeEntities)
+    for (const auto &entity : allEntities)
     {
         entity->draw(wndref);
     }
@@ -126,27 +119,27 @@ sf::FloatRect GameMap::getPartBounds() const
 void GameMap::resetEntities()
 {
     changePart(0, 0);
-    activeEntities.clear();
+    collisionEntities.clear();
+    allEntities.clear();
     spawnEntities();
 }
 
 void GameMap::spawnEntities()
 {
-    for (const auto &placedEntity : placedEntities)
+    for (const auto &placedEntity : originalEntities)
     {
         sf::Vector2f entityPos = placedEntity.sprite.getPosition();
         sf::Vector2f entitySize = placedEntity.sprite.getGlobalBounds().getSize();
-        Entity* newEntity = nullptr;
+        Entity *newEntity = nullptr;
 
         if (placedEntity.type == "Terrain")
         {
-            auto terrainPtr = std::make_unique<Terrain>(
+            newEntity = new Terrain(
                 static_cast<int>(entityPos.x),
                 static_cast<int>(entityPos.y),
                 static_cast<int>(entitySize.x),
                 static_cast<int>(entitySize.y),
                 placedEntity.texturePath);
-            newEntity = terrainPtr.release();
         }
         else
         {
@@ -176,48 +169,60 @@ void GameMap::spawnEntities()
 
 void GameMap::updateEntities(float deltaTime, const sf::Vector2u &windowSize)
 {
-    const size_t entityCount = activeEntities.size();
-    // first update all (physics and stuff)
-    for (size_t i = 0; i < entityCount; ++i)
+    for (const auto &entity : allEntities)
     {
-        activeEntities[i]->update(deltaTime, windowSize);
+        entity->update(deltaTime, windowSize);
     }
-    // override things based on collisions
-    for (size_t i = 0; i < entityCount; ++i)
-    {
-        Entity *entity = activeEntities[i];
 
-        for (size_t j = i + 1; j < entityCount; ++j)
+    for (size_t i = 0; i < collisionEntities.size(); ++i)
+    {
+        Entity *en1 = dynamic_cast<Entity *>(collisionEntities[i]);
+        for (size_t j = i + 1; j < collisionEntities.size(); ++j)
         {
-            Entity *otherEntity = activeEntities[j];
-            if (checkCollision(entity->getSprite(), otherEntity->getSprite()))
+            Entity *en2 = dynamic_cast<Entity *>(collisionEntities[j]);
+            if (checkCollision(en1->getSprite(), en2->getSprite()))
             {
-                entity->onCollision(otherEntity);
-                otherEntity->onCollision(entity);
+                collisionEntities[i]->onCollision(en2);
+                collisionEntities[j]->onCollision(en1);
             }
         }
     }
 }
-
 void GameMap::removeDeadEntities()
 {
-    activeEntities.erase(
-        std::remove_if(activeEntities.begin(), activeEntities.end(),
-                       [](Entity *entity)
-                       {
-                           if (entity->shouldBeDead)
-                           {
-                               delete entity;
-                               return true;
-                           }
-                           return false;
-                       }),
-        activeEntities.end());
-}
+    // Remove dead entities from allEntities
+    for (auto it = allEntities.begin(); it != allEntities.end();)
+    {
+        if ((*it)->shouldBeDead)
+        {
+            it = allEntities.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 
+    // Remove corresponding entries from collisionEntities
+    collisionEntities.erase(
+        std::remove_if(collisionEntities.begin(), collisionEntities.end(),
+                       [this](CollisionDetector *collisionDetector)
+                       {
+                           if (!collisionDetector)
+                               return true; // Remove null pointers
+
+                           // Check if the corresponding Entity exists in allEntities
+                           return std::none_of(allEntities.begin(), allEntities.end(),
+                                               [collisionDetector](const std::unique_ptr<Entity> &entity)
+                                               {
+                                                   return entity.get() == dynamic_cast<Entity *>(collisionDetector);
+                                               });
+                       }),
+        collisionEntities.end());
+}
 void GameMap::drawEntities(sf::RenderWindow &window) const
 {
-    for (const auto *entity : activeEntities)
+    for (const auto &entity : allEntities)
     {
         if (entity->isOnScreen())
         {
@@ -234,12 +239,7 @@ void GameMap::spawn(const std::string &entityName, float x, float y, float rotat
     Entity *entity = EntityFactory::createEntity(entityName, transform);
     if (entity)
     {
-        auto insertPos = std::lower_bound(activeEntities.begin(), activeEntities.end(), entity,
-                                          [](const Entity *a, const Entity *b)
-                                          {
-                                              return a->priorityLayer < b->priorityLayer;
-                                          });
-        activeEntities.insert(insertPos, entity);
+        spawn(entity);
     }
 }
 
@@ -247,11 +247,20 @@ void GameMap::spawn(Entity *entity)
 {
     if (entity)
     {
-        auto insertPos = std::lower_bound(activeEntities.begin(), activeEntities.end(), entity,
-                                          [](const Entity *a, const Entity *b)
-                                          {
-                                              return a->priorityLayer < b->priorityLayer;
-                                          });
-        activeEntities.insert(insertPos, entity);
+        try
+        {
+            auto result = allEntities.emplace(std::unique_ptr<Entity>(entity));
+
+            CollisionDetector *collider = dynamic_cast<CollisionDetector *>(entity);
+            if (collider)
+            {
+                collisionEntities.push_back(collider);
+            }
+        }
+        catch (const std::bad_alloc &e)
+        {
+            std::cerr << "Memory allocation failed: " << e.what() << std::endl;
+            delete entity;
+        }
     }
 }

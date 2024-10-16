@@ -1,6 +1,6 @@
 #pragma once
 
-class Boss : public Sprite
+class Boss : public Sprite, public CollisionDetector
 {
 public:
     Boss(const sf::Vector2f &initialPosition);

@@ -31,38 +31,14 @@ public:
         sf::RenderWindow &window;
         std::string getFileNameWithoutExtension(const std::string &path);
     };
-struct PlacedEntity {
-    sf::Sprite sprite;
-    std::string type;
-    std::unordered_map<std::string, std::string> properties;
-    std::string texturePath;
-    sf::Texture texture;
-};
-
-    EditorMap(sf::RenderWindow &wndref);
-    EditorMap(const std::string fname, sf::RenderWindow &wndref);
-    EditorMap(const EditorMap &) = delete;
-    EditorMap &operator=(const EditorMap &) = delete;
-    ~EditorMap();
-
-    void saveToFile(const std::string &fname);
-    void changePart(int x, int y);
-    sf::FloatRect getPartBounds();
-
-    bool handleMenuClick(const sf::Vector2i &mousePosition, sf::RenderWindow &window);
-    const std::string &getSelectedName() const;
-    const sf::Texture *getSelectedTexture() const;
-    const sf::Texture *getEntityTexture(const std::string &entityName) const;
-
-    void updateEntityProperty(int index, const std::string& property, const std::string& value);
-    void removeEntity(int x, int y);
-    void removeEntity(int index);
-    void addEntity(int x, int y, int w, int h, const std::string &type);
-    void loadFromFile(const std::string& fname);
-    void drawEditorEntities(sf::RenderWindow &window, const PlacedEntity *selectedEntity, bool &isOpen);
-    Menu menu;
-    std::vector<PlacedEntity> placedEntities;
-
+    struct PlacedEntity
+    {
+        sf::Sprite sprite;
+        std::string type;
+        std::unordered_map<std::string, std::string> properties;
+        std::string texturePath;
+        sf::Texture texture;
+    };
     class PropertyEditor
     {
     public:
@@ -87,12 +63,35 @@ struct PlacedEntity {
         int selectedInputBox;
         sf::Font *font;
     };
+    EditorMap(sf::RenderWindow &wndref);
+    EditorMap(const std::string fname, sf::RenderWindow &wndref);
+    EditorMap(const EditorMap &) = delete;
+    EditorMap &operator=(const EditorMap &) = delete;
+    ~EditorMap();
 
+    void saveToFile(const std::string &fname);
+    void changePart(int x, int y);
+    sf::FloatRect getPartBounds();
+
+    bool handleMenuClick(const sf::Vector2i &mousePosition, sf::RenderWindow &window);
+    const std::string &getSelectedName() const;
+    const sf::Texture *getSelectedTexture() const;
+    const sf::Texture *getEntityTexture(const std::string &entityName) const;
+
+    void updateEntityProperty(int index, const std::string &property, const std::string &value);
+    void removeEntity(int x, int y);
+    void removeEntity(int index);
+    void addEntity(int x, int y, int w, int h, const std::string &type);
+    void loadFromFile(const std::string &fname);
+    void drawEditorEntities(sf::RenderWindow &window, const PlacedEntity *selectedEntity, bool &isOpen);
+    Menu menu;
+    std::vector<PlacedEntity> placedEntities;
     PropertyEditor propertyEditor;
 
     static std::unordered_map<std::string, sf::Texture> entityTextures;
+
 private:
-    int mx, my, np;
+    int mx, my;
     sf::View view;
     sf::RenderWindow &wndref;
 };

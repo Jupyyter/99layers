@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 class GameMap;
 Boss::Boss(const sf::Vector2f &initialPosition)
-    : Sprite()
+    : Sprite(), CollisionDetector()
 {
     loadAndScaleImage();
     setPosition(initialPosition);

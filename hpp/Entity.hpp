@@ -21,7 +21,6 @@ public:
 
     virtual void update(float deltaTime, const sf::Vector2u &screenrese) = 0;
     virtual void draw(sf::RenderWindow &window) const = 0;
-    virtual void onCollision(Entity *other) {}
     virtual sf::FloatRect getBounds() const = 0;
     virtual const sf::Sprite getSprite() const = 0;
 

@@ -1,42 +1,52 @@
 #pragma once
+#include <vector>
+#include <algorithm>
+#include <memory>
+
 class Player;
 class Entity;
 class EntityFactory;
 class TextBox;
 class Item;
+class CollisionDetector;
 
 class GameMap
 {
-
 public:
-    void spawn(const std::string& entityName, float x=0, float y=0, float rotation=0);
+    void spawn(const std::string &entityName, float x = 0, float y = 0, float rotation = 0);
     void spawn(Entity* entity);
-    void loadFromFile(const std::string& fname);
+    void loadFromFile(const std::string &fname);
     GameMap(sf::RenderWindow &wndref, bool &gameover);
     GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover);
     GameMap(const GameMap &) = delete;
     GameMap &operator=(const GameMap &) = delete;
-    ~GameMap();
+    ~GameMap() = default; // The destructor can now be defaulted
 
-    void draw()const;
+    void draw() const;
     void changePart(int x, int y);
     sf::FloatRect getPartBounds() const;
 
     void resetEntities();
-    void spawnEntities();
     void updateEntities(float deltaTime, const sf::Vector2u &windowSize);
-    void drawEntities(sf::RenderWindow &window)const;
+    void drawEntities(sf::RenderWindow &window) const;
 
-    std::vector<Entity *> activeEntities;
     Player* playerRef;
 
     bool *gameOver;
     sf::RenderWindow &wndref;
-    std::vector<EditorMap::PlacedEntity> placedEntities;
-void removeDeadEntities();
+    void removeDeadEntities();
 
 private:
-    static bool checkCollision(const sf::Sprite& sprite1, const sf::Sprite& sprite2) {
+struct EntityCompare {
+        bool operator()(const std::unique_ptr<Entity>& a, const std::unique_ptr<Entity>& b) const {
+            return a->priorityLayer < b->priorityLayer;
+        }
+    };
+    std::vector<CollisionDetector*> collisionEntities; // This remains as raw pointers for performance
+    std::vector<EditorMap::PlacedEntity> originalEntities;
+    std::multiset<std::unique_ptr<Entity>, EntityCompare> allEntities;
+void spawnEntities();
+     static bool checkCollision(const sf::Sprite& sprite1, const sf::Sprite& sprite2) {
         const auto& bounds1 = getTransformedBounds(sprite1);
         const auto& bounds2 = getTransformedBounds(sprite2);
 
@@ -85,8 +95,11 @@ private:
 
         return true;
     }
+
+
     int mx, my, np;
     sf::View view;
 };
-//global world
+
+// global world
 inline std::unique_ptr<GameMap> world;

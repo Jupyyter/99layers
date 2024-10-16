@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Attack::Attack(sf::Vector2f sp) : Sprite(),offScreenTimer(), timeOffScreen(0.f) {
+Attack::Attack(sf::Vector2f sp) : Sprite(), CollisionDetector(),offScreenTimer(), timeOffScreen(0.f) {
     setPosition(sp);
 }
 void Attack::update(float deltaTime, const sf::Vector2u &screenres) {
@@ -31,7 +31,9 @@ Plank::Plank(sf::Vector2f sp) : Attack(sp), fc(true) {
     secondSprite.setTexture(texture);
     secondSprite.setScale(20.0f / texture.getSize().x, 100.0f / texture.getSize().y);
 }
-
+void Plank::onCollision(Entity *other)
+{
+}
 void Plank::update(float deltaTime, const sf::Vector2u &screenres) {
     float elapsedTime = timer.getElapsedTime().asSeconds();
     if (elapsedTime < 0.9f) {
@@ -92,7 +94,7 @@ void LaserBeam::update(float deltaTime, const sf::Vector2u &screenres) {
     if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
         (*world->gameOver) = true;
 }
-akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp),CollisionDetector() {
+akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp) {
         loadTexture("../imgs/akBullet.png");
         priorityLayer = 5;
         
@@ -138,4 +140,7 @@ void TableFall::update(float deltaTime, const sf::Vector2u &screenres) {
     
     if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
         (*world->gameOver) = true;
+}
+void TableFall::onCollision(Entity *other)
+{
 }

@@ -10,6 +10,7 @@ public:
     float speed = 100.0f;
     float degrees = 0.0f;
 private:
+void onCollision(Entity* other) override;
     bool hasAppearedOnScreen;
     float lifeTimer;
     const float lifeDuration;

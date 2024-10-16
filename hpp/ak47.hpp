@@ -11,5 +11,5 @@ private:
     static constexpr float PI = 3.14159265358979323846f;
     
     sf::Clock shootCooldown;
-    static constexpr float shootCooldownTime = 0.1f; // Adjust this value to change the fire rate
+    static constexpr float shootCooldownTime = 0.05f; // Adjust this value to change the fire rate
 };

@@ -181,7 +181,7 @@ sf::FloatRect EditorMap::getPartBounds()
 void EditorMap::removeEntity(int index) {
     if (index >= 0 && index < placedEntities.size()) {
         placedEntities.erase(placedEntities.begin() + index);
-        std::cout << "deleted \"" << placedEntities[index].type <<"\"\n";
+        std::cout << "\ndeleted \"" << placedEntities[index].type <<"\"\n";
     }
 }
 void EditorMap::addEntity(int x, int y, int w, int h, const std::string &type)

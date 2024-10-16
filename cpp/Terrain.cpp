@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : rotation(0.0f)
+Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : rotation(0.0f), CollisionDetector()
 {
     priorityLayer = -1;
     if (!texture.loadFromFile(tname)) {
@@ -24,7 +24,9 @@ void Terrain::draw(sf::RenderWindow &window) const
 {
     window.draw(sprite);
 }
-
+void Terrain::onCollision(Entity *other)
+{
+}
 void Terrain::update(float deltaTime, const sf::Vector2u& screenres)
 {
     sprite.setRotation(sprite.getRotation() + rotation * deltaTime);

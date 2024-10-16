@@ -5,7 +5,8 @@ Item::Item(const sf::Vector2f &position, float sizet, float speedb, float jumpb,
                                                                                                                                                  jumpb(jumpb),
                                                                                                                                                  name(name),
                                                                                                                                                  description(description),
-                                                                                                                                                 shouldApplyItemChangesToPlayer(false)
+                                                                                                                                                 shouldApplyItemChangesToPlayer(false),
+                                                                                                                                                 CollisionDetector()
 {
     this->texture.loadFromFile(fname);
     this->sprite.setTexture(this->texture);

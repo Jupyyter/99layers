@@ -1,7 +1,7 @@
 #pragma once
 #include "sprite.hpp"
 
-class Attack : public Sprite {
+class Attack : public Sprite,public CollisionDetector {
 public:
     Attack(sf::Vector2f sp);
 float timeOffScreen;
@@ -29,6 +29,7 @@ public:
     void draw(sf::RenderWindow& window) const override;
 
 private:
+void onCollision(Entity *other) override;
     sf::Sprite secondSprite;
     sf::Vector2f velocity;
     sf::Clock timer;
@@ -47,7 +48,7 @@ private:
     sf::Clock timer;
     bool fc;
 };
-class akBullet : public Attack,public CollisionDetector {
+class akBullet : public Attack {
 public:
     akBullet(sf::Vector2f sp, float rotangle);
 
@@ -68,6 +69,7 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
 
 private:
+void onCollision(Entity *other) override;
     sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;

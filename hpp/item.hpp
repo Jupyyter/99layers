@@ -1,7 +1,7 @@
 #pragma once
 class Inventory;
 
-class Item : public Sprite {
+class Item : public Sprite, public CollisionDetector {
     friend class Inventory;
 public:
     class Active {

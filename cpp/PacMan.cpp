@@ -32,7 +32,9 @@ void PacMan::updateDirection()
     float rotation = std::atan2(velocity.y, velocity.x) * 180 / M_PI;
     sprite.setRotation(rotation);
 }
-
+void PacMan::onCollision(Entity* other){
+    
+}
 void PacMan::update(float deltaTime,const sf::Vector2u &screenres)
 {
     if (!hasAppearedOnScreen)

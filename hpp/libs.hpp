@@ -31,6 +31,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include "CollisionDetector.hpp"
 #include "EntityFactory.hpp"
 #include "Entity.hpp"
 #include "sprite.hpp"
@@ -41,7 +42,6 @@
 #include "Animation.hpp"
 #include "HappyEnd.hpp"
 #include "laserEnd.hpp"
-#include "CollisionDetector.hpp"
 #include "TextBox.hpp"
 #include "idk.hpp"
 #include "attack.hpp"
@@ -55,3 +55,4 @@
 #include "GameOverScreen.hpp"
 #include "item.hpp"
 #include "inventory.hpp"
+#include "leveleditor.hpp"
