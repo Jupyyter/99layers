@@ -29,7 +29,6 @@ public:
     void draw(sf::RenderWindow& window) const override;
 
 private:
-void onCollision(Entity *other) override;
     sf::Sprite secondSprite;
     sf::Vector2f velocity;
     sf::Clock timer;
@@ -55,7 +54,6 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
 void onCollision(Entity *other) override;
     void draw(sf::RenderWindow& window) const override;
-    void manageCollisions(const std::vector<sf::FloatRect>& objectBounds);
 
 private:
     sf::Vector2f velocity;
@@ -69,7 +67,6 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
 
 private:
-void onCollision(Entity *other) override;
     sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;

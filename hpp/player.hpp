@@ -29,7 +29,7 @@ bool *gameover;
     void loadAnimations();
     void loadShaders();
 
-    //some item and attack related bullshit
+    //some item and attack related that should not be here
     bool onehitinvin, gothitinv, isStasis;
     sf::Shader stasishad;
 };

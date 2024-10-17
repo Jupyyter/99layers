@@ -31,9 +31,6 @@ Plank::Plank(sf::Vector2f sp) : Attack(sp), fc(true) {
     secondSprite.setTexture(texture);
     secondSprite.setScale(20.0f / texture.getSize().x, 100.0f / texture.getSize().y);
 }
-void Plank::onCollision(Entity *other)
-{
-}
 void Plank::update(float deltaTime, const sf::Vector2u &screenres) {
     float elapsedTime = timer.getElapsedTime().asSeconds();
     if (elapsedTime < 0.9f) {
@@ -140,7 +137,4 @@ void TableFall::update(float deltaTime, const sf::Vector2u &screenres) {
     
     if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
         (*world->gameOver) = true;
-}
-void TableFall::onCollision(Entity *other)
-{
 }

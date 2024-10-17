@@ -68,11 +68,12 @@ void Item::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void Item::onCollision(Entity *other)
 {
-    if (!owned&&typeid(*other) == typeid(Player))
+    if (owned==false&&typeid(*other) == typeid(Player))
     {
         owned=true;
         shouldApplyItemChangesToPlayer = true;
         invisible = true;
+        world->playerRef->inventory->addItem(this);
     }
 }
 II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad at you\nyou better run", "IKEAMAN", "../imgs/poketIkeaman.png")

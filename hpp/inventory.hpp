@@ -11,17 +11,29 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow &window) const override;
     void reset(Player* player);
-    sf::RectangleShape borderHighlight;
-    std::vector<int> activeSlots;
+    void addItem(Item* item);
     void moveItemToInventory(int slotIndex);
     void moveItemToActiveSlot(int itemIndex, int slotIndex);
-void addItem(Item* item);
+
+    sf::RectangleShape borderHighlight;
+    std::vector<int> activeSlots;
+
 private:
+    void loadResources();
+    void setupUI();
+    void setupTexts();
+    void updateItems();
+    void handleInventoryToggle();
+    void handleItemSelection();
+    void handleItemMovement();
+    void handleActiveItems();
+    void drawUI(sf::RenderWindow &window) const;
+    void drawItems(sf::RenderWindow &window) const;
+    void drawSelectedItem(sf::RenderWindow &window) const;
     void updateItemPositions();
-    void loadPanel();
-    void loadItems();
-    void loadTexts();
-    void selectItem(int i, bool isActiveSlot = false);
+    void selectItem(int i, bool isActiveSlot);
+    void startItemMovement(const sf::Vector2i &mousePos);
+    void finishItemMovement(const sf::Vector2i &mousePos);
     int getHoverCell(sf::RenderWindow &window);
     int getActiveHoverCell(sf::RenderWindow &window);
     bool isOnScreen() const override;
@@ -36,7 +48,7 @@ private:
     int selectedItem, pgcount, movedItem;
     bool shouldDraw, fc, movingItem;
 
-    // New text elements
+    // Text elements
     sf::Text infoText, itemsText, activeItemsText;
     sf::Text zText, xText, cText;
 };
