@@ -5,6 +5,7 @@ Item::Item(const sf::Vector2f &position, float sizet, float speedb, float jumpb,
                                                                                                                                                  jumpb(jumpb),
                                                                                                                                                  name(name),
                                                                                                                                                  description(description),
+                                                                                                                                                 owned(false),
                                                                                                                                                  shouldApplyItemChangesToPlayer(false),
                                                                                                                                                  CollisionDetector()
 {
@@ -67,8 +68,9 @@ void Item::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void Item::onCollision(Entity *other)
 {
-    if (typeid(*other) == typeid(Player))
+    if (!owned&&typeid(*other) == typeid(Player))
     {
+        owned=true;
         shouldApplyItemChangesToPlayer = true;
         invisible = true;
     }

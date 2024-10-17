@@ -31,7 +31,7 @@ LevelEditor::LevelEditor()
 }
 void LevelEditor::updateGrid() {
     grid = sf::VertexArray(sf::Lines);
-    sf::Color gridColor(128, 128, 128, 64);
+    sf::Color gridColor(200, 0, 0, 200);
     
     // Get the current view bounds
     sf::Vector2f viewCenter = view.getCenter();
@@ -254,12 +254,12 @@ void LevelEditor::update(float deltaTime) {
 
 void LevelEditor::render() {
     window.clear(sf::Color::Black);
-    window.draw(grid);
     map.drawEditorEntities(window);
     if (!map.menu.isEntitySelected() && leftClickPressed)
         window.draw(transrect);
     if (map.menu.isEntitySelected() && !map.menu.isOpen && !map.propertyEditor.isOpen)
         window.draw(entityPreview);
+    window.draw(grid);
     map.menu.draw();
     map.propertyEditor.draw(window);
     window.display();

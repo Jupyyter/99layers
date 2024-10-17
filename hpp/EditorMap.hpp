@@ -13,8 +13,6 @@ public:
 
     void saveToFile(const std::string& fname);
     void loadFromFile(const std::string& fname);
-    void changePart(int x, int y);
-    sf::FloatRect getPartBounds();
     bool handleMenuClick(const sf::Vector2i& mousePosition);
     void updateEntityProperty(int index, const std::string& property, const std::string& value);
     void removeEntity(int index);

@@ -34,12 +34,12 @@ void Player::loadShaders()
 
 void Player::handleInput()
 {
-       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)||sf::Keyboard::isKeyPressed(sf::Keyboard::A))
        {
               velocity.x = -moveSpeed;
               flipped = false;
        }
-       else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+       else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)||sf::Keyboard::isKeyPressed(sf::Keyboard::D))
        {
               velocity.x = moveSpeed;
               flipped = true;
@@ -49,7 +49,7 @@ void Player::handleInput()
               velocity.x = 0;
        }
 
-       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && isGrounded)
+       if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ||sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && isGrounded)
        {
               velocity.y = jumpForce;
        }

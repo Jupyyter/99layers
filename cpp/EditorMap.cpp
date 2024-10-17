@@ -143,19 +143,6 @@ void EditorMap::updateEntityProperty(int index, const std::string& property, con
     }
 }
 
-void EditorMap::changePart(int x, int y) {
-    mx += x;
-    my += y;
-    sf::Vector2u windowSize = window.getSize();
-    view.setCenter(windowSize.x / 2 + windowSize.x * mx, windowSize.y / 2 + windowSize.y * my);
-    window.setView(view);
-}
-
-sf::FloatRect EditorMap::getPartBounds() {
-    sf::Vector2u windowSize = window.getSize();
-    return sf::FloatRect(mx * windowSize.x, my * windowSize.y, windowSize.x, windowSize.y);
-}
-
 void EditorMap::removeEntity(int index) {
     if (index >= 0 && index < placedEntities.size()) {
         std::cout << "\nDeleted \"" << placedEntities[index].type << "\"\n";

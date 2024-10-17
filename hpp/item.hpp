@@ -12,7 +12,7 @@ public:
     Item(const sf::Vector2f &position, float sizet, float speedb, float jumpb, std::string description, std::string name, std::string fname);
     void onCollision(Entity *other) override;
     virtual ~Item() = default;
-    bool shouldApplyItemChangesToPlayer;
+    bool shouldApplyItemChangesToPlayer,owned;
     virtual void updateOwned(Player *player) = 0;
     virtual void applyItemChanges()=0;
     void update(float deltaTime, const sf::Vector2u &screenres) override;
