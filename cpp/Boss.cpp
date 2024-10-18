@@ -55,8 +55,25 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
     sprite.setRotation(angle);
 
     // Create Attacks
-    if (isOnScreen())
+     if (isOnScreen())
     {
+        if (ptimer.getElapsedTime().asSeconds() >= 3.5)
+        {
+            world->spawn("plank", position.x, position.y, 0);
+            ptimer.restart();
+        }
+
+        if (ltimer.getElapsedTime().asSeconds() >= 0.05)
+        {
+            world->spawn("laser", position.x, position.y, sprite.getRotation());
+            ltimer.restart();
+        }
+
+        if (ttimer.getElapsedTime().asSeconds() >= 2.3)
+        {
+            world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
+            ttimer.restart();
+        }
     }
 }
 

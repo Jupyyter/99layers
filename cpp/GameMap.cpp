@@ -232,10 +232,8 @@ void GameMap::drawEntities(sf::RenderWindow &window) const
 {
     for (const auto &entity : allEntities)
     {
-        std::cout << "b";
         if (entity->isOnScreen())
         {
-            std::cout << "a";
             entity->draw(window);
         }
     }

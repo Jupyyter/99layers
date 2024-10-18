@@ -7,7 +7,7 @@ std::vector<std::string> EditorMap::Menu::textureNames;
 EditorMap::EditorMap(sf::RenderWindow& window)
     : window(window),
       menu({"../imgs/adidas.png", "../imgs/pacman.png", "../imgs/capybaraa.png",
-            "../imgs/ikeaman.png", "../imgs/ak47.png", "../imgs/ak47item.png",
+            "../imgs/ikeaman.png", "../imgs/ak47item.png",
             "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png",
             "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",
             "../imgs/poketIkeaman.png"},
