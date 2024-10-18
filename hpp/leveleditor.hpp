@@ -1,8 +1,4 @@
 #pragma once
-
-#include <SFML/Graphics.hpp>
-#include "EditorMap.hpp"
-
 class LevelEditor {
 private:
     sf::RenderWindow window;
@@ -12,8 +8,7 @@ private:
     sf::Vector2i firstClick, secondClick;
     bool leftClickPressed = false;
     sf::Font font;
- sf::Vector2f firstClickWorld, currentMousePosWorld;
-    // New members for zooming and grid
+    sf::Vector2f firstClickWorld, currentMousePosWorld;
     float zoomLevel;
     sf::VertexArray grid;
     sf::Vector2f gridSize;
@@ -21,7 +16,6 @@ private:
     void handleEvents();
     void update(float deltaTime);
     void render();
-    void handleMouseClick(const sf::Event& event);
     void handleMouseRelease(const sf::Event& event);
     void handleKeyPress(const sf::Event& event);
     void updateTransrect();
@@ -41,5 +35,3 @@ public:
     LevelEditor();
     void run();
 };
-
-sf::Vector2f getEntityOrigin(const sf::Sprite& sprite);

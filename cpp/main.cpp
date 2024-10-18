@@ -22,9 +22,6 @@ int main()
     world = std::make_unique<GameMap>("../map.mib",window, gameOver);
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
-    Sprite background;
-    background.scale(0.6, 0.6);
-    background.loadTexture("../imgs/background3.jpg");
     GameState currentState = GameState::Menu;
 
     sf::Clock frameClock;
@@ -107,10 +104,6 @@ int main()
                 break;
             case GameState::Playing:
                 {
-                    sf::View originalView = window.getView();
-                    window.setView(window.getDefaultView());
-                    background.draw(window);
-                    window.setView(originalView);
                    // map.draw();
                     world->drawEntities(window);
                 }

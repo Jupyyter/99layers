@@ -22,11 +22,11 @@ private:
     void loadResources();
     void setupUI();
     void setupTexts();
-    void updateItems();
     void handleInventoryToggle();
     void handleItemSelection();
     void handleItemMovement();
     void handleActiveItems();
+    void updateItemVisibility();
     void drawUI(sf::RenderWindow &window) const;
     void drawItems(sf::RenderWindow &window) const;
     void drawSelectedItem(sf::RenderWindow &window) const;
@@ -46,6 +46,7 @@ private:
     Item::Active* active[3];
     std::vector<int> ownedItems, unownedItems;
     int selectedItem, pgcount, movedItem;
+    //first check -- fc
     bool shouldDraw, fc, movingItem;
 
     // Text elements

@@ -60,9 +60,7 @@ void Inventory::setupTexts() {
                          activeCellS[i-3].getPosition().y + activeCellS[i-3].getGlobalBounds().height + 5));
     }
 }
-
 void Inventory::update(float deltaTime, const sf::Vector2u &screenres) {
-    updateItems();
     handleInventoryToggle();
     if (shouldDraw) {
         handleItemSelection();
@@ -70,38 +68,38 @@ void Inventory::update(float deltaTime, const sf::Vector2u &screenres) {
     }
     handleActiveItems();
 }
-
-void Inventory::updateItems() {
-    for (int i : ownedItems) allItems[i]->updateOwned(world->playerRef);
-    for (int i = 0; i < 3; i++)
-        if (activeSlots[i] != -1) allItems[activeSlots[i]]->updateOwned(world->playerRef);
-}
-
 void Inventory::handleInventoryToggle() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !movingItem) {
         if (fc) {
             shouldDraw = !shouldDraw;
-            if (!shouldDraw) selectedItem = -1;
-            for (auto &item : allItems) item->invisible = !item->invisible;
+            updateItemVisibility();
             fc = false;
         }
     } else fc = true;
 }
-
+void Inventory::updateItemVisibility() {
+    for (auto &item : allItems) {
+        item->invisible = !shouldDraw;
+    }
+}
 void Inventory::handleItemSelection() {
+    if (!sf::Mouse::isButtonPressed(sf::Mouse::Left)) return;
+
     sf::Vector2i mousePos = sf::Mouse::getPosition(world->wndref);
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        selectedItem = -1;
-        for (size_t i = 0; i < ownedItems.size(); ++i)
-            if (cellSprite[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                selectItem(i, false);
-                return;
-            }
-        for (int i = 0; i < 3; ++i)
-            if (activeCellS[i].getGlobalBounds().contains(mousePos.x, mousePos.y) && activeSlots[i] != -1) {
-                selectItem(i, true);
-                return;
-            }
+    selectedItem = -1;
+
+    for (size_t i = 0; i < ownedItems.size(); ++i) {
+        if (cellSprite[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+            selectItem(i, false);
+            return;
+        }
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        if (activeCellS[i].getGlobalBounds().contains(mousePos.x, mousePos.y) && activeSlots[i] != -1) {
+            selectItem(i, true);
+            return;
+        }
     }
 }
 
@@ -151,10 +149,11 @@ void Inventory::finishItemMovement(const sf::Vector2i &mousePos) {
 }
 
 void Inventory::handleActiveItems() {
-    if (active[0] && sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) active[0]->activate();
-    if (active[1] && sf::Keyboard::isKeyPressed(sf::Keyboard::X)) active[1]->activate();
-    if (active[2] && sf::Keyboard::isKeyPressed(sf::Keyboard::C)) active[2]->activate();
+    if (active[0] && (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)||sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad1))) active[0]->activate();
+    if (active[1] && (sf::Keyboard::isKeyPressed(sf::Keyboard::X)||sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad2))) active[1]->activate();
+    if (active[2] && (sf::Keyboard::isKeyPressed(sf::Keyboard::C)||sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad3))) active[2]->activate();
 }
+
 
 void Inventory::draw(sf::RenderWindow &window) const {
     if (!shouldDraw) return;
@@ -182,18 +181,25 @@ void Inventory::drawUI(sf::RenderWindow &window) const {
     window.draw(xText);
     window.draw(cText);
 }
-
 void Inventory::drawItems(sf::RenderWindow &window) const {
     for (size_t i = 0; i < ownedItems.size(); i++) {
         allItems[ownedItems[i]]->draw(window);
-        if (ownedItems[i] == selectedItem) window.draw(borderHighlight);
+        if (ownedItems[i] == selectedItem) {
+            sf::RectangleShape highlight = borderHighlight;
+            highlight.setPosition(cellSprite[i].getPosition());
+            window.draw(highlight);
+        }
     }
 
     for (int i = 0; i < 3; i++) {
         if (activeSlots[i] != -1) {
             allItems[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
             allItems[activeSlots[i]]->draw(window);
-            if (activeSlots[i] == selectedItem) window.draw(borderHighlight);
+            if (activeSlots[i] == selectedItem) {
+                sf::RectangleShape highlight = borderHighlight;
+                highlight.setPosition(activeCellS[i].getPosition());
+                window.draw(highlight);
+            }
         }
     }
 

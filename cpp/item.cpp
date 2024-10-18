@@ -68,9 +68,9 @@ void Item::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void Item::onCollision(Entity *other)
 {
-    if (owned==false&&typeid(*other) == typeid(Player))
+    if (owned == false && typeid(*other) == typeid(Player))
     {
-        owned=true;
+        owned = true;
         shouldApplyItemChangesToPlayer = true;
         invisible = true;
         world->playerRef->inventory->addItem(this);
@@ -79,7 +79,7 @@ void Item::onCollision(Entity *other)
 II::II(const sf::Vector2f &position) : Item(position, 1, 1, 1, "IkeaMan is mad at you\nyou better run", "IKEAMAN", "../imgs/poketIkeaman.png")
 {
 }
-void II::updateOwned(Player *player)
+void II::update(float deltaTime, const sf::Vector2u &screenres)
 {
 }
 void II::applyItemChanges()
@@ -88,7 +88,7 @@ void II::applyItemChanges()
 AK::AK(const sf::Vector2f &position) : Item(position, 1, 1, 1, "AK 47\nthe one and only", "AK 47", "../imgs/ak47item.png")
 {
 }
-void AK::updateOwned(Player *player)
+void AK::update(float deltaTime, const sf::Vector2u &screenres)
 {
 }
 void AK::applyItemChanges()
@@ -101,27 +101,28 @@ HB::HB(const sf::Vector2f &position) : Item(position, 1, 1.25, 1.1, "Obtain a pr
     this->btimer.restart();
     this->fc = true;
 }
-
-void HB::updateOwned(Player *player)
+void HB::update(float deltaTime, const sf::Vector2u &screenres)
 {
-
-    if (ctimer.getElapsedTime().asSeconds() >= 10.0f)
+    if (owned)
     {
-        setOneHitInv(player, true);
-        pinv = true;
-    }
-    if (pinv && getOneHitInv(player))
-    {
-        if (fc)
+        if (ctimer.getElapsedTime().asSeconds() >= 10.0f)
         {
-            btimer.restart();
-            fc = false;
+            setOneHitInv(world->playerRef, true);
+            pinv = true;
         }
-        else if (btimer.getElapsedTime().asSeconds() >= 0.2f)
+        if (pinv && getOneHitInv(world->playerRef))
         {
-            setOneHitInv(player, false);
-            fc = true;
-            ctimer.restart();
+            if (fc)
+            {
+                btimer.restart();
+                fc = false;
+            }
+            else if (btimer.getElapsedTime().asSeconds() >= 0.2f)
+            {
+                setOneHitInv(world->playerRef, false);
+                fc = true;
+                ctimer.restart();
+            }
         }
     }
 }
@@ -134,15 +135,18 @@ RP::RP(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 0.85f, "You ga
     this->xdis = 0;
     this->accsp = 0;
 }
-void RP::updateOwned(Player *player)
+void RP::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    xdis += std::abs(px - player->getBounds().getPosition().x);
-    px = player->getBounds().getPosition().x;
-    if (accsp < 200 && xdis >= 300.0f)
+    if (owned)
     {
-        addStats(player, 10, 0);
-        accsp += 10;
-        xdis -= 300.0f;
+        xdis += std::abs(px - world->playerRef->getBounds().getPosition().x);
+        px = world->playerRef->getBounds().getPosition().x;
+        if (accsp < 200 && xdis >= 300.0f)
+        {
+            addStats(world->playerRef, 10, 0);
+            accsp += 10;
+            xdis -= 300.0f;
+        }
     }
 }
 void RP::applyItemChanges()
@@ -158,23 +162,26 @@ GB::GB(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 1.35f, "Every 
 {
     this->jc = 0;
 }
-void GB::updateOwned(Player *player)
+void GB::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    if (!isGroundedP && isGrounded(player))
+    if (owned)
     {
-        jc++;
-        if (jc == 2)
+        if (!isGroundedP && isGrounded(world->playerRef))
         {
-            jpowerg = getJumpForce(player) * 0.5f;
-            addStats(player, 0, jpowerg);
+            jc++;
+            if (jc == 2)
+            {
+                jpowerg = getJumpForce(world->playerRef) * 0.5f;
+                addStats(world->playerRef, 0, jpowerg);
+            }
+            else if (jc == 3)
+            {
+                addStats(world->playerRef, 0, -jpowerg);
+                jc = 0;
+            }
         }
-        else if (jc == 3)
-        {
-            addStats(player, 0, -jpowerg);
-            jc = 0;
-        }
+        isGroundedP = isGrounded(world->playerRef);
     }
-    isGroundedP = isGrounded(player);
 }
 void GB::applyItemChanges()
 {
@@ -189,23 +196,25 @@ void CTP::applyItemChanges()
 {
     applyStats(world->playerRef);
 }
-void CTP::updateOwned(Player *player)
+void CTP::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    if (activated)
+    if(owned){
+        if (activated)
     {
         if (fc)
         {
             fc = false;
-            setStasis(player, true);
+            setStasis(world->playerRef, true);
             timer.restart();
         }
         else if (timer.getElapsedTime().asSeconds() >= 2.5f)
         {
             fc = true;
             activated = false;
-            setStasis(player, false);
+            setStasis(world->playerRef, false);
             timer.restart();
         }
+    }
     }
 }
 

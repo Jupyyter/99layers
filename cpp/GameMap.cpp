@@ -92,13 +92,6 @@ void GameMap::loadFromFile(const std::string &fname)
         originalEntities.push_back(std::move(entity));
     }
 }
-void GameMap::draw() const
-{
-    for (const auto &entity : allEntities)
-    {
-        entity->draw(wndref);
-    }
-}
 
 void GameMap::changePart(int x, int y)
 {
@@ -124,6 +117,11 @@ void GameMap::resetEntities()
     spawnEntities();
 }
 
+#include "../hpp/libs.hpp"
+class EditorMap;
+
+// ... (previous code remains unchanged)
+
 void GameMap::spawnEntities()
 {
     for (const auto &placedEntity : originalEntities)
@@ -132,7 +130,17 @@ void GameMap::spawnEntities()
         sf::Vector2f entitySize = placedEntity.sprite.getGlobalBounds().getSize();
         Entity *newEntity = nullptr;
 
-        if (placedEntity.type == "Terrain")
+        if (placedEntity.type == "Background")
+        {
+            // Create a Background entity
+            newEntity = new Background(
+                entityPos.x,
+                entityPos.y,
+                entitySize.x,
+                entitySize.y,
+                placedEntity.texturePath);
+        }
+        else if (placedEntity.type == "Terrain")
         {
             newEntity = new Terrain(
                 static_cast<int>(entityPos.x),
@@ -224,8 +232,10 @@ void GameMap::drawEntities(sf::RenderWindow &window) const
 {
     for (const auto &entity : allEntities)
     {
+        std::cout << "b";
         if (entity->isOnScreen())
         {
+            std::cout << "a";
             entity->draw(window);
         }
     }
@@ -263,4 +273,58 @@ void GameMap::spawn(Entity *entity)
             delete entity;
         }
     }
+}
+bool GameMap::checkCollision(const sf::Sprite &sprite1, const sf::Sprite &sprite2)
+{
+    const auto &bounds1 = getTransformedBounds(sprite1);
+    const auto &bounds2 = getTransformedBounds(sprite2);
+
+    return checkSATCollision(bounds1, bounds2) && checkSATCollision(bounds2, bounds1);
+}
+std::vector<sf::Vector2f> GameMap::getTransformedBounds(const sf::Sprite &sprite)
+{
+    const auto &transform = sprite.getTransform();
+    const auto &localBounds = sprite.getLocalBounds();
+
+    std::vector<sf::Vector2f> vertices = {
+        transform.transformPoint(0, 0),
+        transform.transformPoint(localBounds.width, 0),
+        transform.transformPoint(localBounds.width, localBounds.height),
+        transform.transformPoint(0, localBounds.height)};
+
+    return vertices;
+}
+bool GameMap::checkSATCollision(const std::vector<sf::Vector2f> &vertices1, const std::vector<sf::Vector2f> &vertices2)
+{
+    for (size_t i = 0; i < vertices1.size(); ++i)
+    {
+        sf::Vector2f edge = vertices1[(i + 1) % vertices1.size()] - vertices1[i];
+        sf::Vector2f axis(-edge.y, edge.x);
+        float axisLengthSquared = axis.x * axis.x + axis.y * axis.y;
+
+        float min1 = std::numeric_limits<float>::max();
+        float max1 = std::numeric_limits<float>::lowest();
+        for (const auto &vertex : vertices1)
+        {
+            float projection = (vertex.x * axis.x + vertex.y * axis.y) / axisLengthSquared;
+            min1 = std::min(min1, projection);
+            max1 = std::max(max1, projection);
+        }
+
+        float min2 = std::numeric_limits<float>::max();
+        float max2 = std::numeric_limits<float>::lowest();
+        for (const auto &vertex : vertices2)
+        {
+            float projection = (vertex.x * axis.x + vertex.y * axis.y) / axisLengthSquared;
+            min2 = std::min(min2, projection);
+            max2 = std::max(max2, projection);
+        }
+
+        if (max1 < min2 || max2 < min1)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }

@@ -4,13 +4,8 @@ public:
     Animation();
     virtual ~Animation() = default;
 
-    // Load a spritesheet for animations
     void loadSpritesheet(const std::string& filename, int cellWidth, int cellHeight);
-
-    // Add a new animation sequence
     void addAnimation(const std::string& name, int row, int frameCount);
-
-    // Update the current animation
     void update(float deltaTime, const sf::Vector2u& screenres) override;
 
     // Set the current animation
@@ -18,11 +13,7 @@ public:
 
     // Set the time interval between frames
     void setFrameInterval(float interval);
-
-    // Pause the current animation
     void pause();
-
-    // Resume the current animation
     void resume();
 
     // Set the current frame of the animation

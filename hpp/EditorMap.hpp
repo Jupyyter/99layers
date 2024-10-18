@@ -5,11 +5,17 @@ class EntityFactory;
 class TextBox;
 class Item;
 
+#pragma once
+class Player;
+class Entity;
+class EntityFactory;
+class TextBox;
+class Item;
+
 class EditorMap {
 public:
     EditorMap(sf::RenderWindow& window);
     EditorMap(const std::string& fname, sf::RenderWindow& window);
-    ~EditorMap() = default;
 
     void saveToFile(const std::string& fname);
     void loadFromFile(const std::string& fname);
@@ -29,23 +35,25 @@ public:
 
     class Menu {
     public:
-        Menu(const std::vector<std::string>& entityPaths, const std::vector<std::string>& texturePaths, sf::RenderWindow& window);
+        Menu(const std::vector<std::string>& entityPaths, const std::vector<std::string>& texturePaths, 
+             const std::vector<std::string>& backgroundPaths, sf::RenderWindow& window);
         void draw();
-        void selectNext();
-        void selectPrevious();
         const std::string& getSelectedName() const;
+        bool isBackgroundSelected() const;
+        bool isEntitySelected() const;
+
         bool isOpen = false;
         int selectedIndex = 0;
-        bool isEntitySelected() const { return selectedIndex < entityTextures.size(); }
 
+        sf::RenderWindow& window;
+        static std::vector<std::string> textureNames;
         std::vector<sf::Texture> entityTextures;
         std::vector<std::string> entityNames;
         std::vector<sf::Texture> textures;
-        static std::vector<std::string> textureNames;
-
-    private:
-        sf::RenderWindow& window;
+        std::vector<sf::Texture> backgroundTextures;
+        std::vector<std::string> backgroundNames;
         std::string getFileNameWithoutExtension(const std::string& path);
+
     };
 
     class PropertyEditor {
@@ -55,15 +63,15 @@ public:
         void draw(sf::RenderWindow& window);
         void handleInput(sf::Event& event, sf::RenderWindow& window);
         void applyChanges();
+
         bool isOpen = false;
         PlacedEntity* selectedEntity = nullptr;
-        void handleTextInput(char inputChar);
 
     private:
+        void handleTextInput(char inputChar);
         void wrapText(sf::Text& text, float maxWidth);
         float calculateRequiredHeight(const sf::Text& text, float maxWidth);
         void adjustLayout();
-        void adjustBackgroundSize();
 
         sf::RectangleShape background;
         std::vector<sf::Text> labels;

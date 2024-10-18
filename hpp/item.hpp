@@ -13,7 +13,6 @@ public:
     void onCollision(Entity *other) override;
     virtual ~Item() = default;
     bool shouldApplyItemChangesToPlayer,owned;
-    virtual void updateOwned(Player *player) = 0;
     virtual void applyItemChanges()=0;
     void update(float deltaTime, const sf::Vector2u &screenres) override;
     void draw(sf::RenderWindow &window)const  override;
@@ -39,8 +38,7 @@ class II:public Item{
     II(const sf::Vector2f &position);
     ~II() = default;
 
-    void updateOwned(Player *player) override;
-    // update is inherited from Item
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
 
     void applyItemChanges() override;
 
@@ -50,8 +48,7 @@ class AK:public Item{
     AK(const sf::Vector2f &position);
     ~AK() = default;
 
-    void updateOwned(Player *player) override;
-    // update is inherited from Item
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
 
     void applyItemChanges() override;
 
@@ -62,7 +59,7 @@ public:
     HB(const sf::Vector2f &position);
     ~HB() = default;
 
-    void updateOwned(Player *player) override;
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
     // update is inherited from Item
 
     void applyItemChanges() override;
@@ -79,7 +76,7 @@ class RP : public Item{
     RP(const sf::Vector2f &position);
     ~RP() = default;
 
-    void updateOwned(Player *player) override;//the update if you own the item
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
     void applyItemChanges() override;
 
     //for custom text writing
@@ -95,7 +92,7 @@ class GB: public Item{
     GB(const sf::Vector2f &position);
     ~GB() = default;
 
-    void updateOwned(Player *player) override;//the update if you own the item
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
     void applyItemChanges() override;
 
     private:
@@ -110,7 +107,7 @@ class CTP : public Item, public Item::Active{
     CTP(const sf::Vector2f &position);
     ~CTP() = default;
     void applyItemChanges() override;
-    void updateOwned(Player *player) override;//the update if you own the item
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
     void activate() override;//the functions that gets called when the button related to your active ability gets pressed
 
     private:

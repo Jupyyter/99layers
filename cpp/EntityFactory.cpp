@@ -1,134 +1,101 @@
 #include "../hpp/libs.hpp"
 class HappyEnd;
-Entity *EntityFactory::createEntity(const std::string &type,sf::Transformable transform)
+
+// Helper function to create compile-time string hashes
+constexpr unsigned int hash(const char* str, int h = 0)
 {
-    if (type == "pacman")
-    {
-        return new PacMan(transform.getPosition());
-    }
-    else if (type == "arrow")
-    {
-        return new Idk(transform.getPosition(), 200);
-    }
-    else if (type == "capybaraa")
-    {
-        return new Npc(transform.getPosition());
-    }
-    else if (type == "pengu")
-    {
-        return new Penguin(transform.getPosition());
-    }
-    else if (type == "HorusBrogans")
-    {
-        return new HB(transform.getPosition());
-    }
-    else if (type == "runnerspact")
-    {
-        return new RP(transform.getPosition());;
-    }
-    else if (type == "groundbreaker")
-    {
-        return new GB(transform.getPosition());
-    }
-    else if (type == "chronostimepiece")
-    {
-        return new CTP(transform.getPosition());
-    }
-    else if(type=="poketIkeaman"){
-        return new II(transform.getPosition());
-    }
-    else if(type=="ikeaman"){
-        return new Boss(transform.getPosition());
-    }
-    else if(type=="laser"){
-        return new LaserBeam(transform.getPosition(),transform.getRotation());
-    }
-    else if(type=="plank"){
-        return new Plank(transform.getPosition());
-    }
-    else if(type=="table"){
-        return new TableFall(transform.getPosition());
-    }
-    else if (type=="adidas"){
-        Player *player = new Player(transform.getPosition());
-        world->playerRef=player;
-        return player;
-    }
-    else if(type=="ak47"){
-        return new AK47();
-    }
-    else if(type=="ak47item"){
-        AK *item = new AK(transform.getPosition());
-        return item;
-    }
-    else if(type=="inventory"){
-        return new Inventory();
-    }
-    else if(type=="akBullet"){
-         return new akBullet(transform.getPosition(),transform.getRotation());
-    }
-    else if(type=="HappyEnd"){
-        return new HappyEnd(transform.getPosition());
-    }
-    else if(type=="LaserEnd"){
-        return new LaserEnd(transform.getPosition());
-    }
-    return nullptr;
+    return !str[h] ? 5381 : (hash(str, h+1) * 33) ^ str[h];
 }
+
+// String literal operator to create compile-time string hashes
+constexpr unsigned int operator"" _hash(const char* p, size_t)
+{
+    return hash(p);
+}
+
+Entity* EntityFactory::createEntity(const std::string& type, sf::Transformable transform)
+{
+    switch (hash(type.c_str())) {
+        case "pacman"_hash:
+            return new PacMan(transform.getPosition());
+        case "arrow"_hash:
+            return new Idk(transform.getPosition(), 200);
+        case "capybaraa"_hash:
+            return new Npc(transform.getPosition());
+        case "pengu"_hash:
+            return new Penguin(transform.getPosition());
+        case "HorusBrogans"_hash:
+            return new HB(transform.getPosition());
+        case "runnerspact"_hash:
+            return new RP(transform.getPosition());
+        case "groundbreaker"_hash:
+            return new GB(transform.getPosition());
+        case "chronostimepiece"_hash:
+            return new CTP(transform.getPosition());
+        case "poketIkeaman"_hash:
+            return new II(transform.getPosition());
+        case "ikeaman"_hash:
+            return new Boss(transform.getPosition());
+        case "laser"_hash:
+            return new LaserBeam(transform.getPosition(), transform.getRotation());
+        case "plank"_hash:
+            return new Plank(transform.getPosition());
+        case "table"_hash:
+            return new TableFall(transform.getPosition());
+        case "adidas"_hash: {
+            Player* player = new Player(transform.getPosition());
+            world->playerRef = player;
+            return player;
+        }
+        case "ak47"_hash:
+            return new AK47();
+        case "ak47item"_hash:
+            return new AK(transform.getPosition());
+        case "inventory"_hash:
+            return new Inventory();
+        case "akBullet"_hash:
+            return new akBullet(transform.getPosition(), transform.getRotation());
+        case "HappyEnd"_hash:
+            return new HappyEnd(transform.getPosition());
+        case "LaserEnd"_hash:
+            return new LaserEnd(transform.getPosition());
+        default:
+            return nullptr;
+    }
+}
+
 std::vector<PropertyDescriptor> EntityFactory::getPropertyDescriptors(const std::string& type)
 {
-    if (type == "pacman")
-    {
-        return PacMan::getPropertyDescriptors();
-    }
-    else if (type == "arrow")
-    {
-        return Idk::getPropertyDescriptors();
-    }
-    else if (type == "capybaraa")
-    {
-        return Npc::getPropertyDescriptors();
-    }
-    else if (type == "pengu")
-    {
-        return Penguin::getPropertyDescriptors();
-    }
-    else if (type == "HorusBrogans")
-    {
-        return HB::getPropertyDescriptors();
-    }
-    else if (type == "runnerspact")
-    {
-        return RP::getPropertyDescriptors();
-    }
-    else if (type == "groundbreaker")
-    {
-        return GB::getPropertyDescriptors();
-    }
-    else if (type == "chronostimepiece")
-    {
-        return CTP::getPropertyDescriptors();
-    }
-    else if(type=="poketIkeaman"){
-        return II::getPropertyDescriptors();
-    }
-    else if(type=="ikeaman"){
-        return Boss::getPropertyDescriptors();
-    }
-    else if (type=="adidas"){
-        return Player::getPropertyDescriptors();
-        
-    }
-    else if(type=="ak47"){
-        return AK47::getPropertyDescriptors();
-    }
-    else if(type=="ak47item"){
-        return AK::getPropertyDescriptors();
-    }
-    else if(type=="Terrain"){
-        return Terrain::getPropertyDescriptors();
-    }
-    else /*if(type=="HappyEnd")*/{
-        return HappyEnd::getPropertyDescriptors();
+    switch (hash(type.c_str())) {
+        case "pacman"_hash:
+            return PacMan::getPropertyDescriptors();
+        case "arrow"_hash:
+            return Idk::getPropertyDescriptors();
+        case "capybaraa"_hash:
+            return Npc::getPropertyDescriptors();
+        case "pengu"_hash:
+            return Penguin::getPropertyDescriptors();
+        case "HorusBrogans"_hash:
+            return HB::getPropertyDescriptors();
+        case "runnerspact"_hash:
+            return RP::getPropertyDescriptors();
+        case "groundbreaker"_hash:
+            return GB::getPropertyDescriptors();
+        case "chronostimepiece"_hash:
+            return CTP::getPropertyDescriptors();
+        case "poketIkeaman"_hash:
+            return II::getPropertyDescriptors();
+        case "ikeaman"_hash:
+            return Boss::getPropertyDescriptors();
+        case "adidas"_hash:
+            return Player::getPropertyDescriptors();
+        case "ak47"_hash:
+            return AK47::getPropertyDescriptors();
+        case "ak47item"_hash:
+            return AK::getPropertyDescriptors();
+        case "Terrain"_hash:
+            return Terrain::getPropertyDescriptors();
+        default:
+            return HappyEnd::getPropertyDescriptors();
     }
 }

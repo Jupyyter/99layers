@@ -56,3 +56,4 @@
 #include "item.hpp"
 #include "inventory.hpp"
 #include "leveleditor.hpp"
+#include "Background.hpp"

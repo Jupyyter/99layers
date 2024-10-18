@@ -2,6 +2,7 @@
 #include <SFML/System/Clock.hpp>
 #include <thread>
 #include <chrono>
+
 sf::Vector2f getEntityOrigin(const sf::Sprite& sprite) {
     const sf::FloatRect& bounds = sprite.getLocalBounds();
     return sf::Vector2f(bounds.width / 2, bounds.height / 2);
@@ -29,28 +30,25 @@ LevelEditor::LevelEditor()
 
     updateGrid();
 }
+
 void LevelEditor::updateGrid() {
     grid = sf::VertexArray(sf::Lines);
     sf::Color gridColor(200, 0, 0, 200);
     
-    // Get the current view bounds
     sf::Vector2f viewCenter = view.getCenter();
     sf::Vector2f viewSize = view.getSize();
-    float gridHorizontalSpacing = 1024.0f; // Spacing between grid lines
+    float gridHorizontalSpacing = 1024.0f;
     float gridVerticalSpacing = 768.0f;
-    // Calculate grid boundaries that extend well beyond the view
     float startX = viewCenter.x - viewSize.x * 10;
     float endX = viewCenter.x + viewSize.x * 10;
     float startY = viewCenter.y - viewSize.y * 10;
     float endY = viewCenter.y + viewSize.y * 10;
     
-    // Draw vertical lines
     for (float x = startX - fmod(startX, gridHorizontalSpacing); x <= endX; x += gridHorizontalSpacing) {
         grid.append(sf::Vertex(sf::Vector2f(x, startY), gridColor));
         grid.append(sf::Vertex(sf::Vector2f(x, endY), gridColor));
     }
     
-    // Draw horizontal lines
     for (float y = startY - fmod(startY, gridVerticalSpacing); y <= endY; y += gridVerticalSpacing) {
         grid.append(sf::Vertex(sf::Vector2f(startX, y), gridColor));
         grid.append(sf::Vertex(sf::Vector2f(endX, y), gridColor));
@@ -98,14 +96,25 @@ void LevelEditor::handleMouseScroll(const sf::Event& event) {
         view.setSize(window.getDefaultView().getSize());
         view.zoom(1.f / zoomLevel);
         window.setView(view);
-        updateGrid(); // Update grid when zooming
+        updateGrid();
     }
 }
+
 void LevelEditor::handleKeyPress(const sf::Event& event) {
     if (event.key.code == sf::Keyboard::Escape) {
-        // Close any open menus
         map.menu.isOpen = false;
         map.propertyEditor.isOpen = false;
+        return;
+    }
+
+    if (event.key.code == sf::Keyboard::E) {
+        if (map.propertyEditor.isOpen) {
+            map.propertyEditor.isOpen = false;
+            map.menu.isOpen = true;
+        } else {
+            map.menu.isOpen = !map.menu.isOpen;
+            map.propertyEditor.isOpen = false;
+        }
         return;
     }
 
@@ -116,9 +125,6 @@ void LevelEditor::handleKeyPress(const sf::Event& event) {
     }
 
     switch (event.key.code) {
-        case sf::Keyboard::E:
-            map.menu.isOpen = !map.menu.isOpen;
-            break;
         case sf::Keyboard::S:
             map.saveToFile("../map.mib");
             break;
@@ -157,9 +163,9 @@ void LevelEditor::handleMousePress(const sf::Event& event) {
     if (event.mouseButton.button == sf::Mouse::Left) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         if (map.handleMenuClick(mousePos)) {
-            if (map.menu.isEntitySelected()) {
+            if (map.menu.isEntitySelected() && !map.menu.isBackgroundSelected()) {
                 updateEntityPreview(&map.menu.entityTextures[map.menu.selectedIndex]);
-            } else {
+            } else if (!map.menu.isBackgroundSelected()) {
                 if (const sf::Texture* selectedTexture = &map.menu.textures[map.menu.selectedIndex - map.menu.entityTextures.size()])
                     transrect.setTexture(*selectedTexture, true);
             }
@@ -179,7 +185,7 @@ void LevelEditor::openPropertyEditor() {
     sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     EditorMap::PlacedEntity* clickedEntity = nullptr;
     for (auto& entity : map.placedEntities) {
-        if (entity.sprite.getGlobalBounds().contains(worldPos)) {
+        if (entity.sprite.getGlobalBounds().contains(worldPos) && entity.type != "Background") {
             clickedEntity = &entity;
             break;
         }
@@ -187,17 +193,26 @@ void LevelEditor::openPropertyEditor() {
     
     if (clickedEntity) {
         map.propertyEditor.updateForEntity(clickedEntity);
-    } else {
-        // Close menus when right-clicking empty space
+        map.propertyEditor.isOpen = true;
         map.menu.isOpen = false;
+    } else {
         map.propertyEditor.isOpen = false;
+        map.menu.isOpen = false;
     }
 }
+
 void LevelEditor::handleMouseRelease(const sf::Event& event) {
     if (event.mouseButton.button == sf::Mouse::Left && !map.menu.isOpen && !map.propertyEditor.isOpen) {
         leftClickPressed = false;
+        
         if (map.menu.isEntitySelected()) {
-            map.addEntity(entityPreview.getGlobalBounds().getPosition().x, entityPreview.getGlobalBounds().getPosition().y, 0, 0, map.menu.getSelectedName());
+            map.addEntity(entityPreview.getGlobalBounds().getPosition().x, 
+                         entityPreview.getGlobalBounds().getPosition().y, 
+                         0, 0, map.menu.getSelectedName());
+        } else if (map.menu.isBackgroundSelected()) {
+            float gridX = std::floor(currentMousePosWorld.x / 1024.0f) * 1024.0f;
+            float gridY = std::floor(currentMousePosWorld.y / 768.0f) * 768.0f;
+            map.addEntity(gridX, gridY, 1024, 768, "Background");
         } else {
             float x = std::min(firstClickWorld.x, currentMousePosWorld.x);
             float y = std::min(firstClickWorld.y, currentMousePosWorld.y);
@@ -219,16 +234,15 @@ void LevelEditor::handleMouseMove(const sf::Event& event) {
         view.move(delta);
         window.setView(view);
         lastMousePos = currentMousePos;
-        updateGrid(); // Update grid when camera moves
+        updateGrid();
     }
     
     currentMousePosWorld = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     
-    if (!map.propertyEditor.isOpen || !map.menu.isOpen) {
+    if (!map.propertyEditor.isOpen && !map.menu.isOpen) {
         entityPreview.setPosition(currentMousePosWorld);
     }
 }
-
 
 void LevelEditor::updateTransrect() {
     if (leftClickPressed && !map.menu.isEntitySelected()) {
@@ -289,7 +303,6 @@ int main() {
         LevelEditor editor;
         editor.run();
     } catch (const std::exception& e) {
-        //std::cerr << "Error: " << e.what() << std::endl;
         return -1;
     }
     return 0;
