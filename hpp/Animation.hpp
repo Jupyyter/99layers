@@ -1,7 +1,7 @@
 #pragma once
 class Animation : public Sprite {
 public:
-    Animation();
+    Animation(const sf::Vector2f& position);
     virtual ~Animation() = default;
 
     void loadSpritesheet(const std::string& filename, int cellWidth, int cellHeight);

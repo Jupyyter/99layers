@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 Background::Background(float x, float y, float width, float height, const std::string& texturePath)
-    : Sprite(), originalWidth(width), originalHeight(height)
+    : Sprite(sf::Vector2f(x,y)), originalWidth(width), originalHeight(height)
 {
     // Set entity properties
     priorityLayer = -1000; // Ensure background is drawn behind other entities
@@ -15,7 +15,6 @@ Background::Background(float x, float y, float width, float height, const std::s
     
     // Initialize sprite properties
     initializeSprite(width, height);
-    setPosition(x, y);
 }
 
 void Background::initializeSprite(float width, float height) {

@@ -5,10 +5,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 PacMan::PacMan(sf::Vector2f spawnPosition)
-    : Animation(), CollisionDetector(), hasAppearedOnScreen(false), lifeTimer(0.0f),
+    : Animation(spawnPosition), CollisionDetector(), hasAppearedOnScreen(false), lifeTimer(0.0f),
       lifeDuration(5.0f), speed(100.0f), degrees(0.0f)
 {
-    setPosition(spawnPosition);
      position = spawnPosition;
     loadSprite();
 }
@@ -49,7 +48,6 @@ void PacMan::update(float deltaTime,const sf::Vector2u &screenres)
 
     updateDirection();
     position += velocity * deltaTime;
-    setPosition(position);
 
     lifeTimer += deltaTime;
     if(sprite.getGlobalBounds().intersects(world->playerRef->getBounds())){

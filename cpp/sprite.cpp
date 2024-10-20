@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Sprite::Sprite() : Entity(), flipped(true), invisible(false) {}
+Sprite::Sprite(const sf::Vector2f& position) : Entity(position), flipped(true), invisible(false) {}
 
 void Sprite::loadTexture(const std::string &filename)
 {
@@ -35,12 +35,6 @@ void Sprite::setPosition(const sf::Vector2f &pos)
     sprite.setPosition(position);
 }
 
-void Sprite::setPosition(float x, float y)
-{
-    position.x = x;
-    position.y = y;
-    sprite.setPosition(position);
-}
 sf::FloatRect Sprite::getBounds() const {
     return this->sprite.getGlobalBounds();
 }

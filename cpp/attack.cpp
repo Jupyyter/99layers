@@ -1,7 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Attack::Attack(sf::Vector2f sp) : Sprite(), CollisionDetector(),offScreenTimer(), timeOffScreen(0.f) {
-    setPosition(sp);
+Attack::Attack(sf::Vector2f sp) : Sprite(sp), CollisionDetector(),offScreenTimer(), timeOffScreen(0.f) {
 }
 void Attack::update(float deltaTime, const sf::Vector2u &screenres) {
     if (!isOnScreen()) {
@@ -35,7 +34,7 @@ void Plank::update(float deltaTime, const sf::Vector2u &screenres) {
     float elapsedTime = timer.getElapsedTime().asSeconds();
     if (elapsedTime < 0.9f) {
         if (fc) {
-            setPosition(world->playerRef->getBounds().left, world->playerRef->getBounds().top);
+            position=sf::Vector2f(world->playerRef->getBounds().left, world->playerRef->getBounds().top);
             fc = false;
         }
         sprite.setPosition(sf::Vector2f(position.x - 5 * world->playerRef->getBounds().width, position.y - 20));
@@ -81,11 +80,9 @@ void LaserBeam::update(float deltaTime, const sf::Vector2u &screenres) {
         velocity /= length;
         velocity *= 20.0f;
         position += velocity;
-        setPosition(position);
         fc = false;
     } else {
         position += velocity;
-        setPosition(position);
     }
     
     if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
@@ -117,7 +114,6 @@ void akBullet::update(float deltaTime,  const sf::Vector2u &screenres) {
 
         // Move the bullet in its facing direction
         position += velocity * deltaTime;
-        setPosition(position);
     }
 void akBullet::draw(sf::RenderWindow &window)const  {
     Sprite::draw(window);
@@ -133,7 +129,6 @@ void TableFall::update(float deltaTime, const sf::Vector2u &screenres) {
     
     velocity.y += 0.5f;
     position += velocity;
-    setPosition(position);
     
     if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
         (*world->gameOver) = true;

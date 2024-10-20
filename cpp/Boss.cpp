@@ -1,10 +1,9 @@
 #include "../hpp/libs.hpp"
 class GameMap;
 Boss::Boss(const sf::Vector2f &initialPosition)
-    : Sprite(), CollisionDetector()
+    : Sprite(initialPosition), CollisionDetector()
 {
     loadAndScaleImage();
-    setPosition(initialPosition);
     resetTimers();
 }
 
@@ -36,7 +35,6 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
     float movementSpeed = 70.0f;
     move(direction * movementSpeed * deltaTime);
     position += direction * movementSpeed * deltaTime;
-    setPosition(position);
 
     updateEyePosition();
 

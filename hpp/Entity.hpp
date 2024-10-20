@@ -15,8 +15,9 @@ struct PropertyDescriptor
 
 class Entity
 {
+    friend class GameMap;
 public:
-    Entity();
+    Entity(const sf::Vector2f &position);
     virtual ~Entity() = default;
 
     virtual void update(float deltaTime, const sf::Vector2u &screenrese) = 0;
@@ -27,15 +28,16 @@ public:
     static std::vector<PropertyDescriptor> getPropertyDescriptors() { return {}; }
 
     sf::Vector2f getPosition() const { return position; }
-    void setPosition(const sf::Vector2f &pos) { position = pos; }
     void move(const sf::Vector2f &offset) { position += offset; }
     virtual bool isOnScreen() const=0;
     int getPriorityLayer(){return priorityLayer;}
 
     int priorityLayer = 0;
     bool shouldBeDead = false;
-    sf::Vector2f position;
+private:
+    virtual void setPosition(const sf::Vector2f &pos) { position = pos; }
 
 protected:
+    sf::Vector2f position;
     sf::Vector2f velocity;
 };

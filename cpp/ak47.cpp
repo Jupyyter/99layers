@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-AK47::AK47() : Sprite(), playerRef(world->playerRef)
+AK47::AK47() : Sprite(sf::Vector2f(0,0)), playerRef(world->playerRef)
 {
     loadTexture("../imgs/ak47.png");
     priorityLayer = 5;
@@ -49,8 +49,7 @@ void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
 
 void AK47::updatePosition() {
     if (playerRef) {
-        float centerX = playerRef->getBounds().left + playerRef->getBounds().width / 2;
-        float centerY = playerRef->getBounds().top + playerRef->getBounds().height / 2;
-        setPosition(centerX, centerY);
+        position=sf::Vector2f(world->playerRef->getBounds().left + playerRef->getBounds().width / 2,
+                                world->playerRef->getBounds().top + playerRef->getBounds().height / 2);
     }
 }

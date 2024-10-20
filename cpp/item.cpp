@@ -7,7 +7,8 @@ Item::Item(const sf::Vector2f &position, float sizet, float speedb, float jumpb,
                                                                                                                                                  description(description),
                                                                                                                                                  owned(false),
                                                                                                                                                  shouldApplyItemChangesToPlayer(false),
-                                                                                                                                                 CollisionDetector()
+                                                                                                                                                 CollisionDetector(),
+                                                                                                                                                 Sprite(sf::Vector2f(position))
 {
     this->texture.loadFromFile(fname);
     this->sprite.setTexture(this->texture);
@@ -93,7 +94,7 @@ void AK::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void AK::applyItemChanges()
 {
-    world->spawn("ak47", world->playerRef->position.x, world->playerRef->position.y, 0);
+    world->spawn("ak47", world->playerRef->getPosition().x, world->playerRef->getPosition().y, 0);
 }
 HB::HB(const sf::Vector2f &position) : Item(position, 1, 1.25, 1.1, "Obtain a protective barrier once every 10 seconds,\nthat makes you immune to damage for a brief period of time", "Horus's Brogans", "../imgs/HorusBrogans.png")
 {

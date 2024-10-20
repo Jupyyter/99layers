@@ -1,8 +1,7 @@
 #include "../hpp/libs.hpp"
 Idk::Idk(sf::Vector2f position, float moveDistance)
-    : Animation(), CollisionDetector(), moveSpeed(100.0f), moveDistance(moveDistance), initialX(position.x), gravity(980.0f), movingRight(true)
+    : Animation(position), CollisionDetector(), moveSpeed(100.0f), moveDistance(moveDistance), initialX(position.x), gravity(980.0f), movingRight(true)
 {
-    setPosition(position);
     loadSprite();
 }
 
@@ -16,7 +15,6 @@ void Idk::onCollision(Entity *other)
 {
     if (typeid(*other) == typeid(Terrain))
     {
-        setPosition(position);
         switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
         {
         case CollisionInfo::Left:
@@ -50,7 +48,6 @@ void Idk::onCollision(Entity *other)
         default:
             break;
         }
-        setPosition(position);
     }
 }
 void Idk::update(float deltaTime, const sf::Vector2u &screenres)
@@ -76,7 +73,6 @@ void Idk::update(float deltaTime, const sf::Vector2u &screenres)
         }
         // Update position
         position += velocity * deltaTime;
-        setPosition(position);
 
         // Update animation
         Animation::update(deltaTime, screenres);

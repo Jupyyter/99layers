@@ -1,10 +1,9 @@
 #include "../hpp/libs.hpp"
 
-LaserEnd::LaserEnd(const sf::Vector2f &initialPosition) : Animation(), animationStarted(false), animationCompleted(false)
+LaserEnd::LaserEnd(const sf::Vector2f &initialPosition) : Animation(initialPosition), animationStarted(false), animationCompleted(false)
 {
     priorityLayer = 6;
     shouldBeDead = false;
-    setPosition(initialPosition);
     loadSpritesheet("../imgs/LaserEnd.png", 32, 32); // Assuming the spritesheet is 32x96
 
     // Randomly choose one of the three animations

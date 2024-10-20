@@ -1,6 +1,7 @@
 #include "../hpp/libs.hpp"
 
-Inventory::Inventory() : pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), movingItem(false), activeSlots(3, -1) {
+Inventory::Inventory() : Sprite(sf::Vector2f(world->getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
+                         world->getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f)), pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), movingItem(false), activeSlots(3, -1) {
     priorityLayer = 777;
     loadResources();
 }
@@ -107,7 +108,7 @@ void Inventory::handleItemMovement() {
     sf::Vector2i mousePos = sf::Mouse::getPosition(world->wndref);
     if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
         if (movingItem) {
-            allItems[movedItem]->setPosition(sf::Vector2f(mousePos) - cellSprite[0].getGlobalBounds().getSize() / 2.0f);
+            allItems[movedItem]->position=(sf::Vector2f(mousePos) - cellSprite[0].getGlobalBounds().getSize() / 2.0f);
         } else {
             startItemMovement(mousePos);
         }
@@ -193,7 +194,7 @@ void Inventory::drawItems(sf::RenderWindow &window) const {
 
     for (int i = 0; i < 3; i++) {
         if (activeSlots[i] != -1) {
-            allItems[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
+            allItems[activeSlots[i]]->position=(activeCellS[i].getPosition());
             allItems[activeSlots[i]]->draw(window);
             if (activeSlots[i] == selectedItem) {
                 sf::RectangleShape highlight = borderHighlight;
@@ -230,7 +231,7 @@ void Inventory::reset(Player *player) {
 void Inventory::addItem(Item* item) {
     allItems.push_back(item);
     ownedItems.push_back(allItems.size() - 1);
-    item->setPosition(cellSprite[ownedItems.size() - 1].getPosition());
+    item->position=(cellSprite[ownedItems.size() - 1].getPosition());
     item->sprite.setScale(cellSprite[0].getGlobalBounds().width / item->sprite.getGlobalBounds().width,
                           cellSprite[0].getGlobalBounds().height / item->sprite.getGlobalBounds().height);
     item->applyItemChanges();
@@ -265,10 +266,10 @@ void Inventory::moveItemToActiveSlot(int itemIndex, int slotIndex) {
 
 void Inventory::updateItemPositions() {
     for (size_t i = 0; i < ownedItems.size(); i++)
-        allItems[ownedItems[i]]->setPosition(cellSprite[i].getPosition());
+        allItems[ownedItems[i]]->position=(cellSprite[i].getPosition());
     for (int i = 0; i < 3; i++)
         if (activeSlots[i] != -1)
-            allItems[activeSlots[i]]->setPosition(activeCellS[i].getPosition());
+            allItems[activeSlots[i]]->position=(activeCellS[i].getPosition());
 }
 
 void Inventory::selectItem(int i, bool isActiveSlot) {

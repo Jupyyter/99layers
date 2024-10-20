@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : rotation(0.0f), CollisionDetector()
+Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : Sprite(sf::Vector2f(x ,y)), rotation(0.0f), CollisionDetector()
 {
     priorityLayer = -1;
     if (!texture.loadFromFile(tname)) {
@@ -13,9 +13,8 @@ Terrain::Terrain(int x, int y, int w, int h, const std::string& tname) : rotatio
         sprite.setTextureRect(sf::IntRect(0, 0, w, h));
         
         // Set the origin to the center of the sprite
-        sprite.setOrigin(w / 2.0f, h / 2.0f);
+        //sprite.setOrigin(w / 2.0f, h / 2.0f);
     // Adjust position to account for the new origin
-    sprite.setPosition(x + w / 2.0f, y + h / 2.0f);
     }
     
 }

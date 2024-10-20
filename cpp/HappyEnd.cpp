@@ -1,10 +1,9 @@
 #include "../hpp/libs.hpp"
 
-HappyEnd::HappyEnd(const sf::Vector2f &initialPosition) : Animation(), animationStarted(false), animationCompleted(false)
+HappyEnd::HappyEnd(const sf::Vector2f &initialPosition) : Animation(initialPosition), animationStarted(false), animationCompleted(false)
 {
        priorityLayer=6;
        shouldBeDead = false;
-       setPosition(initialPosition);
        loadSpritesheet("../imgs/HappyEnd.png", 32, 32);
        addAnimation("go", 0, 5);
        setAnimation("go");

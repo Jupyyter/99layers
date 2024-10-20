@@ -2,9 +2,8 @@
 #include "../hpp/penguin.hpp"
 
 Penguin::Penguin(sf::Vector2f position)
-    : Animation(), CollisionDetector(), gravity(980.0f), isColliding(false), 
+    : Animation(position), CollisionDetector(), gravity(980.0f), isColliding(false), 
     speed(200.0f) {
-    setPosition(position);
     loadSprite();
 }
 
@@ -17,7 +16,6 @@ void Penguin::onCollision(Entity *other)
 {
        if (typeid(*other) == typeid(Terrain))
        {
-              setPosition(position);
               switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
               {
               case CollisionInfo::Left:
@@ -51,7 +49,6 @@ void Penguin::onCollision(Entity *other)
               default:
                      break;
               }
-              setPosition(position);
        }
 }
 void Penguin::update(float deltaTime, const sf::Vector2u& screenres) {
@@ -62,7 +59,6 @@ void Penguin::update(float deltaTime, const sf::Vector2u& screenres) {
         velocity.x = speed * deltaTime;
         position.x += velocity.x;
 
-        setPosition(position);
         Animation::update(deltaTime,screenres);
     }
 }

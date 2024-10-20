@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 
-Animation::Animation()
-    : Sprite(), currentFrame(0), frameTime(0), frameInterval(0.1f),
+Animation::Animation(const sf::Vector2f &position)
+    : Sprite(position), currentFrame(0), frameTime(0), frameInterval(0.1f),
       cellWidth(0), cellHeight(0), paused(false) {}
 
 void Animation::loadSpritesheet(const std::string &filename, int cellWidth, int cellHeight)

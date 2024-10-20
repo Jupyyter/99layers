@@ -1,11 +1,10 @@
 #include "../hpp/libs.hpp"
 class TextBox;
 Npc::Npc(sf::Vector2f position)
-    : Animation(), CollisionDetector(), gravity(980.0f), isColliding(false)
+    : Animation(position), CollisionDetector(), gravity(980.0f), isColliding(false)
 {
-       priorityLayer=-778;
+       priorityLayer=1;
        textBox = std::make_unique<TextBox>("", 0.007f);
-       setPosition(position);
        loadSprite();
 }
 
@@ -22,7 +21,6 @@ void Npc::update(float deltaTime,  const sf::Vector2u &screenres)
        {
               velocity.y += gravity * deltaTime;
               position.y += velocity.y * deltaTime;
-              setPosition(position);
               checkCollisionWithPlayer(world->playerRef->getBounds());
               Animation::update(deltaTime, screenres);
 
@@ -66,7 +64,6 @@ void Npc::onCollision(Entity *other)
 {
        if (typeid(*other) == typeid(Terrain))
        {
-              setPosition(position);
               switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
               {
               case CollisionInfo::Left:
@@ -100,7 +97,6 @@ void Npc::onCollision(Entity *other)
               default:
                      break;
               }
-              setPosition(position);
        }
 }
 std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {

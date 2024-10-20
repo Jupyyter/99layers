@@ -117,11 +117,6 @@ void GameMap::resetEntities()
     spawnEntities();
 }
 
-#include "../hpp/libs.hpp"
-class EditorMap;
-
-// ... (previous code remains unchanged)
-
 void GameMap::spawnEntities()
 {
     for (const auto &placedEntity : originalEntities)
@@ -180,6 +175,7 @@ void GameMap::updateEntities(float deltaTime, const sf::Vector2u &windowSize)
     for (const auto &entity : allEntities)
     {
         entity->update(deltaTime, windowSize);
+        entity->setPosition(entity->getPosition());
     }
 
     for (size_t i = 0; i < collisionEntities.size(); ++i)
@@ -194,6 +190,7 @@ void GameMap::updateEntities(float deltaTime, const sf::Vector2u &windowSize)
                 collisionEntities[j]->onCollision(en1);
             }
         }
+        en1->setPosition(en1->getPosition());
     }
 }
 void GameMap::removeDeadEntities()

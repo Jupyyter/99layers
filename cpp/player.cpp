@@ -1,13 +1,12 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position) : Animation(), CollisionDetector(), inventory(new Inventory())
+Player::Player(sf::Vector2f position) : Animation(position), CollisionDetector(), inventory(new Inventory())
 {
        priorityLayer = 4;
        world->spawn(inventory);
        loadAnimations();
        loadShaders();
-       setPosition(position);
 
        gravity = 980.0f;
        jumpForce = -500.0f;
@@ -105,14 +104,12 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
               checkBounds(screenres);
               Animation::update(deltaTime, screenres);
               isGrounded = false;
-              setPosition(position);
        }
 }
 void Player::onCollision(Entity *other)
 {
        if (typeid(*other) == typeid(Terrain))
        {
-              setPosition(position);
               switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
               {
               case CollisionInfo::Left:
@@ -147,7 +144,6 @@ void Player::onCollision(Entity *other)
               default:
                      break;
               }
-              setPosition(position);
        }
 }
 void Player::draw(sf::RenderWindow &window) const
