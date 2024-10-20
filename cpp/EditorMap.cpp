@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 class GameMap;
 
-std::unordered_map<std::string, sf::Texture> EditorMap::entityTextures;
+std::unordered_map<std::string, sf::Texture> EditorMap::objectTextures;
 std::vector<std::string> EditorMap::Menu::textureNames;
 
 EditorMap::EditorMap(sf::RenderWindow& window)
@@ -31,16 +31,16 @@ void EditorMap::loadFromFile(const std::string& fname) {
         return;
     }
 
-    placedEntities.clear();
-    int entityCount;
-    file.read(reinterpret_cast<char*>(&entityCount), sizeof(int));
+    placedObjects.clear();
+    int objectCount;
+    file.read(reinterpret_cast<char*>(&objectCount), sizeof(int));
 
-    for (int i = 0; i < entityCount; ++i) {
-        PlacedEntity entity;
+    for (int i = 0; i < objectCount; ++i) {
+        PlacedObject object;
         int typeLength;
         file.read(reinterpret_cast<char*>(&typeLength), sizeof(int));
-        entity.type.resize(typeLength);
-        file.read(&entity.type[0], typeLength);
+        object.type.resize(typeLength);
+        file.read(&object.type[0], typeLength);
 
         float x, y, width, height;
         file.read(reinterpret_cast<char*>(&x), sizeof(float));
@@ -50,27 +50,27 @@ void EditorMap::loadFromFile(const std::string& fname) {
 
         int texturePathLength;
         file.read(reinterpret_cast<char*>(&texturePathLength), sizeof(int));
-        entity.texturePath.resize(texturePathLength);
-        file.read(&entity.texturePath[0], texturePathLength);
+        object.texturePath.resize(texturePathLength);
+        file.read(&object.texturePath[0], texturePathLength);
 
-        if (!entity.texture.loadFromFile(entity.texturePath)) {
-            std::cerr << "Failed to load texture: " << entity.texturePath << std::endl;
+        if (!object.texture.loadFromFile(object.texturePath)) {
+            std::cerr << "Failed to load texture: " << object.texturePath << std::endl;
         }
-        entity.sprite.setTexture(entity.texture);
-        entity.sprite.setPosition(x, y);
+        object.sprite.setTexture(object.texture);
+        object.sprite.setPosition(x, y);
 
-        if (entity.type == "Terrain") {
-            const_cast<sf::Texture&>(entity.texture).setRepeated(true);
-            entity.sprite.setTextureRect(sf::IntRect(0, 0, width, height));
+        if (object.type == "Terrain") {
+            const_cast<sf::Texture&>(object.texture).setRepeated(true);
+            object.sprite.setTextureRect(sf::IntRect(0, 0, width, height));
         } else {
-            sf::Vector2u textureSize = entity.texture.getSize();
+            sf::Vector2u textureSize = object.texture.getSize();
             if (textureSize.x > 0 && textureSize.y > 0) {
                 float scaleX = width / textureSize.x;
                 float scaleY = height / textureSize.y;
-                entity.sprite.setScale(scaleX, scaleY);
+                object.sprite.setScale(scaleX, scaleY);
             } else {
-                std::cerr << "Texture has invalid size: " << entity.texturePath << std::endl;
-                entity.sprite.setScale(1, 1);
+                std::cerr << "Texture has invalid size: " << object.texturePath << std::endl;
+                object.sprite.setScale(1, 1);
             }
         }
 
@@ -88,13 +88,13 @@ void EditorMap::loadFromFile(const std::string& fname) {
             value.resize(valueLength);
             file.read(&value[0], valueLength);
 
-            entity.properties[name] = value;
+            object.properties[name] = value;
         }
 
-        placedEntities.push_back(std::move(entity));
+        placedObjects.push_back(std::move(object));
     }
 
-    std::cout << "\nLoaded " << placedEntities.size() << " entities from " << fname << std::endl;
+    std::cout << "\nLoaded " << placedObjects.size() << " objects from " << fname << std::endl;
 }
 
 void EditorMap::saveToFile(const std::string& fname) {
@@ -104,28 +104,28 @@ void EditorMap::saveToFile(const std::string& fname) {
         return;
     }
 
-    int entityCount = placedEntities.size();
-    file.write(reinterpret_cast<const char*>(&entityCount), sizeof(int));
+    int objectCount = placedObjects.size();
+    file.write(reinterpret_cast<const char*>(&objectCount), sizeof(int));
 
-    for (const auto& entity : placedEntities) {
-        int typeLength = entity.type.length();
+    for (const auto& object : placedObjects) {
+        int typeLength = object.type.length();
         file.write(reinterpret_cast<const char*>(&typeLength), sizeof(int));
-        file.write(entity.type.c_str(), typeLength);
+        file.write(object.type.c_str(), typeLength);
 
-        sf::Vector2f pos = entity.sprite.getPosition();
-        sf::FloatRect bounds = entity.sprite.getGlobalBounds();
+        sf::Vector2f pos = object.sprite.getPosition();
+        sf::FloatRect bounds = object.sprite.getGlobalBounds();
         file.write(reinterpret_cast<const char*>(&pos.x), sizeof(float));
         file.write(reinterpret_cast<const char*>(&pos.y), sizeof(float));
         file.write(reinterpret_cast<const char*>(&bounds.width), sizeof(float));
         file.write(reinterpret_cast<const char*>(&bounds.height), sizeof(float));
 
-        int texturePathLength = entity.texturePath.length();
+        int texturePathLength = object.texturePath.length();
         file.write(reinterpret_cast<const char*>(&texturePathLength), sizeof(int));
-        file.write(entity.texturePath.c_str(), texturePathLength);
+        file.write(object.texturePath.c_str(), texturePathLength);
 
-        int propertyCount = entity.properties.size();
+        int propertyCount = object.properties.size();
         file.write(reinterpret_cast<const char*>(&propertyCount), sizeof(int));
-        for (const auto& prop : entity.properties) {
+        for (const auto& prop : object.properties) {
             int nameLength = prop.first.length();
             int valueLength = prop.second.length();
             file.write(reinterpret_cast<const char*>(&nameLength), sizeof(int));
@@ -135,23 +135,23 @@ void EditorMap::saveToFile(const std::string& fname) {
         }
     }
 
-    std::cout << "Saved " << fname << std::endl;
+    std::cout << "\nSaved " << fname << std::endl;
 }
 
-void EditorMap::updateEntityProperty(int index, const std::string& property, const std::string& value) {
-    if (index >= 0 && index < placedEntities.size()) {
-        placedEntities[index].properties[property] = value;
+void EditorMap::updateObjectProperty(int index, const std::string& property, const std::string& value) {
+    if (index >= 0 && index < placedObjects.size()) {
+        placedObjects[index].properties[property] = value;
     }
 }
 
-void EditorMap::removeEntity(int index) {
-    if (index >= 0 && index < placedEntities.size()) {
-        std::cout << "\nDeleted \"" << placedEntities[index].type << "\"\n";
-        placedEntities.erase(placedEntities.begin() + index);
+void EditorMap::removeObject(int index) {
+    if (index >= 0 && index < placedObjects.size()) {
+        std::cout << "\nDeleted \"" << placedObjects[index].type << "\"\n";
+        placedObjects.erase(placedObjects.begin() + index);
     }
 }
 
-void EditorMap::addEntity(int x, int y, int w, int h, const std::string& type) {
+void EditorMap::addObject(int x, int y, int w, int h, const std::string& type) {
     w = std::max(w, 10);
     h = std::max(h, 10);
 
@@ -159,83 +159,83 @@ void EditorMap::addEntity(int x, int y, int w, int h, const std::string& type) {
     int adjustedX = x + (mx * windowSize.x);
     int adjustedY = y + (my * windowSize.y);
 
-    PlacedEntity entity;
-    entity.type = type;
+    PlacedObject object;
+    object.type = type;
 
     if (type == "Background") {
-        if (menu.isBackgroundSelected() && menu.selectedIndex - menu.entityTextures.size() - menu.textures.size() < menu.backgroundTextures.size()) {
-            const sf::Texture& selectedTexture = menu.backgroundTextures[menu.selectedIndex - menu.entityTextures.size() - menu.textures.size()];
-            entity.texturePath = "../imgs/" + menu.backgroundNames[menu.selectedIndex - menu.entityTextures.size() - menu.textures.size()] + ".png";
-            entity.texture = selectedTexture;
-            entity.sprite.setTexture(entity.texture);
+        if (menu.isBackgroundSelected() && menu.selectedIndex - menu.objectTextures.size() - menu.textures.size() < menu.backgroundTextures.size()) {
+            const sf::Texture& selectedTexture = menu.backgroundTextures[menu.selectedIndex - menu.objectTextures.size() - menu.textures.size()];
+            object.texturePath = "../imgs/" + menu.backgroundNames[menu.selectedIndex - menu.objectTextures.size() - menu.textures.size()] + ".png";
+            object.texture = selectedTexture;
+            object.sprite.setTexture(object.texture);
             
-            sf::Vector2u textureSize = entity.texture.getSize();
+            sf::Vector2u textureSize = object.texture.getSize();
             
-            entity.properties["originalWidth"] = std::to_string(textureSize.x);
-            entity.properties["originalHeight"] = std::to_string(textureSize.y);
+            object.properties["originalWidth"] = std::to_string(textureSize.x);
+            object.properties["originalHeight"] = std::to_string(textureSize.y);
             
-            entity.sprite.setTextureRect(sf::IntRect(0, 0, textureSize.x, textureSize.y));
+            object.sprite.setTextureRect(sf::IntRect(0, 0, textureSize.x, textureSize.y));
             
             float scaleX = static_cast<float>(w) / textureSize.x;
             float scaleY = static_cast<float>(h) / textureSize.y;
-            entity.sprite.setScale(scaleX, scaleY);
+            object.sprite.setScale(scaleX, scaleY);
         }
     } else if (type == "Terrain") {
-        if (!menu.isEntitySelected() && menu.selectedIndex - menu.entityTextures.size() < menu.textures.size()) {
-            const sf::Texture& selectedTexture = menu.textures[menu.selectedIndex - menu.entityTextures.size()];
-            entity.texturePath = "../imgs/" + menu.textureNames[menu.selectedIndex - menu.entityTextures.size()] + ".png";
-            entity.texture = selectedTexture;
-            entity.sprite.setTexture(entity.texture);
-            const_cast<sf::Texture&>(entity.texture).setRepeated(true);
-            entity.sprite.setTextureRect(sf::IntRect(0, 0, w, h));
+        if (!menu.isObjectSelected() && menu.selectedIndex - menu.objectTextures.size() < menu.textures.size()) {
+            const sf::Texture& selectedTexture = menu.textures[menu.selectedIndex - menu.objectTextures.size()];
+            object.texturePath = "../imgs/" + menu.textureNames[menu.selectedIndex - menu.objectTextures.size()] + ".png";
+            object.texture = selectedTexture;
+            object.sprite.setTexture(object.texture);
+            const_cast<sf::Texture&>(object.texture).setRepeated(true);
+            object.sprite.setTextureRect(sf::IntRect(0, 0, w, h));
         }
-    } else if (entityTextures.find(type) != entityTextures.end()) {
-        entity.texture = entityTextures[type];
-        entity.sprite.setTexture(entity.texture);
-        entity.texturePath = "../imgs/" + type + ".png";
+    } else if (objectTextures.find(type) != objectTextures.end()) {
+        object.texture = objectTextures[type];
+        object.sprite.setTexture(object.texture);
+        object.texturePath = "../imgs/" + type + ".png";
         adjustedX = x;
         adjustedY = y;
     }
 
-    entity.sprite.setPosition(sf::Vector2f(adjustedX, adjustedY));
+    object.sprite.setPosition(sf::Vector2f(adjustedX, adjustedY));
 
-    auto descriptors = EntityFactory::getPropertyDescriptors(type);
+    auto descriptors = ObjectFactory::getPropertyDescriptors(type);
     for (const auto& desc : descriptors) {
-        entity.properties[desc.name] = desc.defaultValue;
+        object.properties[desc.name] = desc.defaultValue;
     }
 
     std::cout << adjustedX << "   " << adjustedY << "   added \"" << type << "\"\n";
-    placedEntities.push_back(std::move(entity));
+    placedObjects.push_back(std::move(object));
 }
 
-void EditorMap::drawEditorEntities(sf::RenderWindow& window) {
-    for (const auto& entity : placedEntities) {
-        if (entity.type == "Background") {
-            sf::Sprite backgroundSprite = entity.sprite;
-            backgroundSprite.setTexture(entity.texture);
+void EditorMap::drawEditorObjects(sf::RenderWindow& window) {
+    for (const auto& object : placedObjects) {
+        if (object.type == "Background") {
+            sf::Sprite backgroundSprite = object.sprite;
+            backgroundSprite.setTexture(object.texture);
             window.draw(backgroundSprite);
         }
     }
 
-    for (const auto& entity : placedEntities) {
-        if (entity.type != "Background") {
-            if (!entity.texture.getSize().x || !entity.texture.getSize().y)
+    for (const auto& object : placedObjects) {
+        if (object.type != "Background") {
+            if (!object.texture.getSize().x || !object.texture.getSize().y)
                 continue;
 
-            sf::Sprite entitySprite = entity.sprite;
-            entitySprite.setTexture(entity.texture);
+            sf::Sprite objectSprite = object.sprite;
+            objectSprite.setTexture(object.texture);
 
-            if (&entity == propertyEditor.selectedEntity && propertyEditor.isOpen) {
-                entitySprite.setColor(sf::Color(255, 92, 3, 255));
+            if (&object == propertyEditor.selectedObject && propertyEditor.isOpen) {
+                objectSprite.setColor(sf::Color(255, 92, 3, 255));
             } else {
-                entitySprite.setColor(sf::Color::White);
+                objectSprite.setColor(sf::Color::White);
             }
 
-            window.draw(entitySprite);
+            window.draw(objectSprite);
         }
     }
 }
-EditorMap::Menu::Menu(const std::vector<std::string>& entityPaths, const std::vector<std::string>& texturePaths, 
+EditorMap::Menu::Menu(const std::vector<std::string>& objectPaths, const std::vector<std::string>& texturePaths, 
                       const std::vector<std::string>& backgroundPaths, sf::RenderWindow& window)
     : window(window)
 {
@@ -246,32 +246,32 @@ EditorMap::Menu::Menu(const std::vector<std::string>& entityPaths, const std::ve
                 textures.push_back(texture);
                 std::string name = getFileNameWithoutExtension(path);
                 names.push_back(name);
-                EditorMap::entityTextures[name] = texture;  // Add this line
+                EditorMap::objectTextures[name] = texture;  // Add this line
             }
         }
     };
 
-    loadTextures(entityPaths, entityTextures, entityNames);
+    loadTextures(objectPaths, objectTextures, objectNames);
     loadTextures(texturePaths, textures, textureNames);
     loadTextures(backgroundPaths, backgroundTextures, backgroundNames);
 }
 
-bool EditorMap::Menu::isEntitySelected() const { 
-    return selectedIndex < entityTextures.size(); 
+bool EditorMap::Menu::isObjectSelected() const { 
+    return selectedIndex < objectTextures.size(); 
 }
 
 bool EditorMap::Menu::isBackgroundSelected() const {
-    return selectedIndex >= entityTextures.size() + textures.size() &&
-           selectedIndex < entityTextures.size() + textures.size() + backgroundTextures.size();
+    return selectedIndex >= objectTextures.size() + textures.size() &&
+           selectedIndex < objectTextures.size() + textures.size() + backgroundTextures.size();
 }
 
 const std::string& EditorMap::Menu::getSelectedName() const {
-    if (isEntitySelected()) {
-        return entityNames[selectedIndex];
+    if (isObjectSelected()) {
+        return objectNames[selectedIndex];
     } else if (isBackgroundSelected()) {
-        return backgroundNames[selectedIndex - (entityTextures.size() + textures.size())];
+        return backgroundNames[selectedIndex - (objectTextures.size() + textures.size())];
     } else {
-        return textureNames[selectedIndex - entityTextures.size()];
+        return textureNames[selectedIndex - objectTextures.size()];
     }
 }
 
@@ -320,7 +320,7 @@ void EditorMap::Menu::draw() {
     };
 
     size_t index = 0;
-    for (const auto& texture : entityTextures) drawItem(texture, index++);
+    for (const auto& texture : objectTextures) drawItem(texture, index++);
     for (const auto& texture : textures) drawItem(texture, index++);
     for (const auto& texture : backgroundTextures) drawItem(texture, index++);
 
@@ -334,21 +334,21 @@ void EditorMap::PropertyEditor::setup(sf::Font& loadedFont) {
     background.setPosition(0, 0);
 }
 
-void EditorMap::PropertyEditor::updateForEntity(PlacedEntity* entity) {
-    selectedEntity = entity;
+void EditorMap::PropertyEditor::updateForObject(PlacedObject* object) {
+    selectedObject = object;
     labels.clear();
     inputBoxes.clear();
     inputTexts.clear();
     selectedInputBox = -1;
-    if (!entity) return;
+    if (!object) return;
 
-    auto propertyDescriptors = EntityFactory::getPropertyDescriptors(entity->type);
+    auto propertyDescriptors = ObjectFactory::getPropertyDescriptors(object->type);
     float yOffset = 10;
     for (const auto& descriptor : propertyDescriptors) {
         labels.emplace_back(descriptor.name + ":", *font, 14);
         labels.back().setPosition(834, yOffset);
 
-        std::string value = entity->properties[descriptor.name];
+        std::string value = object->properties[descriptor.name];
         inputTexts.emplace_back(value, *font, 14);
         inputTexts.back().setPosition(838, yOffset + 22);
         inputTexts.back().setFillColor(sf::Color::Black);
@@ -411,7 +411,7 @@ void EditorMap::PropertyEditor::draw(sf::RenderWindow& window) {
 }
 
 void EditorMap::PropertyEditor::handleInput(sf::Event& event, sf::RenderWindow& window) {
-    if (!isOpen || !selectedEntity) return;
+    if (!isOpen || !selectedObject) return;
 
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
@@ -437,7 +437,7 @@ bool EditorMap::handleMenuClick(const sf::Vector2i& mousePosition) {
     const float startY = 50.0f;
     
     float x = startX, y = startY;
-    size_t totalItems = menu.entityTextures.size() + menu.textures.size() + menu.backgroundTextures.size();
+    size_t totalItems = menu.objectTextures.size() + menu.textures.size() + menu.backgroundTextures.size();
 
     for (size_t i = 0; i < totalItems; ++i) {
         if (x + itemSize > window.getSize().x - startX) {
@@ -475,15 +475,15 @@ void EditorMap::PropertyEditor::handleTextInput(char inputChar) {
 }
 
 void EditorMap::PropertyEditor::applyChanges() {
-    if (!selectedEntity) return;
+    if (!selectedObject) return;
 
     std::cout << "\nSaved";
 
-    auto propertyDescriptors = EntityFactory::getPropertyDescriptors(selectedEntity->type);
+    auto propertyDescriptors = ObjectFactory::getPropertyDescriptors(selectedObject->type);
     for (size_t i = 0; i < propertyDescriptors.size() && i < inputTexts.size(); ++i) {
         const std::string& propertyName = propertyDescriptors[i].name;
         const std::string& newValue = inputTexts[i].getString();
-        selectedEntity->properties[propertyName] = newValue;
+        selectedObject->properties[propertyName] = newValue;
     }
 }
 

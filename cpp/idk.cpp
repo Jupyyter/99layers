@@ -11,7 +11,7 @@ void Idk::loadSprite()
     addAnimation("default", 0, 1);
     setAnimation("default");
 }
-void Idk::onCollision(Entity *other)
+void Idk::onCollision(Object *other)
 {
     if (typeid(*other) == typeid(Terrain))
     {

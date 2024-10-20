@@ -23,7 +23,7 @@ void Terrain::draw(sf::RenderWindow &window) const
 {
     window.draw(sprite);
 }
-void Terrain::onCollision(Entity *other)
+void Terrain::onCollision(Object *other)
 {
 }
 void Terrain::update(float deltaTime, const sf::Vector2u& screenres)
@@ -34,8 +34,8 @@ void Terrain::update(float deltaTime, const sf::Vector2u& screenres)
 std::vector<PropertyDescriptor> Terrain::getPropertyDescriptors() {
     return {
         {"rotation", "0",
-            [](Entity* e, const std::string& v) { static_cast<Terrain*>(e)->rotation = std::stof(v); },
-            [](const Entity* e) { return std::to_string(static_cast<const Terrain*>(e)->rotation); }
+            [](Object* e, const std::string& v) { static_cast<Terrain*>(e)->rotation = std::stof(v); },
+            [](const Object* e) { return std::to_string(static_cast<const Terrain*>(e)->rotation); }
         },
     };
 }

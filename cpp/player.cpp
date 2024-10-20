@@ -106,7 +106,7 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
               isGrounded = false;
        }
 }
-void Player::onCollision(Entity *other)
+void Player::onCollision(Object *other)
 {
        if (typeid(*other) == typeid(Terrain))
        {

@@ -12,8 +12,8 @@ GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover)
 {
     view.setSize(wndref.getSize().x, wndref.getSize().y);
     loadFromFile(fname);
-    collisionEntities.clear();
-    allEntities.clear();
+    collisionObjects.clear();
+    allObjects.clear();
 }
 
 void GameMap::loadFromFile(const std::string &fname)
@@ -25,21 +25,21 @@ void GameMap::loadFromFile(const std::string &fname)
         return;
     }
 
-    // Clear existing entities
-    originalEntities.clear();
+    // Clear existing objects
+    originalObjects.clear();
 
-    int entityCount;
-    file.read(reinterpret_cast<char *>(&entityCount), sizeof(int));
+    int objectCount;
+    file.read(reinterpret_cast<char *>(&objectCount), sizeof(int));
 
-    for (int i = 0; i < entityCount; ++i)
+    for (int i = 0; i < objectCount; ++i)
     {
-        EditorMap::PlacedEntity entity;
+        EditorMap::PlacedObject object;
 
-        // Read entity type
+        // Read object type
         int typeLength;
         file.read(reinterpret_cast<char *>(&typeLength), sizeof(int));
-        entity.type.resize(typeLength);
-        file.read(&entity.type[0], typeLength);
+        object.type.resize(typeLength);
+        file.read(&object.type[0], typeLength);
 
         // Read position and size
         float x, y, width, height;
@@ -51,25 +51,25 @@ void GameMap::loadFromFile(const std::string &fname)
         // Read texture path
         int texturePathLength;
         file.read(reinterpret_cast<char *>(&texturePathLength), sizeof(int));
-        entity.texturePath.resize(texturePathLength);
-        file.read(&entity.texturePath[0], texturePathLength);
+        object.texturePath.resize(texturePathLength);
+        file.read(&object.texturePath[0], texturePathLength);
 
         // Set up the sprite
-        entity.sprite.setPosition(x, y);
+        object.sprite.setPosition(x, y);
         sf::Texture texture;
-        std::string fullTexturePath = entity.texturePath;
+        std::string fullTexturePath = object.texturePath;
         if (texture.loadFromFile(fullTexturePath))
         {
-            entity.sprite.setTexture(texture);
-            if (entity.type == "Terrain")
+            object.sprite.setTexture(texture);
+            if (object.type == "Terrain")
             {
-                entity.sprite.setTextureRect(sf::IntRect(0, 0, width, height));
+                object.sprite.setTextureRect(sf::IntRect(0, 0, width, height));
             }
             else
             {
                 float scaleX = width / texture.getSize().x;
                 float scaleY = height / texture.getSize().y;
-                entity.sprite.setScale(scaleX, scaleY);
+                object.sprite.setScale(scaleX, scaleY);
             }
         }
 
@@ -86,10 +86,10 @@ void GameMap::loadFromFile(const std::string &fname)
             file.read(reinterpret_cast<char *>(&valueLength), sizeof(int));
             std::string value(valueLength, '\0');
             file.read(&value[0], valueLength);
-            entity.properties[name] = value;
+            object.properties[name] = value;
         }
 
-        originalEntities.push_back(std::move(entity));
+        originalObjects.push_back(std::move(object));
     }
 }
 
@@ -109,98 +109,98 @@ sf::FloatRect GameMap::getPartBounds() const
     return sf::FloatRect(mx * wx, my * wy, wx, wy);
 }
 
-void GameMap::resetEntities()
+void GameMap::resetObjects()
 {
     changePart(0, 0);
-    collisionEntities.clear();
-    allEntities.clear();
-    spawnEntities();
+    collisionObjects.clear();
+    allObjects.clear();
+    spawnObjects();
 }
 
-void GameMap::spawnEntities()
+void GameMap::spawnObjects()
 {
-    for (const auto &placedEntity : originalEntities)
+    for (const auto &placedObject : originalObjects)
     {
-        sf::Vector2f entityPos = placedEntity.sprite.getPosition();
-        sf::Vector2f entitySize = placedEntity.sprite.getGlobalBounds().getSize();
-        Entity *newEntity = nullptr;
+        sf::Vector2f objectPos = placedObject.sprite.getPosition();
+        sf::Vector2f objectSize = placedObject.sprite.getGlobalBounds().getSize();
+        Object *newOnject = nullptr;
 
-        if (placedEntity.type == "Background")
+        if (placedObject.type == "Background")
         {
-            // Create a Background entity
-            newEntity = new Background(
-                entityPos.x,
-                entityPos.y,
-                entitySize.x,
-                entitySize.y,
-                placedEntity.texturePath);
+            // Create a Background object
+            newOnject = new Background(
+                objectPos.x,
+                objectPos.y,
+                objectSize.x,
+                objectSize.y,
+                placedObject.texturePath);
         }
-        else if (placedEntity.type == "Terrain")
+        else if (placedObject.type == "Terrain")
         {
-            newEntity = new Terrain(
-                static_cast<int>(entityPos.x),
-                static_cast<int>(entityPos.y),
-                static_cast<int>(entitySize.x),
-                static_cast<int>(entitySize.y),
-                placedEntity.texturePath);
+            newOnject = new Terrain(
+                static_cast<int>(objectPos.x),
+                static_cast<int>(objectPos.y),
+                static_cast<int>(objectSize.x),
+                static_cast<int>(objectSize.y),
+                placedObject.texturePath);
         }
         else
         {
             sf::Transformable transform;
-            transform.setPosition(placedEntity.sprite.getPosition());
-            transform.setScale(placedEntity.sprite.getScale());
-            newEntity = EntityFactory::createEntity(placedEntity.type, transform);
+            transform.setPosition(placedObject.sprite.getPosition());
+            transform.setScale(placedObject.sprite.getScale());
+            newOnject = ObjectFactory::createObject(placedObject.type, transform);
         }
 
-        if (newEntity)
+        if (newOnject)
         {
-            newEntity->setPosition(entityPos);
-            // Set entity properties
-            auto descriptors = EntityFactory::getPropertyDescriptors(placedEntity.type);
+            newOnject->setPosition(objectPos);
+            // Set object properties
+            auto descriptors = ObjectFactory::getPropertyDescriptors(placedObject.type);
             for (const auto &desc : descriptors)
             {
-                auto it = placedEntity.properties.find(desc.name);
-                if (it != placedEntity.properties.end() && desc.setter)
+                auto it = placedObject.properties.find(desc.name);
+                if (it != placedObject.properties.end() && desc.setter)
                 {
-                    desc.setter(newEntity, it->second);
+                    desc.setter(newOnject, it->second);
                 }
             }
-            spawn(newEntity);
+            spawn(newOnject);
         }
     }
 }
 
-void GameMap::updateEntities(float deltaTime, const sf::Vector2u &windowSize)
+void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 {
-    for (const auto &entity : allEntities)
+    for (const auto &object : allObjects)
     {
-        entity->update(deltaTime, windowSize);
-        entity->setPosition(entity->getPosition());
+        object->update(deltaTime, windowSize);
+        object->setPosition(object->getPosition());
     }
 
-    for (size_t i = 0; i < collisionEntities.size(); ++i)
+    for (size_t i = 0; i < collisionObjects.size(); ++i)
     {
-        Entity *en1 = dynamic_cast<Entity *>(collisionEntities[i]);
-        for (size_t j = i + 1; j < collisionEntities.size(); ++j)
+        Object *en1 = dynamic_cast<Object *>(collisionObjects[i]);
+        for (size_t j = i + 1; j < collisionObjects.size(); ++j)
         {
-            Entity *en2 = dynamic_cast<Entity *>(collisionEntities[j]);
+            Object *en2 = dynamic_cast<Object *>(collisionObjects[j]);
             if (checkCollision(en1->getSprite(), en2->getSprite()))
             {
-                collisionEntities[i]->onCollision(en2);
-                collisionEntities[j]->onCollision(en1);
+                collisionObjects[i]->onCollision(en2);
+                collisionObjects[j]->onCollision(en1);
             }
         }
         en1->setPosition(en1->getPosition());
     }
 }
-void GameMap::removeDeadEntities()
+void GameMap::removeDeadObjects()
 {
-    // Remove dead entities from allEntities
-    for (auto it = allEntities.begin(); it != allEntities.end();)
+    // Remove dead objects from allObjects
+    for (auto it = allObjects.begin(); it != allObjects.end();)
     {
         if ((*it)->shouldBeDead)
         {
-            it = allEntities.erase(it);
+            it = allObjects.erase(it);
         }
         else
         {
@@ -208,64 +208,64 @@ void GameMap::removeDeadEntities()
         }
     }
 
-    // Remove corresponding entries from collisionEntities
-    collisionEntities.erase(
-        std::remove_if(collisionEntities.begin(), collisionEntities.end(),
+    // Remove corresponding entries from collisionObject
+    collisionObjects.erase(
+        std::remove_if(collisionObjects.begin(), collisionObjects.end(),
                        [this](CollisionDetector *collisionDetector)
                        {
                            if (!collisionDetector)
                                return true; // Remove null pointers
 
-                           // Check if the corresponding Entity exists in allEntities
-                           return std::none_of(allEntities.begin(), allEntities.end(),
-                                               [collisionDetector](const std::unique_ptr<Entity> &entity)
+                           // Check if the corresponding object exists in allObjects
+                           return std::none_of(allObjects.begin(), allObjects.end(),
+                                               [collisionDetector](const std::unique_ptr<Object> &object)
                                                {
-                                                   return entity.get() == dynamic_cast<Entity *>(collisionDetector);
+                                                   return object.get() == dynamic_cast<Object *>(collisionDetector);
                                                });
                        }),
-        collisionEntities.end());
+        collisionObjects.end());
 }
-void GameMap::drawEntities(sf::RenderWindow &window) const
+void GameMap::drawObjects(sf::RenderWindow &window) const
 {
-    for (const auto &entity : allEntities)
+    for (const auto &object : allObjects)
     {
-        if (entity->isOnScreen())
+        if (object->isOnScreen())
         {
-            entity->draw(window);
+            object->draw(window);
         }
     }
 }
 
-void GameMap::spawn(const std::string &entityName, float x, float y, float rotation)
+void GameMap::spawn(const std::string &objectName, float x, float y, float rotation)
 {
     sf::Transformable transform;
     transform.setPosition(x, y);
     transform.setRotation(rotation);
-    Entity *entity = EntityFactory::createEntity(entityName, transform);
-    if (entity)
+    Object *object = ObjectFactory::createObject(objectName, transform);
+    if (object)
     {
-        spawn(entity);
+        spawn(object);
     }
 }
 
-void GameMap::spawn(Entity *entity)
+void GameMap::spawn(Object *object)
 {
-    if (entity)
+    if (object)
     {
         try
         {
-            auto result = allEntities.emplace(std::unique_ptr<Entity>(entity));
+            auto result = allObjects.emplace(std::unique_ptr<Object>(object));
 
-            CollisionDetector *collider = dynamic_cast<CollisionDetector *>(entity);
+            CollisionDetector *collider = dynamic_cast<CollisionDetector *>(object);
             if (collider)
             {
-                collisionEntities.push_back(collider);
+                collisionObjects.push_back(collider);
             }
         }
         catch (const std::bad_alloc &e)
         {
             std::cerr << "\nMemory allocation failed: " << e.what();
-            delete entity;
+            delete object;
         }
     }
 }

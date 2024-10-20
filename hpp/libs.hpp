@@ -32,8 +32,8 @@
 #include <atomic>
 #include <condition_variable>
 #include "CollisionDetector.hpp"
-#include "EntityFactory.hpp"
-#include "Entity.hpp"
+#include "ObjectFactory.hpp"
+#include "Object.hpp"
 #include "sprite.hpp"
 #include "Terrain.hpp"
 #include "EditorMap.hpp"

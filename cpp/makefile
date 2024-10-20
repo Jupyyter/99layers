@@ -8,7 +8,7 @@ LIB_DIR = D:\ikeaBattle\SFML-2.6.1\lib
 FREETYPE_INCLUDE = D:\ikeaBattle\freeType\freetype-2.13.3\include
 FREETYPE_LIB = D:\path\to\freetype\lib
 # Source Files
-SRC = laserEnd.cpp Terrain.cpp GameMap.cpp HappyEnd.cpp EditorMap.cpp main.cpp Boss.cpp npc.cpp Menu.cpp item.cpp inventory.cpp attack.cpp idk.cpp Entity.cpp Animation.cpp GameOverScreen.cpp TextBox.cpp PacMan.cpp CollisionDetector.cpp player.cpp CutScene.cpp EntityFactory.cpp penguin.cpp sprite.cpp ak47.cpp Background.cpp
+SRC = Object.cpp laserEnd.cpp Terrain.cpp GameMap.cpp HappyEnd.cpp EditorMap.cpp main.cpp Boss.cpp npc.cpp Menu.cpp item.cpp inventory.cpp attack.cpp idk.cpp Animation.cpp GameOverScreen.cpp TextBox.cpp PacMan.cpp CollisionDetector.cpp player.cpp CutScene.cpp ObjectFactory.cpp penguin.cpp sprite.cpp ak47.cpp Background.cpp
 # Object Files
 OBJ = $(SRC:.cpp=.o)
 # Compiler Flags

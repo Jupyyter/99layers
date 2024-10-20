@@ -4,7 +4,7 @@ private:
     sf::RenderWindow window;
     EditorMap map;
     sf::View view;
-    sf::Sprite transrect, entityPreview;
+    sf::Sprite transrect, objectPreview;
     sf::Vector2i firstClick, secondClick;
     bool leftClickPressed = false;
     sf::Font font;
@@ -19,8 +19,8 @@ private:
     void handleMouseRelease(const sf::Event& event);
     void handleKeyPress(const sf::Event& event);
     void updateTransrect();
-    void updateEntityPreview(const sf::Texture* entityTexture);
-    void removeEntityAtMousePosition();
+    void updateObjectPreview(const sf::Texture* objectTexture);
+    void removeObjectAtMousePosition();
     void openPropertyEditor();
 
     void handleMousePress(const sf::Event& event);

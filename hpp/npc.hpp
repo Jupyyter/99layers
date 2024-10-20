@@ -6,7 +6,7 @@ public:
     void draw(sf::RenderWindow& window) const  override;
      static std::vector<PropertyDescriptor> getPropertyDescriptors();
     std::unique_ptr<TextBox> textBox;
-void onCollision(Entity* other) override;
+void onCollision(Object* other) override;
 private:
     void loadSprite();
     void checkCollisionWithPlayer(const sf::FloatRect& playerBounds);

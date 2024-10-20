@@ -67,7 +67,7 @@ void Item::draw(sf::RenderWindow &window) const
 void Item::update(float deltaTime, const sf::Vector2u &screenres)
 {
 }
-void Item::onCollision(Entity *other)
+void Item::onCollision(Object *other)
 {
     if (owned == false && typeid(*other) == typeid(Player))
     {

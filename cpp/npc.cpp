@@ -60,7 +60,7 @@ void Npc::checkCollisionWithPlayer(const sf::FloatRect &playerBounds)
               isColliding = false;
        }
 }
-void Npc::onCollision(Entity *other)
+void Npc::onCollision(Object *other)
 {
        if (typeid(*other) == typeid(Terrain))
        {
@@ -102,8 +102,8 @@ void Npc::onCollision(Entity *other)
 std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {
     return {
         {"text", "",
-            [](Entity* e, const std::string& v) { static_cast<Npc*>(e)->text = v; },  // Direct assignment to string
-            [](const Entity* e) { return static_cast<const Npc*>(e)->text; }  // Return string directly
+            [](Object* e, const std::string& v) { static_cast<Npc*>(e)->text = v; },  // Direct assignment to string
+            [](const Object* e) { return static_cast<const Npc*>(e)->text; }  // Return string directly
         }
     };
 }

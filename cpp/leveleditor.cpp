@@ -3,7 +3,7 @@
 #include <thread>
 #include <chrono>
 
-sf::Vector2f getEntityOrigin(const sf::Sprite& sprite) {
+sf::Vector2f getObjectOrigin(const sf::Sprite& sprite) {
     const sf::FloatRect& bounds = sprite.getLocalBounds();
     return sf::Vector2f(bounds.width / 2, bounds.height / 2);
 }
@@ -20,7 +20,7 @@ LevelEditor::LevelEditor()
     if (const sf::Texture* initialTexture = map.menu.textures.empty() ? nullptr : &map.menu.textures[0])
         transrect.setTexture(*initialTexture, true);
 
-    updateEntityPreview(map.menu.entityTextures.empty() ? nullptr : &map.menu.entityTextures[0]);
+    updateObjectPreview(map.menu.objectTextures.empty() ? nullptr : &map.menu.objectTextures[0]);
 
     if (!font.loadFromFile("../fonts/Arial.ttf"))
         throw std::runtime_error("Failed to load font!");
@@ -129,31 +129,31 @@ void LevelEditor::handleKeyPress(const sf::Event& event) {
             map.saveToFile("../map.mib");
             break;
         case sf::Keyboard::D:
-            removeEntityAtMousePosition();
+            removeObjectAtMousePosition();
             break;
         default:
             break;
     }
 }
 
-void LevelEditor::updateEntityPreview(const sf::Texture* entityTexture) {
-    if (!entityTexture) return;
+void LevelEditor::updateObjectPreview(const sf::Texture* objectTexture) {
+    if (!objectTexture) return;
     
-    entityPreview.setTexture(*entityTexture, true);
-    entityPreview.setOrigin(getEntityOrigin(entityPreview));
+    objectPreview.setTexture(*objectTexture, true);
+    objectPreview.setOrigin(getObjectOrigin(objectPreview));
 
     const float maxPreviewSize = 64.0f;
-    sf::Vector2f scale(std::min(maxPreviewSize / entityPreview.getLocalBounds().width, 1.0f),
-                       std::min(maxPreviewSize / entityPreview.getLocalBounds().height, 1.0f));
-    entityPreview.setScale(scale);
-    entityPreview.setColor(sf::Color(255, 255, 255, 192));
+    sf::Vector2f scale(std::min(maxPreviewSize / objectPreview.getLocalBounds().width, 1.0f),
+                       std::min(maxPreviewSize / objectPreview.getLocalBounds().height, 1.0f));
+    objectPreview.setScale(scale);
+    objectPreview.setColor(sf::Color(255, 255, 255, 192));
 }
 
-void LevelEditor::removeEntityAtMousePosition() {
+void LevelEditor::removeObjectAtMousePosition() {
     sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    for (int i = map.placedEntities.size() - 1; i >= 0; --i) {
-        if (map.placedEntities[i].sprite.getGlobalBounds().contains(worldPos)) {
-            map.removeEntity(i);
+    for (int i = map.placedObjects.size() - 1; i >= 0; --i) {
+        if (map.placedObjects[i].sprite.getGlobalBounds().contains(worldPos)) {
+            map.removeObject(i);
             break;
         }
     }
@@ -163,10 +163,10 @@ void LevelEditor::handleMousePress(const sf::Event& event) {
     if (event.mouseButton.button == sf::Mouse::Left) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         if (map.handleMenuClick(mousePos)) {
-            if (map.menu.isEntitySelected() && !map.menu.isBackgroundSelected()) {
-                updateEntityPreview(&map.menu.entityTextures[map.menu.selectedIndex]);
+            if (map.menu.isObjectSelected() && !map.menu.isBackgroundSelected()) {
+                updateObjectPreview(&map.menu.objectTextures[map.menu.selectedIndex]);
             } else if (!map.menu.isBackgroundSelected()) {
-                if (const sf::Texture* selectedTexture = &map.menu.textures[map.menu.selectedIndex - map.menu.entityTextures.size()])
+                if (const sf::Texture* selectedTexture = &map.menu.textures[map.menu.selectedIndex - map.menu.objectTextures.size()])
                     transrect.setTexture(*selectedTexture, true);
             }
         } else if (!map.menu.isOpen && !map.propertyEditor.isOpen) {
@@ -183,16 +183,16 @@ void LevelEditor::handleMousePress(const sf::Event& event) {
 
 void LevelEditor::openPropertyEditor() {
     sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    EditorMap::PlacedEntity* clickedEntity = nullptr;
-    for (auto& entity : map.placedEntities) {
-        if (entity.sprite.getGlobalBounds().contains(worldPos) && entity.type != "Background") {
-            clickedEntity = &entity;
+    EditorMap::PlacedObject* clickedObject = nullptr;
+    for (auto& object : map.placedObjects) {
+        if (object.sprite.getGlobalBounds().contains(worldPos) && object.type != "Background") {
+            clickedObject = &object;
             break;
         }
     }
     
-    if (clickedEntity) {
-        map.propertyEditor.updateForEntity(clickedEntity);
+    if (clickedObject) {
+        map.propertyEditor.updateForObject(clickedObject);
         map.propertyEditor.isOpen = true;
         map.menu.isOpen = false;
     } else {
@@ -205,20 +205,20 @@ void LevelEditor::handleMouseRelease(const sf::Event& event) {
     if (event.mouseButton.button == sf::Mouse::Left && !map.menu.isOpen && !map.propertyEditor.isOpen) {
         leftClickPressed = false;
         
-        if (map.menu.isEntitySelected()) {
-            map.addEntity(entityPreview.getGlobalBounds().getPosition().x, 
-                         entityPreview.getGlobalBounds().getPosition().y, 
+        if (map.menu.isObjectSelected()) {
+            map.addObject(objectPreview.getGlobalBounds().getPosition().x, 
+                         objectPreview.getGlobalBounds().getPosition().y, 
                          0, 0, map.menu.getSelectedName());
         } else if (map.menu.isBackgroundSelected()) {
             float gridX = std::floor(currentMousePosWorld.x / 1024.0f) * 1024.0f;
             float gridY = std::floor(currentMousePosWorld.y / 768.0f) * 768.0f;
-            map.addEntity(gridX, gridY, 1024, 768, "Background");
+            map.addObject(gridX, gridY, 1024, 768, "Background");
         } else {
             float x = std::min(firstClickWorld.x, currentMousePosWorld.x);
             float y = std::min(firstClickWorld.y, currentMousePosWorld.y);
             float w = std::abs(currentMousePosWorld.x - firstClickWorld.x);
             float h = std::abs(currentMousePosWorld.y - firstClickWorld.y);
-            map.addEntity(x, y, w, h, "Terrain");
+            map.addObject(x, y, w, h, "Terrain");
         }
 
         transrect.setScale(1, 1);
@@ -240,12 +240,12 @@ void LevelEditor::handleMouseMove(const sf::Event& event) {
     currentMousePosWorld = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     
     if (!map.propertyEditor.isOpen && !map.menu.isOpen) {
-        entityPreview.setPosition(currentMousePosWorld);
+        objectPreview.setPosition(currentMousePosWorld);
     }
 }
 
 void LevelEditor::updateTransrect() {
-    if (leftClickPressed && !map.menu.isEntitySelected()) {
+    if (leftClickPressed && !map.menu.isObjectSelected()) {
         sf::Vector2f size = currentMousePosWorld - firstClickWorld;
         sf::Vector2f position(
             std::min(firstClickWorld.x, currentMousePosWorld.x),
@@ -268,11 +268,11 @@ void LevelEditor::update(float deltaTime) {
 
 void LevelEditor::render() {
     window.clear(sf::Color::Black);
-    map.drawEditorEntities(window);
-    if (!map.menu.isEntitySelected() && leftClickPressed)
+    map.drawEditorObjects(window);
+    if (!map.menu.isObjectSelected() && leftClickPressed)
         window.draw(transrect);
-    if (map.menu.isEntitySelected() && !map.menu.isOpen && !map.propertyEditor.isOpen)
-        window.draw(entityPreview);
+    if (map.menu.isObjectSelected() && !map.menu.isOpen && !map.propertyEditor.isOpen)
+        window.draw(objectPreview);
     window.draw(grid);
     map.menu.draw();
     map.propertyEditor.draw(window);

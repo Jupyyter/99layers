@@ -13,7 +13,7 @@ public:
         // Implement if different from Sprite, otherwise let it use Sprite's implementation
         return Animation::getBounds();
     }
-    void onCollision(Entity* other) override;
+    void onCollision(Object* other) override;
 
 private:
 Inventory *inventory;
@@ -29,7 +29,7 @@ bool *gameover;
     void loadAnimations();
     void loadShaders();
 
-    //some item and attack related that should not be here
+    //some item and attack related that has something to do with the items
     bool onehitinvin, gothitinv, isStasis;
     sf::Shader stasishad;
 };

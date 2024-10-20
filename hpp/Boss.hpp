@@ -20,5 +20,5 @@ private:
 
     void loadAndScaleImage();
     void updateEyePosition();
-    void onCollision(Entity *other) override;
+    void onCollision(Object *other) override;
 };

@@ -8,7 +8,7 @@ public:
 
 private:
     void loadSprite();
-    void onCollision(Entity* other) override;
+    void onCollision(Object* other) override;
 
     sf::RectangleShape shape;
     float moveSpeed;

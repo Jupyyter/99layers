@@ -50,7 +50,7 @@ int main()
                 case GameState::Menu:
                     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
                     {
-                        world->resetEntities();
+                        world->resetObjects();
                         gameOver = false;
                         currentState = GameState::CutScene;
                         updateClock.restart();
@@ -85,8 +85,8 @@ int main()
                 }
                 else
                 {
-                    world->updateEntities(deltaTime, window.getSize());
-                    world->removeDeadEntities();
+                    world->updateObjects(deltaTime, window.getSize());
+                    world->removeDeadObjects();
                 }
                 break;
         }
@@ -105,7 +105,7 @@ int main()
             case GameState::Playing:
                 {
                    // map.draw();
-                    world->drawEntities(window);
+                    world->drawObjects(window);
                 }
                 break;
             case GameState::GameOver:

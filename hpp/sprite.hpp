@@ -1,6 +1,6 @@
 #pragma once
-class Entity;
-class Sprite : public Entity
+class Object;
+class Sprite : public Object
 {
 public:
     virtual std::vector<std::pair<std::string, std::string>> getEditableProperties() const

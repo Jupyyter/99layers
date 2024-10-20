@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Sprite::Sprite(const sf::Vector2f& position) : Entity(position), flipped(true), invisible(false) {}
+Sprite::Sprite(const sf::Vector2f& position) : Object(position), flipped(true), invisible(false) {}
 
 void Sprite::loadTexture(const std::string &filename)
 {

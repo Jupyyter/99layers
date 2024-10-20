@@ -70,13 +70,13 @@ void PacMan::draw(sf::RenderWindow &window)const
 std::vector<PropertyDescriptor> PacMan::getPropertyDescriptors() {
     return {
         {"speed", "100.0",
-            [](Entity* e, const std::string& v) { static_cast<PacMan*>(e)->speed = std::stof(v); },
-            [](const Entity* e) { return std::to_string(static_cast<const PacMan*>(e)->speed); }
+            [](Object* e, const std::string& v) { static_cast<PacMan*>(e)->speed = std::stof(v); },
+            [](const Object* e) { return std::to_string(static_cast<const PacMan*>(e)->speed); }
         },
         {"degrees", "0.0",
-            [](Entity* e, const std::string& v) { 
+            [](Object* e, const std::string& v) { 
                 static_cast<PacMan*>(e)->degrees = std::stof(v);},
-            [](const Entity* e) { return std::to_string(static_cast<const PacMan*>(e)->degrees); }
+            [](const Object* e) { return std::to_string(static_cast<const PacMan*>(e)->degrees); }
         }
         /*{"speed", "100.0", &PacMan::speed},
         {"degrees", "0.0", &PacMan::degrees}*///this might work too, but the PropertyDescriptor should look like this:

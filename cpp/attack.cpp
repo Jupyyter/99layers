@@ -61,7 +61,7 @@ LaserBeam::LaserBeam(sf::Vector2f sp, float rotangle) : Attack(sp), fc(true) {
     priorityLayer = 2;
 }
 
-void LaserBeam::onCollision(Entity *other)
+void LaserBeam::onCollision(Object *other)
 {
     // claudeai showed this trick to me
     if (typeid(*other) == typeid(akBullet)||typeid(*other) == typeid(Terrain))
@@ -100,7 +100,7 @@ akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp) {
         velocity = sf::Vector2f(std::cos(radians), std::sin(radians));
         velocity *= 577.0f;
     }
-void akBullet::onCollision(Entity *other)
+void akBullet::onCollision(Object *other)
 {
     if (typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(Boss)||typeid(*other) == typeid(Terrain))
     {

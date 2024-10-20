@@ -12,7 +12,7 @@ void Penguin::loadSprite() {
     addAnimation("spin", 0, 7);
     setAnimation("spin");
 }
-void Penguin::onCollision(Entity *other)
+void Penguin::onCollision(Object *other)
 {
        if (typeid(*other) == typeid(Terrain))
        {

@@ -2,8 +2,8 @@
 Background::Background(float x, float y, float width, float height, const std::string& texturePath)
     : Sprite(sf::Vector2f(x,y)), originalWidth(width), originalHeight(height)
 {
-    // Set entity properties
-    priorityLayer = -1000; // Ensure background is drawn behind other entities
+    // Set object properties
+    priorityLayer = -1000; // Ensure background is drawn behind other object
     
     // Load texture
     if (!texture.loadFromFile(texturePath)) {

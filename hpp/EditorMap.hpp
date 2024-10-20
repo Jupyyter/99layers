@@ -1,14 +1,6 @@
 #pragma once
 class Player;
-class Entity;
-class EntityFactory;
-class TextBox;
-class Item;
-
-#pragma once
-class Player;
-class Entity;
-class EntityFactory;
+class Object;
 class TextBox;
 class Item;
 
@@ -20,12 +12,12 @@ public:
     void saveToFile(const std::string& fname);
     void loadFromFile(const std::string& fname);
     bool handleMenuClick(const sf::Vector2i& mousePosition);
-    void updateEntityProperty(int index, const std::string& property, const std::string& value);
-    void removeEntity(int index);
-    void addEntity(int x, int y, int w, int h, const std::string& type);
-    void drawEditorEntities(sf::RenderWindow& window);
+    void updateObjectProperty(int index, const std::string& property, const std::string& value);
+    void removeObject(int index);
+    void addObject(int x, int y, int w, int h, const std::string& type);
+    void drawEditorObjects(sf::RenderWindow& window);
 
-    struct PlacedEntity {
+    struct PlacedObject {
         sf::Sprite sprite;
         std::string type;
         std::unordered_map<std::string, std::string> properties;
@@ -35,20 +27,20 @@ public:
 
     class Menu {
     public:
-        Menu(const std::vector<std::string>& entityPaths, const std::vector<std::string>& texturePaths, 
+        Menu(const std::vector<std::string>& objectPaths, const std::vector<std::string>& texturePaths, 
              const std::vector<std::string>& backgroundPaths, sf::RenderWindow& window);
         void draw();
         const std::string& getSelectedName() const;
         bool isBackgroundSelected() const;
-        bool isEntitySelected() const;
+        bool isObjectSelected() const;
 
         bool isOpen = false;
         int selectedIndex = 0;
 
         sf::RenderWindow& window;
         static std::vector<std::string> textureNames;
-        std::vector<sf::Texture> entityTextures;
-        std::vector<std::string> entityNames;
+        std::vector<sf::Texture> objectTextures;
+        std::vector<std::string> objectNames;
         std::vector<sf::Texture> textures;
         std::vector<sf::Texture> backgroundTextures;
         std::vector<std::string> backgroundNames;
@@ -59,13 +51,13 @@ public:
     class PropertyEditor {
     public:
         void setup(sf::Font& font);
-        void updateForEntity(PlacedEntity* entity);
+        void updateForObject(PlacedObject* object);
         void draw(sf::RenderWindow& window);
         void handleInput(sf::Event& event, sf::RenderWindow& window);
         void applyChanges();
 
         bool isOpen = false;
-        PlacedEntity* selectedEntity = nullptr;
+        PlacedObject* selectedObject = nullptr;
 
     private:
         void handleTextInput(char inputChar);
@@ -82,10 +74,10 @@ public:
     };
 
     Menu menu;
-    std::vector<PlacedEntity> placedEntities;
+    std::vector<PlacedObject> placedObjects;
     PropertyEditor propertyEditor;
 
-    static std::unordered_map<std::string, sf::Texture> entityTextures;
+    static std::unordered_map<std::string, sf::Texture> objectTextures;
 
 private:
     int mx = 0, my = 0;

@@ -16,7 +16,7 @@ public:
 
 private:
     void loadSprite();
-     void onCollision(Entity* other) override;
+     void onCollision(Object* other) override;
 
     float gravity;
     bool isColliding;

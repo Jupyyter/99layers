@@ -10,6 +10,6 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow &window) const override;
     static std::vector<PropertyDescriptor> getPropertyDescriptors();
-void onCollision(Entity* other) override;
+void onCollision(Object* other) override;
     float rotation=0.0f;
 };
