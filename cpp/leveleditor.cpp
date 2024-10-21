@@ -107,7 +107,7 @@ void LevelEditor::handleKeyPress(const sf::Event& event) {
         return;
     }
 
-    if (event.key.code == sf::Keyboard::E) {
+    if (event.key.code == sf::Keyboard::E&&!map.propertyEditor.isOpen) {
         if (map.propertyEditor.isOpen) {
             map.propertyEditor.isOpen = false;
             map.menu.isOpen = true;

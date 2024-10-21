@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 class GameMap;
 Boss::Boss(const sf::Vector2f &initialPosition)
-    : Sprite(initialPosition), CollisionDetector()
+    : Sprite(initialPosition), CollisionDetector(),hasAppearedOnScreen(false)
 {
     loadAndScaleImage();
     resetTimers();
@@ -22,6 +22,18 @@ void Boss::loadAndScaleImage()
 
 void Boss::update(float deltaTime, const sf::Vector2u &screenres)
 {
+    std::cout<<hasAppearedOnScreen<<" ";
+    if (!hasAppearedOnScreen)
+    {
+        if (isOnScreen())
+        {
+            hasAppearedOnScreen = true;
+        }
+        else
+        {
+            return;
+        }
+    }
     sf::Vector2f playerCenter(world->playerRef->getBounds().left + world->playerRef->getBounds().width / 2.0f,
                               world->playerRef->getBounds().top + world->playerRef->getBounds().height / 2.0f);
     sf::Vector2f direction = playerCenter - position;

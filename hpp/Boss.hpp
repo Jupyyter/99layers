@@ -17,6 +17,7 @@ private:
 
     sf::Sprite eyeSprite;
     sf::Texture eyeTexture;
+    bool hasAppearedOnScreen=false;
 
     void loadAndScaleImage();
     void updateEyePosition();

@@ -87,6 +87,9 @@ void Player::updateAnimation()
 
 void Player::update(float deltaTime, const sf::Vector2u &screenres)
 {
+       if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){
+              *(world->gameOver) = true;
+       }
        if (!isStasis)
        {
               if (velocity.y > 5777)
@@ -163,19 +166,18 @@ void Player::checkBounds(const sf::Vector2u &screenres)
        auto bounds = world->getPartBounds();
        if (this->position.x > bounds.left + bounds.width)
        {
-              world->changePart(1, 0);
+              world->changePart(1, 0,true);
        }
        else if (this->position.x < bounds.left)
        {
-              world->changePart(-1, 0);
+              world->changePart(-1, 0,true);
        }
        else if (this->position.y < bounds.top)
        {
-              world->changePart(0, -1);
+              world->changePart(0, -1,true);
        }
        else if (this->position.y > bounds.top + bounds.height)
        {
-              world->changePart(0, 1);
+              world->changePart(0, 1,true);
        }
 }
-// what am i doing idk i seem to be too incapable to code which is paradoxically is the only thing i know how to do (or not this is subjective) well that is unfortunate

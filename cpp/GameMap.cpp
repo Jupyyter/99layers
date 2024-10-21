@@ -2,16 +2,32 @@
 class EditorMap;
 
 GameMap::GameMap(sf::RenderWindow &wndref, bool &gameover)
-    : mx(0), my(0), np(1), wndref(wndref), gameOver(&gameover)
+    : wndref(wndref), gameOver(&gameover), m_camera(wndref), m_currentPartX(0), m_currentPartY(0), playerRef(nullptr)
 {
-    view.setSize(wndref.getSize().x, wndref.getSize().y);
+    // Initialize the camera
+    m_camera.setSize(sf::Vector2f(wndref.getSize()));
+    m_camera.setPosition(sf::Vector2f(wndref.getSize().x / 2.f, wndref.getSize().y / 2.f));
+    m_camera.setZoom(1.0f);
+    m_camera.setSmoothness(777); //smoothness
+
+    // Other initializations
+    collisionObjects.clear();
+    allObjects.clear();
 }
 
 GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover)
-    : mx(0), my(0), np(1), wndref(wndref), gameOver(&gameover)
+    : wndref(wndref), gameOver(&gameover), m_camera(wndref), m_currentPartX(0), m_currentPartY(0), playerRef(nullptr)
 {
-    view.setSize(wndref.getSize().x, wndref.getSize().y);
+    // Initialize the camera
+    m_camera.setSize(sf::Vector2f(wndref.getSize()));
+    m_camera.setPosition(sf::Vector2f(wndref.getSize().x / 2.f, wndref.getSize().y / 2.f));
+    m_camera.setZoom(1.0f);
+    m_camera.setSmoothness(27.0f); //smoothness
+
+    // Load map from file
     loadFromFile(fname);
+
+    // Other initializations
     collisionObjects.clear();
     allObjects.clear();
 }
@@ -93,30 +109,39 @@ void GameMap::loadFromFile(const std::string &fname)
     }
 }
 
-void GameMap::changePart(int x, int y)
+void GameMap::changePart(int x, int y, bool teleport)
 {
-    mx += x;
-    my += y;
-    np++;
-    int wx = wndref.getSize().x, wy = wndref.getSize().y;
-    view.setCenter(wx / 2 + wx * mx, wy / 2 + wy * my);
-    wndref.setView(view);
+    m_currentPartX += x;
+    m_currentPartY += y;
+    m_camera.moveToNextPart(x, y, teleport);
+}
+
+void GameMap::teleportTo(int x, int y)
+{
+    m_currentPartX = x;
+    m_currentPartY = y;
+    sf::Vector2f newPosition(x * m_camera.getSize().x, y * m_camera.getSize().y);
+    m_camera.setPosition(newPosition, true);
 }
 
 sf::FloatRect GameMap::getPartBounds() const
 {
-    int wx = wndref.getSize().x, wy = wndref.getSize().y;
-    return sf::FloatRect(mx * wx, my * wy, wx, wy);
+    const auto &size = m_camera.getSize();
+    return sf::FloatRect(m_currentPartX * size.x, m_currentPartY * size.y, size.x, size.y);
 }
 
-void GameMap::resetObjects()
+void GameMap::reset()
 {
-    changePart(0, 0);
+    resetCamera();
     collisionObjects.clear();
     allObjects.clear();
     spawnObjects();
 }
-
+void GameMap::resetCamera() {
+    m_currentPartX = 0;
+    m_currentPartY = 0;
+    m_camera.setPosition(sf::Vector2f(m_camera.getSize().x / 2.f, m_camera.getSize().y / 2.f), true);
+}
 void GameMap::spawnObjects()
 {
     for (const auto &placedObject : originalObjects)
@@ -172,7 +197,11 @@ void GameMap::spawnObjects()
 
 void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 {
-    for (const auto &object : allObjects)
+    // Update camera once per frame
+    m_camera.update(deltaTime);
+    m_camera.applyTo(wndref);
+
+     for (const auto &object : allObjects)
     {
         object->update(deltaTime, windowSize);
         object->setPosition(object->getPosition());

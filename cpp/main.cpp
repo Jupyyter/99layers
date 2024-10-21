@@ -50,7 +50,7 @@ int main()
                 case GameState::Menu:
                     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
                     {
-                        world->resetObjects();
+                        world->reset();
                         gameOver = false;
                         currentState = GameState::CutScene;
                         updateClock.restart();

@@ -33,6 +33,7 @@
 #include <condition_variable>
 #include "CollisionDetector.hpp"
 #include "ObjectFactory.hpp"
+#include "Camera.hpp"
 #include "Object.hpp"
 #include "sprite.hpp"
 #include "Terrain.hpp"
