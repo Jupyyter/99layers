@@ -14,6 +14,7 @@ public:
         return Animation::getBounds();
     }
     void onCollision(Object* other) override;
+    bool isMoving;
 
 private:
 Inventory *inventory;

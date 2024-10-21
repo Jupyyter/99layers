@@ -22,4 +22,7 @@ private:
     void loadAndScaleImage();
     void updateEyePosition();
     void onCollision(Object *other) override;
+
+    int currentPhase;
+float maxHealth;
 };
