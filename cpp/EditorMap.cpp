@@ -12,7 +12,7 @@ EditorMap::EditorMap(sf::RenderWindow& window)
             "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",
             "../imgs/poketIkeaman.png"},
            {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png"},
-           {"../imgs/background.png"},
+           {"../imgs/background.png","../imgs/background4.png"},
            window)
 {
     view.setSize(window.getSize().x, window.getSize().y);

@@ -1,5 +1,6 @@
 #include "../hpp/libs.hpp"
 class GameMap;
+class GameOverScreen;
 enum class GameState
 {
     Menu,
@@ -60,6 +61,7 @@ int main()
                     if (gameOverScreen.handleEvent(event))
                     {
                         currentState = GameState::Menu;
+                        gameOverScreen.stopMusic();
                     }
                     break;
             }
@@ -81,7 +83,15 @@ int main()
                 if (gameOver)
                 {
                     currentState = GameState::GameOver;
-                    gameOver = false;
+                    gameOver = true;
+                    // Pause the game for 1 second before going to the game over screen
+                    sf::Clock pauseClock;
+                    while (pauseClock.getElapsedTime().asSeconds() < 2.0f)
+                    {
+                        window.clear(sf::Color::Black);
+                        world->drawObjects(window);
+                        window.display();
+                    }
                 }
                 else
                 {
@@ -110,6 +120,9 @@ int main()
                 break;
             case GameState::GameOver:
                 gameOverScreen.draw();
+                if(!gameOverScreen.isPlayingMusic()){
+                    gameOverScreen.playMusic();
+                }
                 break;
         }
 

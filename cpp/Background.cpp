@@ -30,8 +30,7 @@ void Background::initializeSprite(float width, float height) {
 }
 
 void Background::update(float deltaTime, const sf::Vector2u& windowSize) {
-    // Backgrounds typically don't need updating, but we could add parallax scrolling here
-    // if desired
+    //parallax
 }
 
 void Background::draw(sf::RenderWindow& window) const {

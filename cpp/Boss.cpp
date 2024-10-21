@@ -1,10 +1,13 @@
 #include "../hpp/libs.hpp"
 class GameMap;
+
 Boss::Boss(const sf::Vector2f &initialPosition)
-    : Sprite(initialPosition), CollisionDetector(),hasAppearedOnScreen(false)
+    : Sprite(initialPosition), CollisionDetector(), hasAppearedOnScreen(false)
 {
     loadAndScaleImage();
     resetTimers();
+    maxHealth = 255; // Since we're using color values as HP
+    currentPhase = 1;
 }
 
 void Boss::loadAndScaleImage()
@@ -22,7 +25,6 @@ void Boss::loadAndScaleImage()
 
 void Boss::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    std::cout<<hasAppearedOnScreen<<" ";
     if (!hasAppearedOnScreen)
     {
         if (isOnScreen())
@@ -34,19 +36,26 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
             return;
         }
     }
+
+    // Get player position for targeting
     sf::Vector2f playerCenter(world->playerRef->getBounds().left + world->playerRef->getBounds().width / 2.0f,
-                              world->playerRef->getBounds().top + world->playerRef->getBounds().height / 2.0f);
+                            world->playerRef->getBounds().top + world->playerRef->getBounds().height / 2.0f);
     sf::Vector2f direction = playerCenter - position;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
+    // Normalize direction
     if (distance > 0)
     {
         direction /= distance;
     }
 
-    float movementSpeed = 70.0f;
-    move(direction * movementSpeed * deltaTime);
-    position += direction * movementSpeed * deltaTime;
+    // Only move when player is moving
+    if (world->playerRef->isMoving)
+    {
+        float movementSpeed = 70.0f;
+        move(direction * movementSpeed * deltaTime);
+        position += direction * movementSpeed * deltaTime;
+    }
 
     updateEyePosition();
 
@@ -64,30 +73,68 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
     float angle = std::atan2(direction.y, direction.x) * 180 / 3.14159;
     sprite.setRotation(angle);
 
-    // Create Attacks
-     if (isOnScreen())
+    // Get current health percentage
+    sf::Color currentColor = sprite.getColor();
+    float healthPercentage = (currentColor.r + currentColor.g + currentColor.b) / (3.0f * 255.0f);
+
+    // Update current phase based on health
+    if (healthPercentage <= 0.3f)
     {
-        if (ptimer.getElapsedTime().asSeconds() >= 3.5)
-        {
-            world->spawn("plank", position.x, position.y, 0);
-            ptimer.restart();
-        }
+        currentPhase = 3;
+    }
+    else if (healthPercentage <= 0.6f)
+    {
+        currentPhase = 2;
+    }
 
-        if (ltimer.getElapsedTime().asSeconds() >= 0.05)
+    // Create Attacks based on current phase
+    if (isOnScreen())
+    {
+        switch (currentPhase)
         {
-            world->spawn("laser", position.x, position.y, sprite.getRotation());
-            ltimer.restart();
-        }
+            case 1: // First phase
+                if (ltimer.getElapsedTime().asSeconds() >= 10.0f)
+                {
+                    world->spawn("laser", position.x, position.y, sprite.getRotation());
+                    ltimer.restart();
+                }
+                break;
 
-        if (ttimer.getElapsedTime().asSeconds() >= 2.3)
-        {
-            world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
-            ttimer.restart();
+            case 2: // Second phase
+                if (ltimer.getElapsedTime().asSeconds() >= 5.0f)
+                {
+                    world->spawn("laser", position.x, position.y, sprite.getRotation());
+                    ltimer.restart();
+                }
+                if (ttimer.getElapsedTime().asSeconds() >= 10.0f)
+                {
+                    world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
+                    ttimer.restart();
+                }
+                break;
+
+            case 3: // Final phase
+                if (ltimer.getElapsedTime().asSeconds() >= 0.05f)
+                {
+                    world->spawn("laser", position.x, position.y, sprite.getRotation());
+                    ltimer.restart();
+                }
+                if (ttimer.getElapsedTime().asSeconds() >= 5.0f)
+                {
+                    world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
+                    ttimer.restart();
+                }
+                if (ptimer.getElapsedTime().asSeconds() >= 7.0f)
+                {
+                    world->spawn("plank", position.x, position.y, 0);
+                    ptimer.restart();
+                }
+                break;
         }
     }
 }
 
-void Boss::draw(sf::RenderWindow &window)const 
+void Boss::draw(sf::RenderWindow &window) const
 {
     Sprite::draw(window);
     window.draw(eyeSprite);
@@ -104,25 +151,21 @@ void Boss::resetTimers()
 void Boss::updateEyePosition()
 {
     eyeSprite.setPosition(position.x - eyeSprite.getGlobalBounds().width / 2.0f,
-                          position.y - eyeSprite.getGlobalBounds().height / 2.0f);
+                         position.y - eyeSprite.getGlobalBounds().height / 2.0f);
 }
+
 void Boss::onCollision(Object *other)
 {
-    // claudeai showed this trick to me
     akBullet* attack = dynamic_cast<akBullet*>(other);
     
     if (attack)
     {
         sf::Color color = sprite.getColor();
         
-        // Subtract 10 from each component, starting with red
-
-            color.r = std::max(0, color.r - 2);
-
-            color.g = std::max(0, color.g - 2);
-
-
-            color.b = std::max(0, color.b - 2);
+        // Subtract 2 from each component
+        color.r = std::max(0, color.r - 2);
+        color.g = std::max(0, color.g - 2);
+        color.b = std::max(0, color.b - 2);
         
         // Set the new color
         sprite.setColor(color);

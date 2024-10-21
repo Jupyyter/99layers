@@ -1,7 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Attack::Attack(sf::Vector2f sp) : Sprite(sp), CollisionDetector(),offScreenTimer(), timeOffScreen(0.f) {
-}
+Attack::Attack(sf::Vector2f sp) : Sprite(sp), CollisionDetector(),offScreenTimer(), timeOffScreen(0.f) { priorityLayer=5;}
 void Attack::update(float deltaTime, const sf::Vector2u &screenres) {
     if (!isOnScreen()) {
         timeOffScreen += offScreenTimer.restart().asSeconds();
@@ -58,7 +57,6 @@ void Plank::draw(sf::RenderWindow &window)const  {
 LaserBeam::LaserBeam(sf::Vector2f sp, float rotangle) : Attack(sp), fc(true) {
     loadTexture("../imgs/laser.png");
     sprite.rotate(90 + rotangle);
-    priorityLayer = 2;
 }
 
 void LaserBeam::onCollision(Object *other)
@@ -90,7 +88,6 @@ void LaserBeam::update(float deltaTime, const sf::Vector2u &screenres) {
 }
 akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp) {
         loadTexture("../imgs/akBullet.png");
-        priorityLayer = 5;
         
         // Set the bullet's rotation
         sprite.setRotation(rotangle);
@@ -98,7 +95,7 @@ akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp) {
         // Calculate the velocity based on the rotation angle
         float radians = rotangle * 3.14159f / 180.f;
         velocity = sf::Vector2f(std::cos(radians), std::sin(radians));
-        velocity *= 577.0f;
+        velocity *= 787.0f;
     }
 void akBullet::onCollision(Object *other)
 {

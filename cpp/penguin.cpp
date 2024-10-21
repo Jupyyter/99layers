@@ -5,8 +5,15 @@ Penguin::Penguin(sf::Vector2f position)
     : Animation(position), CollisionDetector(), gravity(980.0f), isColliding(false), 
     speed(200.0f) {
     loadSprite();
+    setInitialDirection();
+    
 }
-
+void Penguin::setInitialDirection()
+{
+    // Randomly choose left or right direction
+    speed = (rand() % 2 == 0) ? -speed : speed;
+    //velocity.x = speed;
+}
 void Penguin::loadSprite() {
     loadSpritesheet("../imgs/penguinSpin/Spin Attack.png", 18, 16);
     addAnimation("spin", 0, 7);
@@ -22,14 +29,14 @@ void Penguin::onCollision(Object *other)
                      if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0)) // in case of stairs
                      {
                             position.x = other->getBounds().left + other->getBounds().width;
-                            velocity.x = 0;
+                            speed=-speed;
                      }
                      break;
               case CollisionInfo::Right:
                      if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
                      {
                             position.x = other->getBounds().left - getBounds().width;
-                            velocity.x = 0;
+                            speed=-speed;
                      }
                      break;
               case CollisionInfo::Bottom:
@@ -37,13 +44,31 @@ void Penguin::onCollision(Object *other)
                      {
                             position.y = other->getBounds().top - getBounds().height;
                             velocity.y = 0;
+                            
+                            // Check if its about to walk off the platform
+                            float platformEnd;
+                            if (speed > 0) // Moving right
+                            {
+                                   platformEnd = other->getBounds().left + other->getBounds().width;
+                                   if (position.x + getBounds().width + 5 >= platformEnd) // 5 pixels threshold
+                                   {
+                                          speed = -speed; // Reverse direction
+                                   }
+                            }
+                            else // Moving left
+                            {
+                                   platformEnd = other->getBounds().left;
+                                   if (position.x - 5 <= platformEnd) // 5 pixels threshold
+                                   {
+                                          speed = -speed; // Reverse direction
+                                   }
+                            }
                      }
                      break;
               case CollisionInfo::Top:
               {
                      position.y = other->getBounds().top + other->getBounds().height;
                      velocity.y = 0;
-
                      break;
               }
               default:

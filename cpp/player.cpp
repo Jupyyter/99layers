@@ -37,11 +37,13 @@ void Player::handleInput()
        {
               velocity.x = -moveSpeed;
               flipped = false;
+              isMoving=true;
        }
        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)||sf::Keyboard::isKeyPressed(sf::Keyboard::D))
        {
               velocity.x = moveSpeed;
               flipped = true;
+              isMoving=true;
        }
        else
        {
@@ -51,6 +53,7 @@ void Player::handleInput()
        if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ||sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && isGrounded)
        {
               velocity.y = jumpForce;
+              isMoving=true;
        }
 }
 
@@ -87,6 +90,8 @@ void Player::updateAnimation()
 
 void Player::update(float deltaTime, const sf::Vector2u &screenres)
 {
+       isMoving=false;
+
        if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){
               *(world->gameOver) = true;
        }
