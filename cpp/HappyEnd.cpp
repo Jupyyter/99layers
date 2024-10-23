@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-HappyEnd::HappyEnd(const sf::Vector2f &initialPosition) : Animation(initialPosition), animationStarted(false), animationCompleted(false)
+HappyEnd::HappyEnd(const sf::Vector2f &initialPosition) : Animation(initialPosition,0.1), animationStarted(false), animationCompleted(false)
 {
        priorityLayer=6;
        shouldBeDead = false;

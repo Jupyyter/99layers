@@ -20,23 +20,22 @@ int main()
     };
     bool gameOver = false;
     CutScene cutScene(cutSceneImages, window.getSize());
-    world = std::make_unique<GameMap>("../map.mib",window, gameOver);
+    world = std::make_unique<GameMap>("../map.mib", window, gameOver);
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
     GameState currentState = GameState::Menu;
+    GameState previousState = GameState::Menu;  // Track previous state for transitions
 
     sf::Clock frameClock;
     sf::Clock updateClock;
     const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
-    const float maxDeltaTime = 1.0f / 30.0f; // Maximum allowed delta time
+    const float maxDeltaTime = 1.0f / 30.0f;
 
     while (window.isOpen())
     {
         sf::Time frameTime = frameClock.restart();
-        float deltaTime = std::min(frameTime.asSeconds(), maxDeltaTime); // Cap delta time
-        //This ensures that even if there's a long pause (like when moving the window), the game won't try to simulate that entire duration in one step.
+        float deltaTime = std::min(frameTime.asSeconds(), maxDeltaTime);
 
-        // Handle events
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -44,41 +43,44 @@ int main()
             {
                 window.close();
             }
-
-            // Handle other events based on current state
-            switch (currentState)
-            {
-                case GameState::Menu:
-                    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && menu.isPlayButtonClicked())
-                    {
-                        world->reset();
-                        gameOver = false;
-                        currentState = GameState::CutScene;
-                        updateClock.restart();
-                    }
-                    break;
-                case GameState::GameOver:
-                    if (gameOverScreen.handleEvent(event))
-                    {
-                        currentState = GameState::Menu;
-                        gameOverScreen.stopMusic();
-                    }
-                    break;
-            }
         }
 
-        // Update logic based on current state
+        window.clear(sf::Color::Black);
+
+        // Handle state transitions and music
+        if (currentState != previousState)
+        {
+            if (previousState == GameState::GameOver)
+            {
+                gameOverScreen.stopMusic();
+            }
+            previousState = currentState;
+        }
+
         switch (currentState)
         {
             case GameState::Menu:
                 menu.updateButtonColor();
+                if (event.type == sf::Event::MouseButtonPressed && 
+                    event.mouseButton.button == sf::Mouse::Left && 
+                    menu.isPlayButtonClicked())
+                {
+                    world->reset();
+                    gameOver = false;
+                    currentState = GameState::CutScene;
+                    updateClock.restart();
+                }
+                menu.draw();
                 break;
+
             case GameState::CutScene:
                 if (cutScene.update(deltaTime))
                 {
                     currentState = GameState::Playing;
                 }
+                cutScene.draw(window);
                 break;
+
             case GameState::Playing:
                 if (gameOver)
                 {
@@ -97,40 +99,26 @@ int main()
                 {
                     world->updateObjects(deltaTime, window.getSize());
                     world->removeDeadObjects();
-                }
-                break;
-        }
-
-        // Render
-        window.clear(sf::Color::Black);
-
-        switch (currentState)
-        {
-            case GameState::Menu:
-                menu.draw();
-                break;
-            case GameState::CutScene:
-                cutScene.draw(window);
-                break;
-            case GameState::Playing:
-                {
-                   // map.draw();
                     world->drawObjects(window);
                 }
                 break;
+
             case GameState::GameOver:
-                gameOverScreen.draw();
-                if(!gameOverScreen.isPlayingMusic()){
+                if (gameOverScreen.handleEvent(event))
+                {
+                    currentState = GameState::Menu;
+                }
+                if (!gameOverScreen.isPlayingMusic())
+                {
                     gameOverScreen.playMusic();
                 }
+                gameOverScreen.draw();
                 break;
         }
 
         window.display();
 
-        // Frame rate control
         sf::Time sleepTime = timePerFrame - frameClock.getElapsedTime();
-        //if (sleepTime > sf::Time::Zero)
         std::this_thread::sleep_for(std::chrono::microseconds(sleepTime.asMicroseconds()));
     }
 

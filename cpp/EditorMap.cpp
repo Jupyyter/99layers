@@ -10,7 +10,7 @@ EditorMap::EditorMap(sf::RenderWindow& window)
             "../imgs/ikeaman.png", "../imgs/ak47item.png",
             "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png",
             "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",
-            "../imgs/poketIkeaman.png"},
+            "../imgs/poketIkeaman.png", "../imgs/spawn.png"},
            {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png"},
            {"../imgs/background.png","../imgs/background4.png"},
            window)

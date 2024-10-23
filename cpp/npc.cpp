@@ -1,109 +1,93 @@
 #include "../hpp/libs.hpp"
-class TextBox;
-Npc::Npc(sf::Vector2f position)
-    : Animation(position), CollisionDetector(), gravity(980.0f), isColliding(false)
+Npc::Npc(sf::Vector2f position,float frameInterval,const std::string &imgPath)
+    : Animation(position,frameInterval), CollisionDetector(), gravity(980.0f),textBox(new TextBox(sf::Vector2f(world->wndref.getPosition().x/2, 657),"", 0.007f,imgPath)), isInteracting(false)
 {
-       priorityLayer=1;
-       textBox = std::make_unique<TextBox>("", 0.007f);
-       loadSprite();
+    std::cout<<imgPath<<" ";
+    priorityLayer = 1;
+    world->spawn(textBox);
 }
 
-void Npc::loadSprite()
+void Npc::update(float deltaTime, const sf::Vector2u& screenres)
 {
-       loadSpritesheet("../imgs/capybara.png", 64, 64);
-       addAnimation("idle", 1, 8);
-       setAnimation("idle");
+    if (isOnScreen())
+    {
+        velocity.y += gravity * deltaTime;
+        position.y += velocity.y * deltaTime;
+        Animation::update(deltaTime, screenres);
+        
+        // Check if we're still colliding with the player
+        if (isInteracting)
+        {
+            sf::FloatRect npcBounds = getBounds();
+            sf::FloatRect playerBounds = world->playerRef->getBounds();
+            if (!npcBounds.intersects(playerBounds))
+            {
+                isInteracting = false;
+                textBox->setString("");
+            }
+        }
+    }
 }
 
-void Npc::update(float deltaTime,  const sf::Vector2u &screenres)
-{
-       if (isOnScreen())
-       {
-              velocity.y += gravity * deltaTime;
-              position.y += velocity.y * deltaTime;
-              checkCollisionWithPlayer(world->playerRef->getBounds());
-              Animation::update(deltaTime, screenres);
 
-              if (textBox)
-              {
-                     textBox->update(deltaTime);
-              }
-       }
+void Npc::draw(sf::RenderWindow& window) const
+{
+    Animation::draw(window);
+    // Draw textbox at its screen position
+    textBox->draw(window);
 }
 
-void Npc::draw(sf::RenderWindow &window)const 
+void Npc::onCollision(Object* other)
 {
-       Animation::draw(window);
-       textBox->draw(window);
-}
-
-void Npc::checkCollisionWithPlayer(const sf::FloatRect &playerBounds)
-{
-       sf::FloatRect npcBounds = sprite.getGlobalBounds();
-       if (npcBounds.intersects(playerBounds))
-       {
-              if (!isColliding)
-              {
-                     if (textBox)
-                     {
-                            textBox->setString(text);
-                     }
-                     isColliding = true;
-              }
-       }
-       else
-       {
-              if (isColliding)
-              {
-                     textBox->setString("");
-              }
-              isColliding = false;
-       }
-}
-void Npc::onCollision(Object *other)
-{
-       if (typeid(*other) == typeid(Terrain))
-       {
-              switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
-              {
-              case CollisionInfo::Left:
-                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0)) // in case of stairs
-                     {
-                            position.x = other->getBounds().left + other->getBounds().width;
-                            velocity.x = 0;
-                     }
-                     break;
-              case CollisionInfo::Right:
-                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
-                     {
-                            position.x = other->getBounds().left - getBounds().width;
-                            velocity.x = 0;
-                     }
-                     break;
-              case CollisionInfo::Bottom:
-                     if (velocity.y >= 0)
-                     {
-                            position.y = other->getBounds().top - getBounds().height;
-                            velocity.y = 0;
-                     }
-                     break;
-              case CollisionInfo::Top:
-              {
-                     position.y = other->getBounds().top + other->getBounds().height;
-                     velocity.y = 0;
-
-                     break;
-              }
-              default:
-                     break;
-              }
-       }
+    // Handle terrain collisions
+    if (typeid(*other) == typeid(Terrain))
+    {
+        switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
+        {
+            case CollisionInfo::Left:
+                if (!(other->getBounds().top > getBounds().top && 
+                    other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
+                {
+                    position.x = other->getBounds().left + other->getBounds().width;
+                    velocity.x = 0;
+                }
+                break;
+            case CollisionInfo::Right:
+                if (!(other->getBounds().top > getBounds().top && 
+                    other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
+                {
+                    position.x = other->getBounds().left - getBounds().width;
+                    velocity.x = 0;
+                }
+                break;
+            case CollisionInfo::Bottom:
+                if (velocity.y >= 0)
+                {
+                    position.y = other->getBounds().top - getBounds().height;
+                    velocity.y = 0;
+                }
+                break;
+            case CollisionInfo::Top:
+                position.y = other->getBounds().top + other->getBounds().height;
+                velocity.y = 0;
+                break;
+        }
+    }
+    // Handle player collision
+    else if (typeid(*other) == typeid(Player))
+    {
+        if (!isInteracting)
+        {
+            textBox->setString(text);
+            isInteracting = true;
+        }
+    }
 }
 std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {
     return {
         {"text", "",
-            [](Object* e, const std::string& v) { static_cast<Npc*>(e)->text = v; },  // Direct assignment to string
-            [](const Object* e) { return static_cast<const Npc*>(e)->text; }  // Return string directly
+            [](Object* e, const std::string& v) { static_cast<Npc*>(e)->text = v; },
+            [](const Object* e) { return static_cast<const Npc*>(e)->text; }
         }
     };
 }

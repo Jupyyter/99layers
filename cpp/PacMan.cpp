@@ -5,7 +5,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 PacMan::PacMan(sf::Vector2f spawnPosition)
-    : Animation(spawnPosition), CollisionDetector(), hasAppearedOnScreen(false), lifeTimer(0.0f),
+    : Animation(spawnPosition,0.1), CollisionDetector(), hasAppearedOnScreen(false), lifeTimer(0.0f),
       lifeDuration(5.0f), speed(100.0f), degrees(0.0f)
 {
      position = spawnPosition;

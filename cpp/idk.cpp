@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 Idk::Idk(sf::Vector2f position, float moveDistance)
-    : Animation(position), CollisionDetector(), moveSpeed(100.0f), moveDistance(moveDistance), initialX(position.x), gravity(980.0f), movingRight(true)
+    : Animation(position,0.1), CollisionDetector(), moveSpeed(100.0f), moveDistance(moveDistance), initialX(position.x), gravity(980.0f), movingRight(true)
 {
     loadSprite();
 }

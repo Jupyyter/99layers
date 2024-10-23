@@ -8,14 +8,12 @@ public:
     Background(float x, float y, float width, float height, const std::string& texturePath);
     virtual ~Background() = default;
 
-    // Override Entity virtual methods
+    // Override Object virtual methods
     void update(float deltaTime, const sf::Vector2u& windowSize) override;
     void draw(sf::RenderWindow& window) const override;
     bool isOnScreen() const override;
 
 private:
-    sf::Texture texture;
-    sf::Sprite sprite;
     float originalWidth;
     float originalHeight;
     

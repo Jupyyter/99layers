@@ -8,7 +8,7 @@ GameMap::GameMap(sf::RenderWindow &wndref, bool &gameover)
     m_camera.setSize(sf::Vector2f(wndref.getSize()));
     m_camera.setPosition(sf::Vector2f(wndref.getSize().x / 2.f, wndref.getSize().y / 2.f));
     m_camera.setZoom(1.0f);
-    m_camera.setSmoothness(777); //smoothness
+    m_camera.setSmoothness(25); // smoothness
 
     // Other initializations
     collisionObjects.clear();
@@ -22,7 +22,7 @@ GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover)
     m_camera.setSize(sf::Vector2f(wndref.getSize()));
     m_camera.setPosition(sf::Vector2f(wndref.getSize().x / 2.f, wndref.getSize().y / 2.f));
     m_camera.setZoom(1.0f);
-    m_camera.setSmoothness(27.0f); //smoothness
+    m_camera.setSmoothness(25.0f); // smoothness
 
     // Load map from file
     loadFromFile(fname);
@@ -137,7 +137,8 @@ void GameMap::reset()
     allObjects.clear();
     spawnObjects();
 }
-void GameMap::resetCamera() {
+void GameMap::resetCamera()
+{
     m_currentPartX = 0;
     m_currentPartY = 0;
     m_camera.setPosition(sf::Vector2f(m_camera.getSize().x / 2.f, m_camera.getSize().y / 2.f), true);
@@ -148,12 +149,12 @@ void GameMap::spawnObjects()
     {
         sf::Vector2f objectPos = placedObject.sprite.getPosition();
         sf::Vector2f objectSize = placedObject.sprite.getGlobalBounds().getSize();
-        Object *newOnject = nullptr;
+        Object *newObject = nullptr;
 
         if (placedObject.type == "Background")
         {
             // Create a Background object
-            newOnject = new Background(
+            newObject = new Background(
                 objectPos.x,
                 objectPos.y,
                 objectSize.x,
@@ -162,7 +163,7 @@ void GameMap::spawnObjects()
         }
         else if (placedObject.type == "Terrain")
         {
-            newOnject = new Terrain(
+            newObject = new Terrain(
                 static_cast<int>(objectPos.x),
                 static_cast<int>(objectPos.y),
                 static_cast<int>(objectSize.x),
@@ -174,12 +175,12 @@ void GameMap::spawnObjects()
             sf::Transformable transform;
             transform.setPosition(placedObject.sprite.getPosition());
             transform.setScale(placedObject.sprite.getScale());
-            newOnject = ObjectFactory::createObject(placedObject.type, transform);
+            newObject = ObjectFactory::createObject(placedObject.type, transform);
         }
 
-        if (newOnject)
+        if (newObject)
         {
-            newOnject->setPosition(objectPos);
+            newObject->setPosition(objectPos);
             // Set object properties
             auto descriptors = ObjectFactory::getPropertyDescriptors(placedObject.type);
             for (const auto &desc : descriptors)
@@ -187,10 +188,10 @@ void GameMap::spawnObjects()
                 auto it = placedObject.properties.find(desc.name);
                 if (it != placedObject.properties.end() && desc.setter)
                 {
-                    desc.setter(newOnject, it->second);
+                    desc.setter(newObject, it->second);
                 }
             }
-            spawn(newOnject);
+            spawn(newObject);
         }
     }
 }
@@ -200,8 +201,7 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
     // Update camera once per frame
     m_camera.update(deltaTime);
     m_camera.applyTo(wndref);
-
-     for (const auto &object : allObjects)
+    for (const auto &object : allObjects)
     {
         object->update(deltaTime, windowSize);
         object->setPosition(object->getPosition());
@@ -210,16 +210,20 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
     for (size_t i = 0; i < collisionObjects.size(); ++i)
     {
         Object *en1 = dynamic_cast<Object *>(collisionObjects[i]);
-        for (size_t j = i + 1; j < collisionObjects.size(); ++j)
+        if (en1->isOnScreen())
         {
-            Object *en2 = dynamic_cast<Object *>(collisionObjects[j]);
-            if (checkCollision(en1->getSprite(), en2->getSprite()))
+
+            for (size_t j = i + 1; j < collisionObjects.size(); ++j)
             {
-                collisionObjects[i]->onCollision(en2);
-                collisionObjects[j]->onCollision(en1);
+                Object *en2 = dynamic_cast<Object *>(collisionObjects[j]);
+                if (checkCollision(en1->getSprite(), en2->getSprite()))
+                {
+                    collisionObjects[i]->onCollision(en2);
+                    collisionObjects[j]->onCollision(en1);
+                }
             }
+            en1->setPosition(en1->getPosition());
         }
-        en1->setPosition(en1->getPosition());
     }
 }
 void GameMap::removeDeadObjects()
@@ -258,7 +262,8 @@ void GameMap::drawObjects(sf::RenderWindow &window) const
 {
     for (const auto &object : allObjects)
     {
-        if (object->isOnScreen())
+        //should optimize.....later....
+        //if (object->isOnScreen())
         {
             object->draw(window);
         }
@@ -279,23 +284,21 @@ void GameMap::spawn(const std::string &objectName, float x, float y, float rotat
 
 void GameMap::spawn(Object *object)
 {
-    if (object)
-    {
-        try
-        {
-            auto result = allObjects.emplace(std::unique_ptr<Object>(object));
 
-            CollisionDetector *collider = dynamic_cast<CollisionDetector *>(object);
-            if (collider)
-            {
-                collisionObjects.push_back(collider);
-            }
-        }
-        catch (const std::bad_alloc &e)
+    try
+    {
+        allObjects.emplace(std::unique_ptr<Object>(object));
+
+        CollisionDetector *collider = dynamic_cast<CollisionDetector *>(object);
+        if (collider)
         {
-            std::cerr << "\nMemory allocation failed: " << e.what();
-            delete object;
+            collisionObjects.push_back(collider);
         }
+    }
+    catch (const std::bad_alloc &e)
+    {
+        std::cerr << "\nMemory allocation failed: " << e.what();
+        delete object;
     }
 }
 bool GameMap::checkCollision(const sf::Sprite &sprite1, const sf::Sprite &sprite2)

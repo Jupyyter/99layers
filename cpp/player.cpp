@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position) : Animation(position), CollisionDetector(), inventory(new Inventory())
+Player::Player(sf::Vector2f position) : Animation(position,0.1), CollisionDetector(), inventory(new Inventory())
 {
        priorityLayer = 4;
        world->spawn(inventory);

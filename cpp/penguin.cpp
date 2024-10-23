@@ -2,7 +2,7 @@
 #include "../hpp/penguin.hpp"
 
 Penguin::Penguin(sf::Vector2f position)
-    : Animation(position), CollisionDetector(), gravity(980.0f), isColliding(false), 
+    : Animation(position,0.1), CollisionDetector(), gravity(980.0f), isColliding(false), 
     speed(200.0f) {
     loadSprite();
     setInitialDirection();

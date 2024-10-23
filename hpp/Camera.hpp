@@ -16,6 +16,7 @@ public:
     float getZoom() const { return m_zoom; }
 
     void moveToNextPart(int dx, int dy, bool teleport = false);
+    bool isMoving() const;
 
 private:
     sf::View m_view;

@@ -66,8 +66,13 @@ void Camera::moveToNextPart(int dx, int dy, bool teleport) {
     newPosition.y += dy * m_size.y;
     setPosition(newPosition, teleport);
 }
-
-
+bool Camera::isMoving() const {
+    // Compare current position with target position
+    // Using a small epsilon value to account for floating-point precision
+    const float epsilon = 0.01f;
+    return (std::abs(m_position.x - m_targetPosition.x) > epsilon ||
+            std::abs(m_position.y - m_targetPosition.y) > epsilon);
+}
 void Camera::applyTo(sf::RenderWindow& window)
 {
     window.setView(m_view);
