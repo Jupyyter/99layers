@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position) : Animation(position,0.1), CollisionDetector(), inventory(new Inventory()),isJump(false)
+Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetector(), inventory(new Inventory()), isJump(false)
 {
        priorityLayer = 4;
        world->spawn(inventory);
@@ -33,26 +33,26 @@ void Player::loadShaders()
 
 void Player::handleInput()
 {
-       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)||sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
        {
               velocity.x = -moveSpeed;
               flipped = false;
-              isMoving=true;
+              isMoving = true;
        }
-       else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)||sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+       else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
        {
               velocity.x = moveSpeed;
               flipped = true;
-              isMoving=true;
+              isMoving = true;
        }
        else
        {
               velocity.x = 0;
        }
-       if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ||sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && isGrounded&&isJump)
+       if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && isGrounded && isJump)
        {
               velocity.y = jumpForce;
-              isMoving=true;
+              isMoving = true;
        }
 }
 
@@ -89,9 +89,10 @@ void Player::updateAnimation()
 
 void Player::update(float deltaTime, const sf::Vector2u &screenres)
 {
-       isMoving=false;
+       isMoving = false;
 
-       if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){
+       if (sf::Keyboard::isKeyPressed(sf::Keyboard::T))
+       {
               *(world->gameOver) = true;
        }
        if (!isStasis)
@@ -115,6 +116,12 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void Player::onCollision(Sprite *other)
 {
+       if (typeid(*other) == typeid(PacMan))
+       {
+              *(world->gameOver) = true;
+       this->shouldBeDead = true;
+       world->spawn("bloodParticles", position.x, position.y);
+       }
        if (typeid(*other) == typeid(Terrain))
        {
               switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
@@ -170,18 +177,18 @@ void Player::checkBounds(const sf::Vector2u &screenres)
        auto bounds = world->getPartBounds();
        if (this->position.x > bounds.left + bounds.width)
        {
-              world->changePart(1, 0,true);
+              world->changePart(1, 0, true);
        }
        else if (this->position.x < bounds.left)
        {
-              world->changePart(-1, 0,true);
+              world->changePart(-1, 0, true);
        }
        else if (this->position.y < bounds.top)
        {
-              world->changePart(0, -1,true);
+              world->changePart(0, -1, true);
        }
        else if (this->position.y > bounds.top + bounds.height)
        {
-              world->changePart(0, 1,true);
+              world->changePart(0, 1, true);
        }
 }

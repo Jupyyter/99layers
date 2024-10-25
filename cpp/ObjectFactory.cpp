@@ -1,5 +1,6 @@
 #include "../hpp/libs.hpp"
 class HappyEnd;
+class bloodParticle;
 
 // Helper function to create compile-time string hashes
 constexpr unsigned int hash(const char *str, int h = 0)
@@ -65,6 +66,8 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
         return new SpawnPoint(transform.getPosition());
     case "bloodParticles"_hash:
         return new bloodParticles(transform.getPosition());
+    case "bloodParticle"_hash:
+        return new bloodParticle(transform.getPosition());
     default:
         return nullptr;
     }
@@ -106,6 +109,8 @@ std::vector<PropertyDescriptor> ObjectFactory::getPropertyDescriptors(const std:
         return SpawnPoint::getPropertyDescriptors();
         case "bloodParticles"_hash:
     return bloodParticles::getPropertyDescriptors();
+case "bloodParticle"_hash:
+        return bloodParticle::getPropertyDescriptors();
     default:
         return HappyEnd::getPropertyDescriptors();
     }

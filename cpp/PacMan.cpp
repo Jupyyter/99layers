@@ -99,9 +99,6 @@ void PacMan::draw(sf::RenderWindow& window) const {
 }
 
 void PacMan::onCollision(Sprite *other) {
-    if (typeid(*other) == typeid(Player)) {
-        *(world->gameOver) = true;
-    }
 }
 
 std::vector<PropertyDescriptor> PacMan::getPropertyDescriptors() {
