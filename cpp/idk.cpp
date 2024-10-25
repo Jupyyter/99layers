@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
-Idk::Idk(sf::Vector2f position, float moveDistance)
-    : Animation(position,0.1), CollisionDetector(), moveSpeed(100.0f), moveDistance(moveDistance), initialX(position.x), gravity(980.0f), movingRight(true)
+Idk::Idk(sf::Vector2f position)
+    : Animation(position,0.1), CollisionDetector(), moveSpeed(100.0f), moveDistance(200), initialX(position.x), gravity(980.0f), movingRight(true)
 {
     loadSprite();
 }
@@ -11,7 +11,7 @@ void Idk::loadSprite()
     addAnimation("default", 0, 1);
     setAnimation("default");
 }
-void Idk::onCollision(Object *other)
+void Idk::onCollision(Sprite *other)
 {
     if (typeid(*other) == typeid(Terrain))
     {

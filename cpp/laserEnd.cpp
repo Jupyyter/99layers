@@ -31,3 +31,6 @@ void LaserEnd::update(float deltaTime, const sf::Vector2u &screenres)
         }
     }
 }
+void LaserEnd::draw(sf::RenderWindow& window) const{
+
+}

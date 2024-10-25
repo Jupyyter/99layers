@@ -154,7 +154,7 @@ void Boss::updateEyePosition()
                          position.y - eyeSprite.getGlobalBounds().height / 2.0f);
 }
 
-void Boss::onCollision(Object *other)
+void Boss::onCollision(Sprite *other)
 {
     akBullet* attack = dynamic_cast<akBullet*>(other);
     

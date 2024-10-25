@@ -21,10 +21,7 @@ public:
     Object(const sf::Vector2f &position);
     virtual ~Object() = default;
 
-    virtual void update(float deltaTime, const sf::Vector2u &screenrese) = 0;
-    virtual void draw(sf::RenderWindow &window) const = 0;
-    virtual sf::FloatRect getBounds() const = 0;
-    virtual const sf::Sprite getSprite() const = 0;
+    virtual void update(float deltaTime, const sf::Vector2u &screenrese) {};
     virtual bool isOnScreen() const = 0;
 
     static std::vector<PropertyDescriptor> getPropertyDescriptors() { return {}; }

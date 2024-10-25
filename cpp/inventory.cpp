@@ -1,8 +1,14 @@
 #include "../hpp/libs.hpp"
 
 Inventory::Inventory() : Sprite(sf::Vector2f(world->getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
-                         world->getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f)), pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), movingItem(false), activeSlots(3, -1) {
+                         world->getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f)), 
+                         pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), 
+                         movingItem(false), activeSlots(3, -1) {
     priorityLayer = 777;
+    // Initialize active array
+    for (int i = 0; i < 3; i++) {
+        active[i] = nullptr;
+    }
     loadResources();
 }
 
@@ -251,16 +257,23 @@ void Inventory::moveItemToInventory(int slotIndex) {
 void Inventory::moveItemToActiveSlot(int itemIndex, int slotIndex) {
     if (itemIndex >= 0 && itemIndex < ownedItems.size() && slotIndex >= 0 && slotIndex < 3) {
         int itemId = ownedItems[itemIndex];
-        for (int i = 0; i < 3; i++)
+        // Clear existing item in that slot if any
+        for (int i = 0; i < 3; i++) {
             if (activeSlots[i] == itemId) {
                 active[i] = nullptr;
                 activeSlots[i] = -1;
                 break;
             }
-        ownedItems.erase(ownedItems.begin() + itemIndex);
-        active[slotIndex] = dynamic_cast<Item::Active *>(allItems[itemId]);
-        activeSlots[slotIndex] = itemId;
-        updateItemPositions();
+        }
+        
+        // Try to cast the item to Active type
+        Item::Active* activeItem = dynamic_cast<Item::Active*>(allItems[itemId]);
+        if (activeItem) {  // Only proceed if cast was successful
+            ownedItems.erase(ownedItems.begin() + itemIndex);
+            active[slotIndex] = activeItem;
+            activeSlots[slotIndex] = itemId;
+            updateItemPositions();
+        }
     }
 }
 

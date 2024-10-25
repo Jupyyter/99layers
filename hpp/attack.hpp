@@ -40,7 +40,7 @@ public:
     LaserBeam(sf::Vector2f sp, float rotangle);
 
     void update(float deltaTime, const sf::Vector2u& screenres) override;
-    void onCollision(Object *other) override;
+    void onCollision(Sprite *other) override;
 
 private:
     sf::Vector2f velocity;
@@ -52,7 +52,7 @@ public:
     akBullet(sf::Vector2f sp, float rotangle);
 
     void update(float deltaTime, const sf::Vector2u& screenres) override;
-void onCollision(Object *other) override;
+void onCollision(Sprite *other) override;
     void draw(sf::RenderWindow& window) const override;
 
 private:

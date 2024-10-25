@@ -13,8 +13,9 @@ public:
         // Implement if different from Sprite, otherwise let it use Sprite's implementation
         return Animation::getBounds();
     }
-    void onCollision(Object* other) override;
+    void onCollision(Sprite* other) override;
     bool isMoving;
+    bool isJump;
 
 private:
 Inventory *inventory;

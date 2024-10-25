@@ -8,7 +8,6 @@ AK47::AK47() : Sprite(sf::Vector2f(0,0)), playerRef(world->playerRef)
     sf::FloatRect bounds = sprite.getLocalBounds();
     sprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
-
 void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
     sf::Vector2i mousePosition = sf::Mouse::getPosition(world->wndref);
     updatePosition();

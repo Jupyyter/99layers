@@ -1,14 +1,14 @@
 #pragma once
 class Idk :public Animation, public CollisionDetector {
 public:
-    Idk(sf::Vector2f position, float moveDistance);
+    Idk(sf::Vector2f position);
     void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow& window) const override;
     bool isOutOfBounds(const sf::Vector2u& windowSize) const;
 
 private:
     void loadSprite();
-    void onCollision(Object* other) override;
+    void onCollision(Sprite* other) override;
 
     sf::RectangleShape shape;
     float moveSpeed;

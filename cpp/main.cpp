@@ -28,6 +28,8 @@ int main()
 
     sf::Clock frameClock;
     sf::Clock updateClock;
+    sf::Clock gameOverTransitionClock;  // New clock for game over transition
+    bool inGameOverTransition = false;  // Flag to track if we're in transition
     const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
     const float maxDeltaTime = 1.0f / 30.0f;
 
@@ -65,7 +67,7 @@ int main()
                     event.mouseButton.button == sf::Mouse::Left && 
                     menu.isPlayButtonClicked())
                 {
-                    world->reset();
+                    world->spawnObjects();
                     gameOver = false;
                     currentState = GameState::CutScene;
                     updateClock.restart();
@@ -82,25 +84,25 @@ int main()
                 break;
 
             case GameState::Playing:
-                if (gameOver)
+                if (gameOver && !inGameOverTransition)
                 {
+                    // Start the transition period
+                    inGameOverTransition = true;
+                    gameOverTransitionClock.restart();
+                }
+
+                if (inGameOverTransition && gameOverTransitionClock.getElapsedTime().asSeconds() >= 2.0f)
+                {
+                    // Transition period is over, move to game over state
+                    //world->stopAllSounds();
                     currentState = GameState::GameOver;
-                    gameOver = true;
-                    // Pause the game for 1 second before going to the game over screen
-                    sf::Clock pauseClock;
-                    while (pauseClock.getElapsedTime().asSeconds() < 2.0f)
-                    {
-                        window.clear(sf::Color::Black);
-                        world->drawObjects(window);
-                        window.display();
-                    }
+                    inGameOverTransition = false;
                 }
-                else
-                {
-                    world->updateObjects(deltaTime, window.getSize());
-                    world->removeDeadObjects();
-                    world->drawObjects(window);
-                }
+
+                // Continue updating and drawing the game
+                world->updateObjects(deltaTime, window.getSize());
+                world->removeDeadObjects();
+                world->drawObjects(window);
                 break;
 
             case GameState::GameOver:
@@ -111,6 +113,7 @@ int main()
                 if (!gameOverScreen.isPlayingMusic())
                 {
                     gameOverScreen.playMusic();
+                    world->deleteObjects();
                 }
                 gameOverScreen.draw();
                 break;

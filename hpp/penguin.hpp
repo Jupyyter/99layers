@@ -16,7 +16,7 @@ public:
 
 private:
     void loadSprite();
-     void onCollision(Object* other) override;
+     void onCollision(Sprite* other) override;
      void setInitialDirection();
 
     float gravity;

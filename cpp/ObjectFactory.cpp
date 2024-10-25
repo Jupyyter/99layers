@@ -20,7 +20,7 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
     case "pacman"_hash:
         return new PacMan(transform.getPosition());
     case "arrow"_hash:
-        return new Idk(transform.getPosition(), 200);
+        return new Idk(transform.getPosition());
     case "capybaraa"_hash:
         return new Capybara(transform.getPosition());
     case "pengu"_hash:
@@ -57,12 +57,14 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
         return new Inventory();
     case "akBullet"_hash:
         return new akBullet(transform.getPosition(), transform.getRotation());
-    case "HappyEnd"_hash:
+    case "HappyEnd"_hash:{}
         return new HappyEnd(transform.getPosition());
     case "LaserEnd"_hash:
         return new LaserEnd(transform.getPosition());
     case "spawn"_hash:
         return new SpawnPoint(transform.getPosition());
+    case "bloodParticles"_hash:
+        return new bloodParticles(transform.getPosition());
     default:
         return nullptr;
     }
@@ -102,6 +104,8 @@ std::vector<PropertyDescriptor> ObjectFactory::getPropertyDescriptors(const std:
         return Terrain::getPropertyDescriptors();
     case "spawn"_hash:
         return SpawnPoint::getPropertyDescriptors();
+        case "bloodParticles"_hash:
+    return bloodParticles::getPropertyDescriptors();
     default:
         return HappyEnd::getPropertyDescriptors();
     }

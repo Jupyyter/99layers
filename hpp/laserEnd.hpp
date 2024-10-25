@@ -6,6 +6,7 @@ public:
     virtual ~LaserEnd() = default;
 
     void update(float deltaTime, const sf::Vector2u& screenres) override;
+    void draw(sf::RenderWindow& window) const override;
 
 private:
     bool animationStarted;

@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position) : Animation(position,0.1), CollisionDetector(), inventory(new Inventory())
+Player::Player(sf::Vector2f position) : Animation(position,0.1), CollisionDetector(), inventory(new Inventory()),isJump(false)
 {
        priorityLayer = 4;
        world->spawn(inventory);
@@ -49,8 +49,7 @@ void Player::handleInput()
        {
               velocity.x = 0;
        }
-
-       if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ||sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && isGrounded)
+       if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ||sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && isGrounded&&isJump)
        {
               velocity.y = jumpForce;
               isMoving=true;
@@ -114,7 +113,7 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
               isGrounded = false;
        }
 }
-void Player::onCollision(Object *other)
+void Player::onCollision(Sprite *other)
 {
        if (typeid(*other) == typeid(Terrain))
        {

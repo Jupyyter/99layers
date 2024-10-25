@@ -12,6 +12,6 @@ public:
     };
     // Check for collision between an object and obstacles
     CollisionInfo CollisionSide(const sf::FloatRect& bounds1, const sf::FloatRect& bounds2);
-    virtual void onCollision(Object *other){};
+    virtual void onCollision(Sprite *other){};
 
 };

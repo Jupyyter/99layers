@@ -23,7 +23,7 @@ void Terrain::draw(sf::RenderWindow &window) const
 {
     window.draw(sprite);
 }
-void Terrain::onCollision(Object *other)
+void Terrain::onCollision(Sprite *other)
 {
 }
 void Terrain::update(float deltaTime, const sf::Vector2u& screenres)

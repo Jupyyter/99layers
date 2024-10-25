@@ -1,8 +1,13 @@
 #include "../hpp/libs.hpp"
-Npc::Npc(sf::Vector2f position,float frameInterval,const std::string &imgPath)
-    : Animation(position,frameInterval), CollisionDetector(), gravity(980.0f),textBox(new TextBox(sf::Vector2f(world->wndref.getPosition().x/2, 657),"", 0.007f,imgPath)), isInteracting(false)
+
+Npc::Npc(sf::Vector2f position, float frameInterval, const std::string &imgPath)
+    : Animation(position, frameInterval), 
+      CollisionDetector(), 
+      gravity(980.0f),
+      textBox(new TextBox(sf::Vector2f(world->wndref.getPosition().x/2, 657), "", 0.007f, imgPath)), 
+      isInteracting(false),
+      wasKeyPressed(false)
 {
-    std::cout<<imgPath<<" ";
     priorityLayer = 1;
     world->spawn(textBox);
 }
@@ -14,8 +19,9 @@ void Npc::update(float deltaTime, const sf::Vector2u& screenres)
         velocity.y += gravity * deltaTime;
         position.y += velocity.y * deltaTime;
         Animation::update(deltaTime, screenres);
+
+        handleTextBoxInput();
         
-        // Check if we're still colliding with the player
         if (isInteracting)
         {
             sf::FloatRect npcBounds = getBounds();
@@ -29,17 +35,28 @@ void Npc::update(float deltaTime, const sf::Vector2u& screenres)
     }
 }
 
+void Npc::handleTextBoxInput()
+{
+    bool isQPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Q);
+    
+    if (isQPressed && !wasKeyPressed && isInteracting && textBox->isVisible())
+    {
+        if (!textBox->isFullyDisplayed()) {
+            textBox->showFullText();
+        }
+    }
+    
+    wasKeyPressed = isQPressed;
+}
 
 void Npc::draw(sf::RenderWindow& window) const
 {
     Animation::draw(window);
-    // Draw textbox at its screen position
     textBox->draw(window);
 }
 
-void Npc::onCollision(Object* other)
+void Npc::onCollision(Sprite* other)
 {
-    // Handle terrain collisions
     if (typeid(*other) == typeid(Terrain))
     {
         switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
@@ -73,16 +90,17 @@ void Npc::onCollision(Object* other)
                 break;
         }
     }
-    // Handle player collision
     else if (typeid(*other) == typeid(Player))
     {
         if (!isInteracting)
         {
+            textBox->resetState();
             textBox->setString(text);
             isInteracting = true;
         }
     }
 }
+
 std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {
     return {
         {"text", "",

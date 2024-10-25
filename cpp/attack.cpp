@@ -58,8 +58,7 @@ LaserBeam::LaserBeam(sf::Vector2f sp, float rotangle) : Attack(sp), fc(true) {
     loadTexture("../imgs/laser.png");
     sprite.rotate(90 + rotangle);
 }
-
-void LaserBeam::onCollision(Object *other)
+void LaserBeam::onCollision(Sprite *other)
 {
     // claudeai showed this trick to me
     if (typeid(*other) == typeid(akBullet)||typeid(*other) == typeid(Terrain))
@@ -97,7 +96,7 @@ akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp) {
         velocity = sf::Vector2f(std::cos(radians), std::sin(radians));
         velocity *= 787.0f;
     }
-void akBullet::onCollision(Object *other)
+void akBullet::onCollision(Sprite *other)
 {
     if (typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(Boss)||typeid(*other) == typeid(Terrain))
     {

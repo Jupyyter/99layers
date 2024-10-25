@@ -5,68 +5,105 @@
 #define M_PI 3.14159265358979323846
 #endif
 PacMan::PacMan(sf::Vector2f spawnPosition)
-    : Animation(spawnPosition,0.1), CollisionDetector(), hasAppearedOnScreen(false), lifeTimer(0.0f),
-      lifeDuration(5.0f), speed(100.0f), degrees(0.0f)
+    : Animation(spawnPosition, 0.1), CollisionDetector(), 
+      hasAppearedOnScreen(false), lifeTimer(0.0f),
+      lifeDuration(5.0f), speed(100.0f), degrees(0.0f),
+      isSoundPlaying(false)
 {
-     position = spawnPosition;
+    position = spawnPosition;
     loadSprite();
+    initializeSound();
 }
 
-void PacMan::loadSprite()
-{
+PacMan::~PacMan() {
+    stopSound();
+}
+
+void PacMan::initializeSound() {
+    if (!soundBuffer.loadFromFile("../audio/wakawaka.wav")) {
+        std::cerr << "Error loading waka-waka sound!" << std::endl;
+        return;
+    }
+    wakaSound.setBuffer(soundBuffer);
+    wakaSound.setLoop(true);
+}
+
+void PacMan::loadSprite() {
     loadSpritesheet("../imgs/pacmann.png", 32, 32);
     addAnimation("default", 0, 3);
     setAnimation("default");
-    sprite.setOrigin(16, 16); // Set origin to center of sprite
+    sprite.setOrigin(16, 16);
 }
 
-void PacMan::updateDirection()
-{
+void PacMan::updateDirection() {
     float adjustedDegrees = 360.0f - degrees;
     float radians = adjustedDegrees * M_PI / 180.0f;
-
     velocity.x = std::cos(radians) * speed;
     velocity.y = std::sin(radians) * speed;
     
     float rotation = std::atan2(velocity.y, velocity.x) * 180 / M_PI;
     sprite.setRotation(rotation);
 }
-void PacMan::update(float deltaTime,const sf::Vector2u &screenres)
-{
-    if (!hasAppearedOnScreen)
-    {
-        if (isOnScreen())
-        {
+
+void PacMan::stopSound() {
+    if (wakaSound.getStatus() == sf::Sound::Playing) {
+        wakaSound.stop();
+        isSoundPlaying = false;
+    }
+}
+
+void PacMan::updateSound() {
+    bool shouldPlaySound = hasAppearedOnScreen && isOnScreen() ;
+    
+    if (shouldPlaySound && !isSoundPlaying) {
+        wakaSound.play();
+        isSoundPlaying = true;
+    } else if (!shouldPlaySound && isSoundPlaying) {
+        stopSound();
+    }
+}
+
+void PacMan::update(float deltaTime, const sf::Vector2u& screenres) {
+    if (!hasAppearedOnScreen) {
+        if (isOnScreen()) {
             hasAppearedOnScreen = true;
             lifeTimer = 0.0f;
-        }
-        else
-        {
+        } else {
             return;
         }
     }
 
     updateDirection();
+    updateSound();
+    
     position += velocity * deltaTime;
-
     lifeTimer += deltaTime;
-    if(sprite.getGlobalBounds().intersects(world->playerRef->getBounds())){
-        *world->gameOver = true;
-    }
 
-    if (lifeTimer >= lifeDuration)
-    {
+    if (lifeTimer >= lifeDuration) {
+        stopSound();
         shouldBeDead = true;
     }
-    Animation::update(deltaTime,screenres);
+
+    Animation::update(deltaTime, screenres);
 }
 
-bool PacMan::shouldRemove() { return lifeTimer >= lifeDuration; }
+bool PacMan::shouldRemove() { 
+    if (lifeTimer >= lifeDuration) {
+        stopSound();
+    }
+    return lifeTimer >= lifeDuration; 
+}
 
-void PacMan::draw(sf::RenderWindow &window)const 
-{
+void PacMan::draw(sf::RenderWindow& window) const {
     Animation::draw(window);
 }
+
+void PacMan::onCollision(Sprite *other) {
+    if (typeid(*other) == typeid(Player)) {
+        *(world->gameOver) = true;
+    }
+}
+
 std::vector<PropertyDescriptor> PacMan::getPropertyDescriptors() {
     return {
         {"speed", "100.0",
@@ -78,13 +115,5 @@ std::vector<PropertyDescriptor> PacMan::getPropertyDescriptors() {
                 static_cast<PacMan*>(e)->degrees = std::stof(v);},
             [](const Object* e) { return std::to_string(static_cast<const PacMan*>(e)->degrees); }
         }
-        /*{"speed", "100.0", &PacMan::speed},
-        {"degrees", "0.0", &PacMan::degrees}*///this might work too, but the PropertyDescriptor should look like this:
-        /*struct PropertyDescriptor {
-    std::string name;
-    std::string defaultValue;
-    float Entity::*memberPtr;
-};
- */ 
     };
 }

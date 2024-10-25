@@ -5,6 +5,8 @@ class Object;
 class TextBox;
 class Item;
 class CollisionDetector;
+class Sprite;
+
 class GameMap {
 public:
     // Constructors & Destructors
@@ -21,8 +23,6 @@ public:
 
     // Map Loading & Reset
     void loadFromFile(const std::string& fname);
-    void reset();
-
     // Camera Control
     void resetCamera();
     void setCameraZoom(float zoom) { m_camera.setZoom(zoom); }
@@ -37,7 +37,9 @@ public:
     sf::FloatRect getPartBounds() const;
     int getCurrentPartX() const { return m_currentPartX; }
     int getCurrentPartY() const { return m_currentPartY; }
-void teleportTo(int x, int y);
+    void teleportTo(int x, int y);
+    void stopAllSounds();
+
     // Update & Draw
     void updateObjects(float deltaTime, const sf::Vector2u& windowSize);
     void drawObjects(sf::RenderWindow& window) const;
@@ -46,7 +48,10 @@ void teleportTo(int x, int y);
     Player* playerRef;
     bool* gameOver;
     sf::RenderWindow& wndref;
+    std::vector<sf::Sound> gameSounds;
 
+void spawnObjects();
+    void deleteObjects();
 private:
     // Internal Object Management
     struct ObjectCompare {
@@ -55,8 +60,15 @@ private:
         }
     };
 
+    struct SpriteCompare {
+        bool operator()(const Sprite* a, const Sprite* b) const {
+            return a->priorityLayer < b->priorityLayer;
+        }
+    };
+
     std::multiset<std::unique_ptr<Object>, ObjectCompare> allObjects;
     std::vector<CollisionDetector*> collisionObjects;
+    std::vector<Sprite*> visibleObjects;  // Sorted by priority layer
     std::vector<EditorMap::PlacedObject> originalObjects;
 
     // Camera Management
@@ -65,7 +77,6 @@ private:
     int m_currentPartY;
 
     // Internal Methods
-    void spawnObjects();
     bool checkCollision(const sf::Sprite& sprite1, const sf::Sprite& sprite2);
     std::vector<sf::Vector2f> getTransformedBounds(const sf::Sprite& sprite);
     bool checkSATCollision(const std::vector<sf::Vector2f>& vertices1, 

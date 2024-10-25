@@ -67,7 +67,7 @@ void Item::draw(sf::RenderWindow &window) const
 void Item::update(float deltaTime, const sf::Vector2u &screenres)
 {
 }
-void Item::onCollision(Object *other)
+void Item::onCollision(Sprite *other)
 {
     if (owned == false && typeid(*other) == typeid(Player))
     {
@@ -96,7 +96,7 @@ void AK::applyItemChanges()
 {
     world->spawn("ak47", world->playerRef->getPosition().x, world->playerRef->getPosition().y, 0);
 }
-HB::HB(const sf::Vector2f &position) : Item(position, 1, 1.25, 1.1, "Obtain a protective barrier once every 10 seconds,\nthat makes you immune to damage for a brief period of time", "Horus's Brogans", "../imgs/HorusBrogans.png")
+HB::HB(const sf::Vector2f &position) : Item(position, 1, 1.25, 1.1, "gives you the ability to jump", "Horus's Brogans", "../imgs/HorusBrogans.png")
 {
     this->ctimer.restart();
     this->btimer.restart();
@@ -129,6 +129,7 @@ void HB::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void HB::applyItemChanges()
 {
+    world->playerRef->isJump=true;
     applyStats(world->playerRef);
 }
 RP::RP(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 0.85f, "You gain 10 speed for every 300 units of distance traveled,\n up to a max of 200", "Runner's Pact", "../imgs/runnerspact.png")

@@ -21,7 +21,7 @@ private:
 
     void loadAndScaleImage();
     void updateEyePosition();
-    void onCollision(Object *other) override;
+    void onCollision(Sprite *other) override;
 
     int currentPhase;
 float maxHealth;

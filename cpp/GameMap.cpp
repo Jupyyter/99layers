@@ -108,7 +108,14 @@ void GameMap::loadFromFile(const std::string &fname)
         originalObjects.push_back(std::move(object));
     }
 }
-
+void GameMap::stopAllSounds() {
+    // Stop all game-related sounds
+    for (auto& sound : gameSounds) {
+        sound.stop();
+    }
+    // If you have any music playing, stop it too
+    // gameMusic.stop();
+}
 void GameMap::changePart(int x, int y, bool teleport)
 {
     m_currentPartX += x;
@@ -129,13 +136,11 @@ sf::FloatRect GameMap::getPartBounds() const
     const auto &size = m_camera.getSize();
     return sf::FloatRect(m_currentPartX * size.x, m_currentPartY * size.y, size.x, size.y);
 }
-
-void GameMap::reset()
-{
+void GameMap::deleteObjects(){
     resetCamera();
     collisionObjects.clear();
+    visibleObjects.clear();
     allObjects.clear();
-    spawnObjects();
 }
 void GameMap::resetCamera()
 {
@@ -209,13 +214,13 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 
     for (size_t i = 0; i < collisionObjects.size(); ++i)
     {
-        Object *en1 = dynamic_cast<Object *>(collisionObjects[i]);
+        Sprite *en1 = dynamic_cast<Sprite *>(collisionObjects[i]);
         if (en1->isOnScreen())
         {
 
             for (size_t j = i + 1; j < collisionObjects.size(); ++j)
             {
-                Object *en2 = dynamic_cast<Object *>(collisionObjects[j]);
+                Sprite *en2 = dynamic_cast<Sprite *>(collisionObjects[j]);
                 if (checkCollision(en1->getSprite(), en2->getSprite()))
                 {
                     collisionObjects[i]->onCollision(en2);
@@ -226,46 +231,46 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
         }
     }
 }
-void GameMap::removeDeadObjects()
-{
-    // Remove dead objects from allObjects
-    for (auto it = allObjects.begin(); it != allObjects.end();)
-    {
-        if ((*it)->shouldBeDead)
-        {
+void GameMap::removeDeadObjects() {
+    // Remove dead objects from visibleObjects
+    visibleObjects.erase(
+        std::remove_if(visibleObjects.begin(), visibleObjects.end(),
+            [](Sprite* sprite) {
+                return sprite->shouldBeDead;
+            }), 
+        visibleObjects.end()
+    );
+
+    // Remove from allObjects
+    for (auto it = allObjects.begin(); it != allObjects.end();) {
+        if ((*it)->shouldBeDead) {
             it = allObjects.erase(it);
         }
-        else
-        {
+        else {
             ++it;
         }
     }
 
-    // Remove corresponding entries from collisionObject
+    // Remove from collisionObjects
     collisionObjects.erase(
         std::remove_if(collisionObjects.begin(), collisionObjects.end(),
-                       [this](CollisionDetector *collisionDetector)
-                       {
-                           if (!collisionDetector)
-                               return true; // Remove null pointers
-
-                           // Check if the corresponding object exists in allObjects
-                           return std::none_of(allObjects.begin(), allObjects.end(),
-                                               [collisionDetector](const std::unique_ptr<Object> &object)
-                                               {
-                                                   return object.get() == dynamic_cast<Object *>(collisionDetector);
-                                               });
-                       }),
-        collisionObjects.end());
+            [this](CollisionDetector* collisionDetector) {
+                if (!collisionDetector) return true;
+                return std::none_of(allObjects.begin(), allObjects.end(),
+                    [collisionDetector](const std::unique_ptr<Object>& object) {
+                        return object.get() == dynamic_cast<Object*>(collisionDetector);
+                    });
+            }),
+        collisionObjects.end()
+    );
 }
 void GameMap::drawObjects(sf::RenderWindow &window) const
 {
-    for (const auto &object : allObjects)
-    {
+    for (const auto* sprite : visibleObjects) {
         //should optimize.....later....
         //if (object->isOnScreen())
         {
-            object->draw(window);
+            sprite->draw(window);
         }
     }
 }
@@ -281,22 +286,28 @@ void GameMap::spawn(const std::string &objectName, float x, float y, float rotat
         spawn(object);
     }
 }
-
-void GameMap::spawn(Object *object)
-{
-
-    try
-    {
+void GameMap::spawn(Object* object) {
+    try {
+        // Add to main objects container
         allObjects.emplace(std::unique_ptr<Object>(object));
 
-        CollisionDetector *collider = dynamic_cast<CollisionDetector *>(object);
-        if (collider)
-        {
+        // Check if it's a collision object
+        CollisionDetector* collider = dynamic_cast<CollisionDetector*>(object);
+        if (collider) {
             collisionObjects.push_back(collider);
         }
+
+        // If it's a sprite, add to visible objects list (sorted by priority)
+        Sprite* sprite = dynamic_cast<Sprite*>(object);
+        if (sprite) {
+            auto it = std::lower_bound(visibleObjects.begin(), visibleObjects.end(), sprite,
+                [](const Sprite* a, const Sprite* b) {
+                    return a->priorityLayer < b->priorityLayer;
+                });
+            visibleObjects.insert(it, sprite);
+        }
     }
-    catch (const std::bad_alloc &e)
-    {
+    catch (const std::bad_alloc& e) {
         std::cerr << "\nMemory allocation failed: " << e.what();
         delete object;
     }

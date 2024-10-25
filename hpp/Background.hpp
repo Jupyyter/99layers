@@ -11,7 +11,7 @@ public:
     // Override Object virtual methods
     void update(float deltaTime, const sf::Vector2u& windowSize) override;
     void draw(sf::RenderWindow& window) const override;
-    bool isOnScreen() const override;
+    bool isOnScreen() const;
 
 private:
     float originalWidth;
