@@ -13,7 +13,7 @@ protected:
     TextBox* textBox;
     bool isInteracting;
     bool wasKeyPressed;
-
-    // Make this virtual so derived classes can override the behavior
+    int extraWidth,extraHeight;
+    // virtual so derived classes can override the behavior
     virtual void handleTextBoxInput();
 };

@@ -11,6 +11,7 @@ void bloodParticles::spawnParticles(sf::Vector2f position)
 
        world->spawn("bloodParticle",position.x,position.y);
        }
+       shouldBeDead=true;
 }
 void bloodParticles::draw(sf::RenderWindow& window)const{
 

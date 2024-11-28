@@ -81,9 +81,6 @@ void LaserBeam::update(float deltaTime, const sf::Vector2u &screenres) {
     } else {
         position += velocity;
     }
-    
-    if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
-        (*world->gameOver) = true;
 }
 akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp) {
         loadTexture("../imgs/akBullet.png");
@@ -125,7 +122,5 @@ void TableFall::update(float deltaTime, const sf::Vector2u &screenres) {
     
     velocity.y += 0.5f;
     position += velocity;
-    
-    if (sprite.getGlobalBounds().intersects(world->playerRef->getBounds()))
-        (*world->gameOver) = true;
+
 }

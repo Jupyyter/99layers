@@ -1,5 +1,5 @@
 #pragma once
-class bloodParticle:public Animation ,public CollisionDetector {
+class bloodParticle:public Sprite ,public CollisionDetector {
 public:
 bloodParticle(sf::Vector2f position);
 void update(float deltaTime, const sf::Vector2u& windowSize) override;

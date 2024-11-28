@@ -9,7 +9,11 @@ AK47::AK47() : Sprite(sf::Vector2f(0,0)), playerRef(world->playerRef)
     sprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
-    sf::Vector2i mousePosition = sf::Mouse::getPosition(world->wndref);
+    if(!world->isPlayerValid){
+        shouldBeDead=true;
+    }
+    else{
+sf::Vector2i mousePosition = sf::Mouse::getPosition(world->wndref);
     updatePosition();
 
     if (playerRef) {
@@ -42,6 +46,7 @@ void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
                 shootCooldown.restart();
             }
         }
+    }
     }
 }
 

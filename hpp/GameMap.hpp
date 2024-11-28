@@ -48,6 +48,7 @@ public:
     Player* playerRef;
     bool* gameOver;
     sf::RenderWindow& wndref;
+    bool isPlayerValid; //im sorry, i cant find a better/faster way than this
     std::vector<sf::Sound> gameSounds;
 
 void spawnObjects();
@@ -68,8 +69,8 @@ private:
 
     std::multiset<std::unique_ptr<Object>, ObjectCompare> allObjects;
     std::vector<CollisionDetector*> collisionObjects;
-    std::vector<Sprite*> visibleObjects;  // Sorted by priority layer
-    std::vector<EditorMap::PlacedObject> originalObjects;
+    std::multiset<Sprite*, SpriteCompare> visibleObjects;  // Sorted by priority layer
+    std::vector<EditorMap::PlacedObject> originalObjects;   // the ones placed in the editor
 
     // Camera Management
     Camera m_camera;
@@ -78,9 +79,33 @@ private:
 
     // Internal Methods
     bool checkCollision(const sf::Sprite& sprite1, const sf::Sprite& sprite2);
-    std::vector<sf::Vector2f> getTransformedBounds(const sf::Sprite& sprite);
+    std::vector<sf::Vector2f> getTransformedBounds(const sf::Sprite& sprite) const;
     bool checkSATCollision(const std::vector<sf::Vector2f>& vertices1, 
                           const std::vector<sf::Vector2f>& vertices2);
+
+    // Add spatial partitioning grid
+    static const int GRID_SIZE = 128; // Size of each grid cell
+    std::vector<std::vector<std::vector<Sprite*>>> spatialGrid;
+    sf::Vector2i gridDimensions;
+
+    // Add view frustum for culling
+    sf::FloatRect viewBounds;
+    
+    // Cache transformed bounds
+    struct TransformedBounds {
+        std::vector<sf::Vector2f> vertices;
+        float timestamp;
+    };
+    mutable std::unordered_map<const Sprite*, TransformedBounds> boundsCache;
+    
+    // Add clock for cache timing
+    mutable sf::Clock transformClock;
+    
+    // Add helper methods
+    void updateViewBounds();
+    std::vector<Sprite*> getNearbySprites(const Sprite* sprite) const;
+    bool isInView(const Sprite* sprite) const;
+    void clearCaches();
 };
 
 // Global World Instance

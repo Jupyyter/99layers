@@ -60,14 +60,20 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
         return new akBullet(transform.getPosition(), transform.getRotation());
     case "HappyEnd"_hash:{}
         return new HappyEnd(transform.getPosition());
-    case "LaserEnd"_hash:
+    case "LaserEnd"_hash:{
         return new LaserEnd(transform.getPosition());
+
+    }
     case "spawn"_hash:
         return new SpawnPoint(transform.getPosition());
     case "bloodParticles"_hash:
         return new bloodParticles(transform.getPosition());
     case "bloodParticle"_hash:
         return new bloodParticle(transform.getPosition());
+    case "hedgehog1"_hash:
+        return new hedgehog(transform.getPosition());
+    case "woodSign"_hash:
+        return new woodSign(transform.getPosition());
     default:
         return nullptr;
     }
@@ -111,6 +117,8 @@ std::vector<PropertyDescriptor> ObjectFactory::getPropertyDescriptors(const std:
     return bloodParticles::getPropertyDescriptors();
 case "bloodParticle"_hash:
         return bloodParticle::getPropertyDescriptors();
+    case "woodSign"_hash:
+        return woodSign::getPropertyDescriptors();
     default:
         return HappyEnd::getPropertyDescriptors();
     }

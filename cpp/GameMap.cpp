@@ -2,7 +2,7 @@
 class EditorMap;
 
 GameMap::GameMap(sf::RenderWindow &wndref, bool &gameover)
-    : wndref(wndref), gameOver(&gameover), m_camera(wndref), m_currentPartX(0), m_currentPartY(0), playerRef(nullptr)
+    : wndref(wndref), gameOver(&gameover), m_camera(wndref), m_currentPartX(0), m_currentPartY(0), playerRef(nullptr),isPlayerValid(true)
 {
     // Initialize the camera
     m_camera.setSize(sf::Vector2f(wndref.getSize()));
@@ -200,48 +200,85 @@ void GameMap::spawnObjects()
         }
     }
 }
+void GameMap::updateViewBounds() {
+    sf::Vector2f viewCenter = m_camera.getPosition();
+    sf::Vector2f viewSize = m_camera.getSize();
+    float zoom = m_camera.getZoom();
+    
+    viewBounds = sf::FloatRect(
+        viewCenter.x - (viewSize.x / 2.f) / zoom,
+        viewCenter.y - (viewSize.y / 2.f) / zoom,
+        viewSize.x / zoom,
+        viewSize.y / zoom
+    );
+}
+bool GameMap::isInView(const Sprite* sprite) const {
+    return sprite->getBounds().intersects(viewBounds);
+}
 
-void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
-{
-    // Update camera once per frame
+void GameMap::clearCaches() {
+    boundsCache.clear();
+}
+
+void GameMap::updateObjects(float deltaTime, const sf::Vector2u& windowSize) {
+    // Update camera and apply view
     m_camera.update(deltaTime);
     m_camera.applyTo(wndref);
-    for (const auto &object : allObjects)
-    {
+    
+    // Update view bounds for culling
+    updateViewBounds();
+
+    // Update all objects
+    for (const auto& object : allObjects) {
         object->update(deltaTime, windowSize);
         object->setPosition(object->getPosition());
     }
 
-    for (size_t i = 0; i < collisionObjects.size(); ++i)
-    {
-        Sprite *en1 = dynamic_cast<Sprite *>(collisionObjects[i]);
-        if (en1->isOnScreen())
-        {
+    // Collision detection - modified to be more reliable
+    for (size_t i = 0; i < collisionObjects.size(); ++i) {
+        Sprite* en1 = dynamic_cast<Sprite*>(collisionObjects[i]);
+        if (en1 && en1->isOnScreen()) {
+            for (size_t j = i + 1; j < collisionObjects.size(); ++j) {
+                Sprite* en2 = dynamic_cast<Sprite*>(collisionObjects[j]);
+                if (en2) {
+                    // Quick AABB check before detailed collision
+                    sf::FloatRect bounds1 = en1->getBounds();
+                    sf::FloatRect bounds2 = en2->getBounds();
+                    
+                    if (bounds1.intersects(bounds2)) {
+                        // Detailed collision check
+                        if (checkCollision(en1->getSprite(), en2->getSprite())) {
+                            collisionObjects[i]->onCollision(en2);
+                            collisionObjects[j]->onCollision(en1);
+                        }
+                    }
+                    en1->setPosition(en1->getPosition());
 
-            for (size_t j = i + 1; j < collisionObjects.size(); ++j)
-            {
-                Sprite *en2 = dynamic_cast<Sprite *>(collisionObjects[j]);
-                if (checkCollision(en1->getSprite(), en2->getSprite()))
-                {
-                    collisionObjects[i]->onCollision(en2);
-                    collisionObjects[j]->onCollision(en1);
                 }
             }
-            en1->setPosition(en1->getPosition());
         }
     }
 }
 void GameMap::removeDeadObjects() {
-    // Remove dead objects from visibleObjects
-    visibleObjects.erase(
-        std::remove_if(visibleObjects.begin(), visibleObjects.end(),
-            [](Sprite* sprite) {
-                return sprite->shouldBeDead;
-            }), 
-        visibleObjects.end()
-    );
+    // Clear caches for dead objects
+    for (auto it = boundsCache.begin(); it != boundsCache.end();) {
+        if (it->first->shouldBeDead) {
+            it = boundsCache.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    // Remove dead sprites from visibleObjects
+    for (auto it = visibleObjects.begin(); it != visibleObjects.end();) {
+        if ((*it)->shouldBeDead) {
+            it = visibleObjects.erase(it);
+        } else {
+            ++it;
+        }
+    }
 
-    // Remove from allObjects
+    // Rest of the removal code remains the same...
     for (auto it = allObjects.begin(); it != allObjects.end();) {
         if ((*it)->shouldBeDead) {
             it = allObjects.erase(it);
@@ -251,7 +288,6 @@ void GameMap::removeDeadObjects() {
         }
     }
 
-    // Remove from collisionObjects
     collisionObjects.erase(
         std::remove_if(collisionObjects.begin(), collisionObjects.end(),
             [this](CollisionDetector* collisionDetector) {
@@ -264,16 +300,13 @@ void GameMap::removeDeadObjects() {
         collisionObjects.end()
     );
 }
-void GameMap::drawObjects(sf::RenderWindow &window) const
-{
+void GameMap::drawObjects(sf::RenderWindow& window) const {
+    // Only draw visible objects
     for (const auto* sprite : visibleObjects) {
-        //should optimize.....later....
-        //if (object->isOnScreen())
-        {
             sprite->draw(window);
-        }
     }
 }
+
 
 void GameMap::spawn(const std::string &objectName, float x, float y, float rotation)
 {
@@ -297,14 +330,11 @@ void GameMap::spawn(Object* object) {
             collisionObjects.push_back(collider);
         }
 
-        // If it's a sprite, add to visible objects list (sorted by priority)
+        // If it's a sprite, add to visible objects list
         Sprite* sprite = dynamic_cast<Sprite*>(object);
         if (sprite) {
-            auto it = std::lower_bound(visibleObjects.begin(), visibleObjects.end(), sprite,
-                [](const Sprite* a, const Sprite* b) {
-                    return a->priorityLayer < b->priorityLayer;
-                });
-            visibleObjects.insert(it, sprite);
+            // No need to find position manually - multiset will sort automatically
+            visibleObjects.insert(sprite);
         }
     }
     catch (const std::bad_alloc& e) {
@@ -312,57 +342,113 @@ void GameMap::spawn(Object* object) {
         delete object;
     }
 }
-bool GameMap::checkCollision(const sf::Sprite &sprite1, const sf::Sprite &sprite2)
-{
-    const auto &bounds1 = getTransformedBounds(sprite1);
-    const auto &bounds2 = getTransformedBounds(sprite2);
-
-    return checkSATCollision(bounds1, bounds2) && checkSATCollision(bounds2, bounds1);
+std::vector<Sprite*> GameMap::getNearbySprites(const Sprite* sprite) const {
+    std::vector<Sprite*> nearby;
+    sf::FloatRect bounds = sprite->getBounds();
+    
+    // Calculate grid cells to check
+    int startX = std::max(0, static_cast<int>(bounds.left / GRID_SIZE));
+    int startY = std::max(0, static_cast<int>(bounds.top / GRID_SIZE));
+    int endX = std::min(gridDimensions.x - 1, static_cast<int>((bounds.left + bounds.width) / GRID_SIZE));
+    int endY = std::min(gridDimensions.y - 1, static_cast<int>((bounds.top + bounds.height) / GRID_SIZE));
+    
+    // Get sprites from relevant cells
+    std::unordered_set<Sprite*> uniqueSprites;
+    for (int x = startX; x <= endX; ++x) {
+        for (int y = startY; y <= endY; ++y) {
+            for (Sprite* other : spatialGrid[x][y]) {
+                if (other != sprite && uniqueSprites.insert(other).second) {
+                    nearby.push_back(other);
+                }
+            }
+        }
+    }
+    
+    return nearby;
 }
-std::vector<sf::Vector2f> GameMap::getTransformedBounds(const sf::Sprite &sprite)
-{
-    const auto &transform = sprite.getTransform();
-    const auto &localBounds = sprite.getLocalBounds();
 
-    std::vector<sf::Vector2f> vertices = {
+std::vector<sf::Vector2f> GameMap::getTransformedBounds(const sf::Sprite& sprite) const {
+    // Cache transformed bounds
+    const float currentTime = transformClock.getElapsedTime().asSeconds();
+    auto* spritePtr = dynamic_cast<const Sprite*>(&sprite);
+    
+    if (spritePtr) {
+        auto& cache = boundsCache[spritePtr];
+        if (currentTime - cache.timestamp < 1.0f/60.0f) {
+            return cache.vertices;
+        }
+        
+        const auto& transform = sprite.getTransform();
+        const auto& localBounds = sprite.getLocalBounds();
+        
+        cache.vertices = {
+            transform.transformPoint(0, 0),
+            transform.transformPoint(localBounds.width, 0),
+            transform.transformPoint(localBounds.width, localBounds.height),
+            transform.transformPoint(0, localBounds.height)
+        };
+        cache.timestamp = currentTime;
+        return cache.vertices;
+    }
+    
+    // Fallback for non-cached sprites
+    const auto& transform = sprite.getTransform();
+    const auto& localBounds = sprite.getLocalBounds();
+    return {
         transform.transformPoint(0, 0),
         transform.transformPoint(localBounds.width, 0),
         transform.transformPoint(localBounds.width, localBounds.height),
-        transform.transformPoint(0, localBounds.height)};
-
-    return vertices;
+        transform.transformPoint(0, localBounds.height)
+    };
 }
-bool GameMap::checkSATCollision(const std::vector<sf::Vector2f> &vertices1, const std::vector<sf::Vector2f> &vertices2)
-{
-    for (size_t i = 0; i < vertices1.size(); ++i)
-    {
+float dotProduct(const sf::Vector2f& v1, const sf::Vector2f& v2) {
+    return v1.x * v2.x + v1.y * v2.y;
+}
+
+sf::Vector2f normalize(const sf::Vector2f& v) {
+    float length = std::sqrt(v.x * v.x + v.y * v.y);
+    if (length != 0) {
+        return sf::Vector2f(v.x / length, v.y / length);
+    }
+    return v; // Return zero vector if length is zero
+}
+
+bool GameMap::checkSATCollision(const std::vector<sf::Vector2f>& vertices1, const std::vector<sf::Vector2f>& vertices2) {
+    for (size_t i = 0; i < vertices1.size(); ++i) {
+        // Calculate the edge and its perpendicular axis
         sf::Vector2f edge = vertices1[(i + 1) % vertices1.size()] - vertices1[i];
         sf::Vector2f axis(-edge.y, edge.x);
-        float axisLengthSquared = axis.x * axis.x + axis.y * axis.y;
+        axis = normalize(axis);
 
         float min1 = std::numeric_limits<float>::max();
         float max1 = std::numeric_limits<float>::lowest();
-        for (const auto &vertex : vertices1)
-        {
-            float projection = (vertex.x * axis.x + vertex.y * axis.y) / axisLengthSquared;
+        for (const auto& vertex : vertices1) {
+            float projection = dotProduct(vertex, axis);
             min1 = std::min(min1, projection);
             max1 = std::max(max1, projection);
         }
 
         float min2 = std::numeric_limits<float>::max();
         float max2 = std::numeric_limits<float>::lowest();
-        for (const auto &vertex : vertices2)
-        {
-            float projection = (vertex.x * axis.x + vertex.y * axis.y) / axisLengthSquared;
+        for (const auto& vertex : vertices2) {
+            float projection = dotProduct(vertex, axis);
             min2 = std::min(min2, projection);
             max2 = std::max(max2, projection);
         }
 
-        if (max1 < min2 || max2 < min1)
-        {
-            return false;
+        // Check for non-overlapping intervals
+        if (max1 < min2 || max2 < min1) {
+            return false; // Separation found, no collision
         }
     }
 
-    return true;
+    return true; // No separation found, collision detected
+}
+
+bool GameMap::checkCollision(const sf::Sprite& sprite1, const sf::Sprite& sprite2) {
+    const auto& bounds1 = getTransformedBounds(sprite1);
+    const auto& bounds2 = getTransformedBounds(sprite2);
+
+    // Check collision using the SAT algorithm on both sets of vertices
+    return checkSATCollision(bounds1, bounds2) && checkSATCollision(bounds2, bounds1);
 }

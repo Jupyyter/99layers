@@ -17,6 +17,7 @@ LaserEnd::LaserEnd(const sf::Vector2f &initialPosition) : Animation(initialPosit
     setAnimation("go");
     sprite.setOrigin(16, 16);
     sprite.setScale(2, 2);
+    std::cout<<"tttttttttttt";
 }
 
 void LaserEnd::update(float deltaTime, const sf::Vector2u &screenres)
@@ -30,7 +31,4 @@ void LaserEnd::update(float deltaTime, const sf::Vector2u &screenres)
             shouldBeDead = true;
         }
     }
-}
-void LaserEnd::draw(sf::RenderWindow& window) const{
-
 }

@@ -15,6 +15,7 @@ Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetec
        onehitinvin = false;
        gothitinv = false;
        isStasis = false;
+       world->isPlayerValid=true;
 }
 void Player::loadAnimations()
 {
@@ -97,7 +98,7 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
        }
        if (!isStasis)
        {
-              if (velocity.y > 5777)
+              if (velocity.y > 2777)
               {
                      *(world->gameOver) = true;
               }
@@ -116,13 +117,15 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
 }
 void Player::onCollision(Sprite *other)
 {
-       if (typeid(*other) == typeid(PacMan))
+       if (typeid(*other) == typeid(PacMan)||typeid(*other) == typeid(TableFall)||typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(hedgehog))
        {
               *(world->gameOver) = true;
-       this->shouldBeDead = true;
-       world->spawn("bloodParticles", position.x, position.y);
+              this->shouldBeDead = true;
+              inventory->shouldBeDead=true;
+              world->isPlayerValid=false;
+              world->spawn("bloodParticles", position.x, position.y);
        }
-       if (typeid(*other) == typeid(Terrain))
+       else if (typeid(*other) == typeid(Terrain))
        {
               switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
               {

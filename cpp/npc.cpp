@@ -22,7 +22,7 @@ void Npc::update(float deltaTime, const sf::Vector2u& screenres)
 
         handleTextBoxInput();
         
-        if (isInteracting)
+        if (isInteracting&&world->isPlayerValid)
         {
             sf::FloatRect npcBounds = getBounds();
             sf::FloatRect playerBounds = world->playerRef->getBounds();
@@ -106,6 +106,14 @@ std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {
         {"text", "",
             [](Object* e, const std::string& v) { static_cast<Npc*>(e)->text = v; },
             [](const Object* e) { return static_cast<const Npc*>(e)->text; }
+        },
+        {"extraWidth", "0",
+            [](Object* e, const std::string& v) { static_cast<Npc*>(e)->extraWidth = std::stof(v); },
+            [](const Object* e) { return std::to_string(static_cast<const Npc*>(e)->extraWidth); }
+        },
+        {"extraHeight", "0",
+            [](Object* e, const std::string& v) { static_cast<Npc*>(e)->extraHeight = std::stof(v); },
+            [](const Object* e) { return std::to_string(static_cast<const Npc*>(e)->extraHeight); }
         }
     };
 }
