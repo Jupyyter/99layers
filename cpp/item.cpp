@@ -10,6 +10,7 @@ Item::Item(const sf::Vector2f &position, float sizet, float speedb, float jumpb,
                                                                                                                                                  CollisionDetector(),
                                                                                                                                                  Sprite(sf::Vector2f(position))
 {
+    priorityLayer=5;
     this->texture.loadFromFile(fname);
     this->sprite.setTexture(this->texture);
     this->sprite.setPosition(position.x, position.y);
@@ -139,7 +140,7 @@ RP::RP(const sf::Vector2f &position) : Item(position, 1.0f, 1.0f, 0.85f, "You ga
 }
 void RP::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    if (owned)
+    if (owned&&world->isPlayerValid)
     {
         xdis += std::abs(px - world->playerRef->getBounds().getPosition().x);
         px = world->playerRef->getBounds().getPosition().x;

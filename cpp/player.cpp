@@ -91,7 +91,6 @@ void Player::updateAnimation()
 void Player::update(float deltaTime, const sf::Vector2u &screenres)
 {
        isMoving = false;
-
        if (sf::Keyboard::isKeyPressed(sf::Keyboard::T))
        {
               *(world->gameOver) = true;
@@ -110,7 +109,6 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
                      position += velocity * deltaTime;
               }
 
-              checkBounds(screenres);
               Animation::update(deltaTime, screenres);
               isGrounded = false;
        }
@@ -174,24 +172,27 @@ void Player::draw(sf::RenderWindow &window) const
               window.draw(sprite);
        }
 }
-
 void Player::checkBounds(const sf::Vector2u &screenres)
 {
        auto bounds = world->getPartBounds();
        if (this->position.x > bounds.left + bounds.width)
        {
               world->changePart(1, 0, true);
+              checkBounds(screenres);
        }
        else if (this->position.x < bounds.left)
        {
               world->changePart(-1, 0, true);
+              checkBounds(screenres);
        }
        else if (this->position.y < bounds.top)
        {
               world->changePart(0, -1, true);
+              checkBounds(screenres);
        }
        else if (this->position.y > bounds.top + bounds.height)
        {
               world->changePart(0, 1, true);
+              checkBounds(screenres);
        }
 }

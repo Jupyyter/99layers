@@ -75,6 +75,11 @@ void Inventory::update(float deltaTime, const sf::Vector2u &screenres) {
     }
     handleActiveItems();
 }
+void Inventory::saveItems(){
+    for (size_t i = 0; i < ownedItems.size(); i++){
+        world->setItemRespawnOff(allItems[ownedItems[i]]->id);
+    }
+}
 void Inventory::handleInventoryToggle() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !movingItem) {
         if (fc) {
@@ -220,20 +225,6 @@ void Inventory::drawSelectedItem(sf::RenderWindow &window) const {
         window.draw(text);
     }
 }
-
-void Inventory::reset(Player *player) {
-    pgcount = 1;
-    selectedItem = -1;
-    shouldDraw = false;
-    fc = true;
-    ownedItems.clear();
-    unownedItems.clear();
-    unownedItems.resize(allItems.size());
-    std::iota(unownedItems.begin(), unownedItems.end(), 0);
-    std::fill(active, active + 3, nullptr);
-    std::fill(activeSlots.begin(), activeSlots.end(), -1);
-}
-
 void Inventory::addItem(Item* item) {
     allItems.push_back(item);
     ownedItems.push_back(allItems.size() - 1);

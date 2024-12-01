@@ -51,8 +51,10 @@ public:
     bool isPlayerValid; //im sorry, i cant find a better/faster way than this
     std::vector<sf::Sound> gameSounds;
 
+void setItemRespawnOff(int id);
 void spawnObjects();
     void deleteObjects();
+    sf::Vector2f playerSpawnPosition;
 private:
     // Internal Object Management
     struct ObjectCompare {

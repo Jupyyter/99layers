@@ -100,6 +100,7 @@ int main()
                 }
 
                 // Continue updating and drawing the game
+                world->playerRef->checkBounds( window.getSize()); // this is literally a skill issue
                 world->updateObjects(deltaTime, window.getSize());
                 world->removeDeadObjects();
                 world->drawObjects(window);

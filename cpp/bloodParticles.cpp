@@ -7,7 +7,7 @@ bloodParticles::bloodParticles(sf::Vector2f position):Sprite(position)
 
 void bloodParticles::spawnParticles(sf::Vector2f position)
 {
-       for(int i=0;i<50;i++){
+       for(int i=0;i<77;i++){
 
        world->spawn("bloodParticle",position.x,position.y);
        }

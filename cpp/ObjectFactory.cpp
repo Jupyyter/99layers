@@ -46,7 +46,14 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
         return new TableFall(transform.getPosition());
     case "adidas"_hash:
     {
-        Player *player = new Player(transform.getPosition());
+        sf::Vector2f pos=world->playerSpawnPosition;
+        Player *player;
+        if(pos.x==0){
+            player = new Player(transform.getPosition());
+        }
+        else{
+            player = new Player(pos);
+        }
         world->playerRef = player;
         return player;
     }
@@ -74,6 +81,8 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
         return new hedgehog(transform.getPosition());
     case "woodSign"_hash:
         return new woodSign(transform.getPosition());
+    case "sign0"_hash:
+        return new sign0(transform.getPosition());
     default:
         return nullptr;
     }

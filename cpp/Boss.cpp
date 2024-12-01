@@ -36,6 +36,9 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
             return;
         }
     }
+    if(!world->isPlayerValid){
+        return;
+    }
 
     // Get player position for targeting
     sf::Vector2f playerCenter(world->playerRef->getBounds().left + world->playerRef->getBounds().width / 2.0f,
@@ -119,16 +122,16 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
                     world->spawn("laser", position.x, position.y, sprite.getRotation());
                     ltimer.restart();
                 }
-                /*if (ttimer.getElapsedTime().asSeconds() >= 5.0f)
+                if (ttimer.getElapsedTime().asSeconds() >= 5.0f)
                 {
                     world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
                     ttimer.restart();
-                }*/
-                if (ptimer.getElapsedTime().asSeconds() >= 7.0f)
+                }
+                /*if (ptimer.getElapsedTime().asSeconds() >= 7.0f)
                 {
                     world->spawn("plank", position.x, position.y, 0);
                     ptimer.restart();
-                }
+                }*/
                 break;
         }
     }

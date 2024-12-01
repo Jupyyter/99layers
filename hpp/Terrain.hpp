@@ -17,4 +17,5 @@ void onCollision(Sprite* other) override;
     float verticalVelocity;
     const float gravity = 981.0f; // pixels per second squared
     const float maxFallSpeed = 1000.0f; // maximum fall speed
+    sf::Vector2f originalPosition;
 };

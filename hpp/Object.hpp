@@ -30,7 +30,7 @@ public:
     void move(const sf::Vector2f &offset) { position += offset; }
     int getPriorityLayer() { return priorityLayer; }
 
-    int priorityLayer = 0;
+    int priorityLayer = 0,id;
     bool shouldBeDead = false;
 
 private:

@@ -10,10 +10,10 @@ public:
 
     void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow &window) const override;
-    void reset(Player* player);
     void addItem(Item* item);
     void moveItemToInventory(int slotIndex);
     void moveItemToActiveSlot(int itemIndex, int slotIndex);
+    void saveItems();
 
     sf::RectangleShape borderHighlight;
     std::vector<int> activeSlots;
@@ -44,7 +44,7 @@ private:
     sf::Sprite bpSprite, cellSprite[40], selectedSquare, selectedItemS, activeCellS[3];
     std::vector<Item*> allItems;
     Item::Active* active[3];
-    std::vector<int> ownedItems, unownedItems;
+    std::vector<int> ownedItems;
     int selectedItem, pgcount, movedItem;
     //first check -- fc
     bool shouldDraw, fc, movingItem;

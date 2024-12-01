@@ -16,13 +16,12 @@ public:
     void onCollision(Sprite* other) override;
     bool isMoving;
     bool isJump;
-
-private:
+void checkBounds(const sf::Vector2u& screenres);
 Inventory *inventory;
+private:
 bool *gameover;
     void handleInput();
     void updateAnimation();
-    void checkBounds(const sf::Vector2u& screenres);
 
     float gravity;
     float jumpForce;

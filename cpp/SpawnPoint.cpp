@@ -26,6 +26,8 @@ void SpawnPoint::handleTextBoxInput()
         else if (!textBox->isHighlighted()) {
             textBox->setHighlighted(true);
             textBox->playSound();
+            world->playerSpawnPosition=position;
+            world->playerRef->inventory->saveItems();
         }
     }
     

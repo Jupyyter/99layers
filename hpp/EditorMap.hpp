@@ -23,6 +23,8 @@ public:
         std::unordered_map<std::string, std::string> properties;
         std::string texturePath;
         sf::Texture texture;
+        bool respawn=true;
+        int id;
     };
 
     class Menu {
