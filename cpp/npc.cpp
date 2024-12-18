@@ -17,7 +17,6 @@ void Npc::update(float deltaTime, const sf::Vector2u& screenres)
     if (isOnScreen())
     {
         velocity.y += gravity * deltaTime;
-        position.y += velocity.y * deltaTime;
         Animation::update(deltaTime, screenres);
 
         handleTextBoxInput();

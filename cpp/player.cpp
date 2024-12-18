@@ -106,7 +106,6 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
               if (isOnScreen())
               {
                      velocity.y += gravity * deltaTime;
-                     position += velocity * deltaTime;
               }
 
               Animation::update(deltaTime, screenres);

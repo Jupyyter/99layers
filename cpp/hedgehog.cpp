@@ -21,8 +21,7 @@ void hedgehog::update(float deltaTime, const sf::Vector2u &screenres)
 {
        if (isOnScreen())
        {
-              velocity.y += 9 * deltaTime;
-              position.y += velocity.y * deltaTime;
+              velocity.y += 290 * deltaTime;
               Animation::update(deltaTime, screenres);
        }
 }
@@ -69,3 +68,4 @@ void hedgehog::onCollision(Sprite *other)
               }
        }
 }
+  

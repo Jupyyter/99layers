@@ -160,7 +160,6 @@ void GameMap::setItemRespawnOff(int id)
         {
             // Set respawn to false for this object
             placedObject.respawn = false;
-            std::cout << placedObject.type << " ";
             return; // Exit after finding and modifying the object
         }
     }
@@ -249,49 +248,84 @@ void GameMap::clearCaches()
 
 void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 {
+    const float MAX_SPEED_THRESHOLD = 10.0f;  // pixels per second
+    const int MAX_SUBSTEPS = 10;  // Prevent excessive subdivision
+
     // Update camera and apply view
     m_camera.update(deltaTime);
     m_camera.applyTo(wndref);
-
+    
     // Update view bounds for culling
     updateViewBounds();
 
-    // Update all objects
+    // First, update all objects to set their velocities
     for (const auto &object : allObjects)
     {
         object->update(deltaTime, windowSize);
-        object->setPosition(object->getPosition());
     }
 
-    // Collision detection - modified to be more reliable
-    for (size_t i = 0; i < collisionObjects.size(); ++i)
+    // Then handle movement with potential substeps
+    for (const auto &object : allObjects)
     {
-        Sprite *en1 = dynamic_cast<Sprite *>(collisionObjects[i]);
-        if (en1 && en1->isOnScreen())
+        float objectSpeed = std::sqrt(object->getVelocity().x * object->getVelocity().x + 
+                                      object->getVelocity().y * object->getVelocity().y);
+        
+        if (objectSpeed > MAX_SPEED_THRESHOLD) {
+            // Break movement into smaller substeps
+            int substeps = std::min(
+                static_cast<int>(std::ceil(objectSpeed / MAX_SPEED_THRESHOLD)), 
+                MAX_SUBSTEPS
+            );
+            float smallDeltaTime = deltaTime / substeps;
+            
+            sf::Vector2f originalPosition = object->getPosition();
+            sf::Vector2f velocity = object->getVelocity();
+            
+            for (int i = 0; i < substeps; ++i) {
+                sf::Vector2f newPosition = originalPosition + velocity * smallDeltaTime * (i + 1.f);
+                object->setPosition(newPosition);
+                
+                // Perform collision checks at each substep
+                performCollisionChecks(object.get());
+            }
+        } else {
+            // Normal movement for slower objects
+            object->setPosition(object->getPosition() + object->getVelocity() * deltaTime);
+            //performCollisionChecks(object.get());
+        }
+
+        // Update sprite if it's a Sprite object
+        Sprite *en1 = dynamic_cast<Sprite *>(object.get());
+        if(en1){
+            en1->updateSprite();
+        }
+    }
+}
+void GameMap::performCollisionChecks(Object *object){
+    Sprite *en1 = dynamic_cast<Sprite *>(object);
+    if (en1 && en1->isOnScreen())
         {
-            for (size_t j = i + 1; j < collisionObjects.size(); ++j)
+            for (size_t j = 1; j < collisionObjects.size(); ++j)
             {
                 Sprite *en2 = dynamic_cast<Sprite *>(collisionObjects[j]);
-                if (en2)
+                if (en2&&en1!=en2)
                 {
                     // Quick AABB check before detailed collision
                     sf::FloatRect bounds1 = en1->getBounds();
                     sf::FloatRect bounds2 = en2->getBounds();
-
                     if (bounds1.intersects(bounds2))
                     {
                         // Detailed collision check
                         if (checkCollision(en1->getSprite(), en2->getSprite()))
                         {
-                            collisionObjects[i]->onCollision(en2);
-                            collisionObjects[j]->onCollision(en1);
+                            dynamic_cast<CollisionDetector *>(en1)->onCollision(en2);
+                            dynamic_cast<CollisionDetector *>(en2)->onCollision(en1);
                         }
                     }
-                    en1->setPosition(en1->getPosition());
+                    en1->updateSprite();
                 }
             }
         }
-    }
 }
 void GameMap::removeDeadObjects()
 {

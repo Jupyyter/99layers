@@ -12,7 +12,7 @@ enum class GameState
 int main()
 {
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
-    sf::RenderWindow window(sf::VideoMode(1024, 768), "SFML Player", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(1024, 768), "traiasca georgescu", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
     std::vector<std::string> cutSceneImages = {
@@ -94,7 +94,7 @@ int main()
                 if (inGameOverTransition && gameOverTransitionClock.getElapsedTime().asSeconds() >= 2.0f)
                 {
                     // Transition period is over, move to game over state
-                    //world->stopAllSounds();
+                    world->stopAllSounds();
                     currentState = GameState::GameOver;
                     inGameOverTransition = false;
                 }

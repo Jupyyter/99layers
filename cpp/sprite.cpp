@@ -1,6 +1,6 @@
 #include "../hpp/libs.hpp"
 
-Sprite::Sprite(const sf::Vector2f& position) : Object(position), flipped(true), invisible(false) {setPosition(position);}
+Sprite::Sprite(const sf::Vector2f& position) : Object(position), flipped(true), invisible(false) {updateSprite();}
 
 void Sprite::loadTexture(const std::string &filename)
 {
@@ -29,9 +29,8 @@ void Sprite::draw(sf::RenderWindow &window)const
         window.draw(sprite);
     }
 }
-void Sprite::setPosition(const sf::Vector2f &pos)
+void Sprite::updateSprite()
 {
-    position = pos;
     sprite.setPosition(position);
 }
 

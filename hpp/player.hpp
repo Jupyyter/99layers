@@ -29,6 +29,8 @@ bool *gameover;
     bool isGrounded;
     void loadAnimations();
     void loadShaders();
+    void checkContinuousCollision(const sf::Vector2f& start, const sf::Vector2f& end);
+    float rayIntersectsRect(const sf::Vector2f& rayOrigin, const sf::Vector2f& rayDirection, const sf::FloatRect& rect);
 
     //some item and attack related that has something to do with the items
     bool onehitinvin, gothitinv, isStasis;

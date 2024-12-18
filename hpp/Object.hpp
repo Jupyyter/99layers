@@ -27,6 +27,8 @@ public:
     static std::vector<PropertyDescriptor> getPropertyDescriptors() { return {}; }
 
     sf::Vector2f getPosition() const { return position; }
+    sf::Vector2f getVelocity() const { return velocity; }
+
     void move(const sf::Vector2f &offset) { position += offset; }
     int getPriorityLayer() { return priorityLayer; }
 
@@ -34,7 +36,7 @@ public:
     bool shouldBeDead = false;
 
 private:
-    virtual void setPosition(const sf::Vector2f &pos) { position = pos; }
+    void setPosition(const sf::Vector2f &pos) { position = pos; }
 
 protected:
     sf::Vector2f position;

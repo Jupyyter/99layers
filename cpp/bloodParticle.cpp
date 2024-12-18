@@ -2,7 +2,7 @@
 #define M_PI 3.14159265358979323846
 // Constructor - initialize random movement
 bloodParticle::bloodParticle(sf::Vector2f position) : Sprite(position), CollisionDetector() {
-    // Initialize your blood particle here
+       priorityLayer=2;
     loadSprite();
     spawnParticles(position);
 }

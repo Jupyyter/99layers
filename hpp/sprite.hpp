@@ -25,7 +25,7 @@ virtual bool isOnScreen() const;
     bool invisible;
 
 private:
-    void setPosition(const sf::Vector2f &pos) override;
+    void updateSprite() ;
 protected:
     bool flipped;
 };
