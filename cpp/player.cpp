@@ -97,6 +97,7 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
        }
        if (!isStasis)
        {
+              
               if (velocity.y > 2777)
               {
                      *(world->gameOver) = true;
@@ -121,43 +122,6 @@ void Player::onCollision(Sprite *other)
               inventory->shouldBeDead=true;
               world->isPlayerValid=false;
               world->spawn("bloodParticles", position.x, position.y);
-       }
-       else if (typeid(*other) == typeid(Terrain))
-       {
-              switch (CollisionDetector::CollisionSide(getBounds(), other->getBounds()))
-              {
-              case CollisionInfo::Left:
-                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0)) // in case of stairs
-                     {
-                            position.x = other->getBounds().left + other->getBounds().width;
-                            velocity.x = 0;
-                     }
-                     break;
-              case CollisionInfo::Right:
-                     if (!(other->getBounds().top > getBounds().top && other->getBounds().top - getBounds().top > 27 && velocity.y >= 0))
-                     {
-                            position.x = other->getBounds().left - getBounds().width;
-                            velocity.x = 0;
-                     }
-                     break;
-              case CollisionInfo::Bottom:
-                     if (velocity.y >= 0)
-                     {
-                            position.y = other->getBounds().top - getBounds().height;
-                            velocity.y = 0;
-                            isGrounded = true;
-                     }
-                     break;
-              case CollisionInfo::Top:
-              {
-                     position.y = other->getBounds().top + other->getBounds().height;
-                     velocity.y = 0;
-
-                     break;
-              }
-              default:
-                     break;
-              }
        }
 }
 void Player::draw(sf::RenderWindow &window) const

@@ -80,7 +80,7 @@ private:
     int m_currentPartY;
 
     // Internal Methods
-    void performCollisionChecks(Object *object);
+    void performCollisionChecks(Object *object,bool lastCheck);
     bool checkCollision(const sf::Sprite& sprite1, const sf::Sprite& sprite2);
     std::vector<sf::Vector2f> getTransformedBounds(const sf::Sprite& sprite) const;
     bool checkSATCollision(const std::vector<sf::Vector2f>& vertices1, 

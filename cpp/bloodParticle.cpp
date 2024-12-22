@@ -40,7 +40,7 @@ void bloodParticle::update(float deltaTime, const sf::Vector2u& windowSize) {
     velocity.y *= DRAG;
 
 }
-void bloodParticle::onCollision(Sprite *other)
+void bloodParticle::collide(Sprite *other)
 {
         if (typeid(*other) == typeid(Terrain))
        {

@@ -16,34 +16,48 @@ constexpr unsigned int operator"" _hash(const char *p, size_t)
 
 Object *ObjectFactory::createObject(const std::string &type, sf::Transformable transform)
 {
+    Object* obj = nullptr;
     switch (hash(type.c_str()))
     {
     case "pacman"_hash:
-        return new PacMan(transform.getPosition());
+        obj = new PacMan(transform.getPosition());
+        break;
     case "arrow"_hash:
-        return new Idk(transform.getPosition());
+        obj = new Idk(transform.getPosition());
+        break;
     case "capybaraa"_hash:
-        return new Capybara(transform.getPosition());
+        obj = new Capybara(transform.getPosition());
+        break;
     case "pengu"_hash:
-        return new Penguin(transform.getPosition());
+        obj = new Penguin(transform.getPosition());
+        break;
     case "HorusBrogans"_hash:
-        return new HB(transform.getPosition());
+        obj = new HB(transform.getPosition());
+        break;
     case "runnerspact"_hash:
-        return new RP(transform.getPosition());
+        obj = new RP(transform.getPosition());
+        break;
     case "groundbreaker"_hash:
-        return new GB(transform.getPosition());
+        obj = new GB(transform.getPosition());
+        break;
     case "chronostimepiece"_hash:
-        return new CTP(transform.getPosition());
+        obj = new CTP(transform.getPosition());
+        break;
     case "poketIkeaman"_hash:
-        return new II(transform.getPosition());
+        obj = new II(transform.getPosition());
+        break;
     case "ikeaman"_hash:
-        return new Boss(transform.getPosition());
+        obj = new Boss(transform.getPosition());
+        break;
     case "laser"_hash:
-        return new LaserBeam(transform.getPosition(), transform.getRotation());
+        obj = new LaserBeam(transform.getPosition(), transform.getRotation());
+        break;
     case "plank"_hash:
-        return new Plank(transform.getPosition());
+        obj = new Plank(transform.getPosition());
+        break;
     case "table"_hash:
-        return new TableFall(transform.getPosition());
+        obj = new TableFall(transform.getPosition());
+        break;
     case "adidas"_hash:
     {
         sf::Vector2f pos=world->playerSpawnPosition;
@@ -55,37 +69,56 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
             player = new Player(pos);
         }
         world->playerRef = player;
-        return player;
+        obj = player;
+        break;
     }
     case "ak47"_hash:
-        return new AK47();
+        obj = new AK47();
+        break;
     case "ak47item"_hash:
-        return new AK(transform.getPosition());
+        obj = new AK(transform.getPosition());
+        break;
     case "inventory"_hash:
-        return new Inventory();
+        obj = new Inventory();
+        break;
     case "akBullet"_hash:
-        return new akBullet(transform.getPosition(), transform.getRotation());
+        obj = new akBullet(transform.getPosition(), transform.getRotation());
+        break;
     case "HappyEnd"_hash:{}
-        return new HappyEnd(transform.getPosition());
+        obj = new HappyEnd(transform.getPosition());
+        break;
     case "LaserEnd"_hash:{
-        return new LaserEnd(transform.getPosition());
+        obj = new LaserEnd(transform.getPosition());
+        break;
 
     }
     case "spawn"_hash:
-        return new SpawnPoint(transform.getPosition());
+        obj = new SpawnPoint(transform.getPosition());
+        break;
     case "bloodParticles"_hash:
-        return new bloodParticles(transform.getPosition());
+        obj = new bloodParticles(transform.getPosition());
+        break;
     case "bloodParticle"_hash:
-        return new bloodParticle(transform.getPosition());
+        obj = new bloodParticle(transform.getPosition());
+        break;
     case "hedgehog1"_hash:
-        return new hedgehog(transform.getPosition());
+        obj = new hedgehog(transform.getPosition());
+        break;
     case "woodSign"_hash:
-        return new woodSign(transform.getPosition());
+        obj = new woodSign(transform.getPosition());
+        break;
     case "sign0"_hash:
-        return new sign0(transform.getPosition());
-    default:
-        return nullptr;
+        obj = new sign0(transform.getPosition());
+        break;
+    case "TableFall"_hash:{
+        obj = new TableFall(transform.getPosition());
+        break;
     }
+    }
+    if(obj){
+        obj->setName(type);
+    }
+    return obj;
 }
 
 std::vector<PropertyDescriptor> ObjectFactory::getPropertyDescriptors(const std::string &type)

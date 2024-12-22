@@ -10,6 +10,7 @@ PacMan::PacMan(sf::Vector2f spawnPosition)
       lifeDuration(5.0f), speed(100.0f), degrees(0.0f),
       isSoundPlaying(false), what(0)
 {
+    solid=false;
     priorityLayer=3;
     position = spawnPosition;
     loadSprite();

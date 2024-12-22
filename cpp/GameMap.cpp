@@ -191,6 +191,7 @@ void GameMap::spawnObjects()
                 static_cast<int>(objectSize.x),
                 static_cast<int>(objectSize.y),
                 placedObject.texturePath);
+                newObject->setName("Terrain");
         }
         else
         {
@@ -248,8 +249,8 @@ void GameMap::clearCaches()
 
 void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 {
-    const float MAX_SPEED_THRESHOLD = 10.0f;  // pixels per second
-    const int MAX_SUBSTEPS = 10;  // Prevent excessive subdivision
+    const float MAX_SPEED_THRESHOLD = 200.0f;  // pixels per second
+    const int MAX_SUBSTEPS = 20;  // Prevent excessive subdivision
 
     // Update camera and apply view
     m_camera.update(deltaTime);
@@ -284,14 +285,18 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
             for (int i = 0; i < substeps; ++i) {
                 sf::Vector2f newPosition = originalPosition + velocity * smallDeltaTime * (i + 1.f);
                 object->setPosition(newPosition);
-                
-                // Perform collision checks at each substep
-                performCollisionChecks(object.get());
+                if(i==substeps-1){
+                    performCollisionChecks(object.get(),true);
+                }
+                else{
+                    // Perform collision checks at each substep
+                    performCollisionChecks(object.get(),false);
+                }
             }
-        } else {
+        } else {//fixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfix
             // Normal movement for slower objects
             object->setPosition(object->getPosition() + object->getVelocity() * deltaTime);
-            //performCollisionChecks(object.get());
+            performCollisionChecks(object.get(),true);
         }
 
         // Update sprite if it's a Sprite object
@@ -301,7 +306,7 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
         }
     }
 }
-void GameMap::performCollisionChecks(Object *object){
+void GameMap::performCollisionChecks(Object *object,bool lastCheck){
     Sprite *en1 = dynamic_cast<Sprite *>(object);
     if (en1 && en1->isOnScreen())
         {
@@ -318,8 +323,12 @@ void GameMap::performCollisionChecks(Object *object){
                         // Detailed collision check
                         if (checkCollision(en1->getSprite(), en2->getSprite()))
                         {
-                            dynamic_cast<CollisionDetector *>(en1)->onCollision(en2);
-                            dynamic_cast<CollisionDetector *>(en2)->onCollision(en1);
+                            if(lastCheck){
+                                dynamic_cast<CollisionDetector *>(en2)->onCollision(en1);
+                                dynamic_cast<CollisionDetector *>(en1)->onCollision(en2);
+                            }
+                            dynamic_cast<CollisionDetector *>(en1)->collide(en2);
+                            dynamic_cast<CollisionDetector *>(en2)->collide(en1);
                         }
                     }
                     en1->updateSprite();

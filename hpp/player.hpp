@@ -26,7 +26,6 @@ bool *gameover;
     float gravity;
     float jumpForce;
     float moveSpeed;
-    bool isGrounded;
     void loadAnimations();
     void loadShaders();
     void checkContinuousCollision(const sf::Vector2f& start, const sf::Vector2f& end);

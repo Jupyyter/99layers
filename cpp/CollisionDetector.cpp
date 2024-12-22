@@ -1,5 +1,7 @@
 #include "../hpp/libs.hpp"
-
+CollisionDetector::CollisionDetector():isGrounded(false),solid(true)
+{
+}
 CollisionDetector::CollisionInfo CollisionDetector::CollisionSide(const sf::FloatRect &bounds1, const sf::FloatRect &bounds2)
 {
     // First, check if the rectangles actually intersect

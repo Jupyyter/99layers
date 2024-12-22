@@ -3,6 +3,7 @@ class Object;
 class Sprite : public Object
 {
     friend class GameMap;
+    friend class CollisionDetector;
 public:
     virtual std::vector<std::pair<std::string, std::string>> getEditableProperties() const
     {
