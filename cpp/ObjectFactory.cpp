@@ -110,6 +110,9 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
     case "sign0"_hash:
         obj = new sign0(transform.getPosition());
         break;
+    case "sign1"_hash:
+        obj = new sign1(transform.getPosition());
+        break;
     case "TableFall"_hash:{
         obj = new TableFall(transform.getPosition());
         break;

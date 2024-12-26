@@ -34,9 +34,11 @@ public:
 
     int priorityLayer = 0,id;
     bool shouldBeDead = false;
+    std::string getName(){return name;}
     void setName(std::string const &nam){name=nam;}
 
 private:
+    std::string name;
 
 protected:
     void setPosition(const sf::Vector2f &pos) { position = pos; }
@@ -44,5 +46,4 @@ protected:
     void setPositionY(const int &pos) { position.y = pos; }
     sf::Vector2f position;
     sf::Vector2f velocity;
-    std::string name;
 };

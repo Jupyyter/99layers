@@ -9,8 +9,8 @@ Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetec
        loadShaders();
 
        gravity = 980.0f;
-       jumpForce = -500.0f;
-       moveSpeed = 200.0f;
+       jumpForce = -489.0f;
+       moveSpeed = 170.0f;
        isGrounded = false;
        onehitinvin = false;
        gothitinv = false;

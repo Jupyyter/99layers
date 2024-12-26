@@ -21,7 +21,7 @@ void hedgehog::update(float deltaTime, const sf::Vector2u &screenres)
 {
        if (isOnScreen())
        {
-              velocity.y += 290 * deltaTime;
+              velocity.y += 590 * deltaTime;
               Animation::update(deltaTime, screenres);
        }
 }

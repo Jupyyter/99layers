@@ -17,7 +17,7 @@ friend class Sprite;
     CollisionInfo CollisionSide(const sf::FloatRect& bounds1, const sf::FloatRect& bounds2);
     virtual void onCollision(Sprite *other){};
     virtual void collide(Sprite *other){
-         if (solid&&other->name=="Terrain")
+         if (solid&&other->getName()=="Terrain")
        {
         Sprite *en1 = dynamic_cast<Sprite *>(this);
               switch (CollisionDetector::CollisionSide(en1->getBounds(), other->getBounds()))

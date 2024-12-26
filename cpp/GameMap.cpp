@@ -191,7 +191,7 @@ void GameMap::spawnObjects()
                 static_cast<int>(objectSize.x),
                 static_cast<int>(objectSize.y),
                 placedObject.texturePath);
-                newObject->setName("Terrain");
+            newObject->setName("Terrain");
         }
         else
         {
@@ -200,9 +200,9 @@ void GameMap::spawnObjects()
             transform.setScale(placedObject.sprite.getScale());
             newObject = ObjectFactory::createObject(placedObject.type, transform);
             Item *itm = dynamic_cast<Item *>(newObject);
-            if ( !placedObject.respawn&&itm)
+            if (!placedObject.respawn && itm)
             {
-                itm->position=world->playerRef->position;
+                itm->position = world->playerRef->position;
             }
         }
 
@@ -249,13 +249,13 @@ void GameMap::clearCaches()
 
 void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 {
-    const float MAX_SPEED_THRESHOLD = 200.0f;  // pixels per second
-    const int MAX_SUBSTEPS = 20;  // Prevent excessive subdivision
+    const float MAX_SPEED_THRESHOLD = 200.0f; // pixels per second
+    const int MAX_SUBSTEPS = 10;              // Prevent excessive subdivision
 
     // Update camera and apply view
     m_camera.update(deltaTime);
     m_camera.applyTo(wndref);
-    
+
     // Update view bounds for culling
     updateViewBounds();
 
@@ -268,73 +268,81 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
     // Then handle movement with potential substeps
     for (const auto &object : allObjects)
     {
-        float objectSpeed = std::sqrt(object->getVelocity().x * object->getVelocity().x + 
+        float objectSpeed = std::sqrt(object->getVelocity().x * object->getVelocity().x +
                                       object->getVelocity().y * object->getVelocity().y);
-        
-        if (objectSpeed > MAX_SPEED_THRESHOLD) {
+
+        if (objectSpeed > MAX_SPEED_THRESHOLD)
+        {
             // Break movement into smaller substeps
             int substeps = std::min(
-                static_cast<int>(std::ceil(objectSpeed / MAX_SPEED_THRESHOLD)), 
-                MAX_SUBSTEPS
-            );
+                static_cast<int>(std::ceil(objectSpeed / MAX_SPEED_THRESHOLD)),
+                MAX_SUBSTEPS);
             float smallDeltaTime = deltaTime / substeps;
-            
+
             sf::Vector2f originalPosition = object->getPosition();
             sf::Vector2f velocity = object->getVelocity();
-            
-            for (int i = 0; i < substeps; ++i) {
+
+            for (int i = 0; i < substeps; ++i)
+            {
                 sf::Vector2f newPosition = originalPosition + velocity * smallDeltaTime * (i + 1.f);
                 object->setPosition(newPosition);
-                if(i==substeps-1){
-                    performCollisionChecks(object.get(),true);
+                if (i == substeps - 1)
+                {
+                    performCollisionChecks(object.get(), true);
                 }
-                else{
+                else
+                {
                     // Perform collision checks at each substep
-                    performCollisionChecks(object.get(),false);
+                    performCollisionChecks(object.get(), false);
                 }
             }
-        } else {//fixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfixfix
+        }
+        else if (objectSpeed != 0)
+        {
             // Normal movement for slower objects
             object->setPosition(object->getPosition() + object->getVelocity() * deltaTime);
-            performCollisionChecks(object.get(),true);
+            performCollisionChecks(object.get(), true);
         }
 
         // Update sprite if it's a Sprite object
         Sprite *en1 = dynamic_cast<Sprite *>(object.get());
-        if(en1){
+        if (en1)
+        {
             en1->updateSprite();
         }
     }
 }
-void GameMap::performCollisionChecks(Object *object,bool lastCheck){
+void GameMap::performCollisionChecks(Object *object, bool lastCheck)
+{
     Sprite *en1 = dynamic_cast<Sprite *>(object);
     if (en1 && en1->isOnScreen())
+    {
+        for (size_t j = 1; j < collisionObjects.size(); ++j)
         {
-            for (size_t j = 1; j < collisionObjects.size(); ++j)
+            Sprite *en2 = dynamic_cast<Sprite *>(collisionObjects[j]);
+            if (dynamic_cast<CollisionDetector *>(en1) && en2 && en1 != en2)
             {
-                Sprite *en2 = dynamic_cast<Sprite *>(collisionObjects[j]);
-                if (en2&&en1!=en2)
+                // Quick AABB check before detailed collision
+                sf::FloatRect bounds1 = en1->getBounds();
+                sf::FloatRect bounds2 = en2->getBounds();
+                if (bounds1.intersects(bounds2))
                 {
-                    // Quick AABB check before detailed collision
-                    sf::FloatRect bounds1 = en1->getBounds();
-                    sf::FloatRect bounds2 = en2->getBounds();
-                    if (bounds1.intersects(bounds2))
+                    // Detailed collision check
+                    if (checkCollision(en1->getSprite(), en2->getSprite()))
                     {
-                        // Detailed collision check
-                        if (checkCollision(en1->getSprite(), en2->getSprite()))
+                        if (lastCheck)
                         {
-                            if(lastCheck){
-                                dynamic_cast<CollisionDetector *>(en2)->onCollision(en1);
-                                dynamic_cast<CollisionDetector *>(en1)->onCollision(en2);
-                            }
-                            dynamic_cast<CollisionDetector *>(en1)->collide(en2);
-                            dynamic_cast<CollisionDetector *>(en2)->collide(en1);
+                            dynamic_cast<CollisionDetector *>(en2)->onCollision(en1);
+                            dynamic_cast<CollisionDetector *>(en1)->onCollision(en2);
                         }
+                        dynamic_cast<CollisionDetector *>(en1)->collide(en2);
+                        dynamic_cast<CollisionDetector *>(en2)->collide(en1);
                     }
-                    en1->updateSprite();
                 }
+                en1->updateSprite();
             }
         }
+    }
 }
 void GameMap::removeDeadObjects()
 {

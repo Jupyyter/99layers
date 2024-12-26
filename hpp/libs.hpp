@@ -54,7 +54,7 @@
 #include "player.hpp"
 #include "npc.hpp"
 #include "woodSign.hpp"
-#include "sign0.hpp"
+#include "staticObjects.hpp"
 #include "Capybara.hpp"
 #include "SpawnPoint.hpp"
 #include "penguin.hpp"
