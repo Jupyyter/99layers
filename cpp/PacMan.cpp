@@ -10,11 +10,16 @@ PacMan::PacMan(sf::Vector2f spawnPosition)
       lifeDuration(5.0f), speed(100.0f), degrees(0.0f),
       isSoundPlaying(false), what(0)
 {
-    solid=false;
-    priorityLayer=3;
+    solid = false;
+    priorityLayer = 3;
     position = spawnPosition;
     loadSprite();
     initializeSound();
+    
+    // Initialize starting color (yellow)
+    startColor = sf::Color(255, 255, 0);    // Yellow
+    endColor = sf::Color(128, 0, 128);      // Purple
+    sprite.setColor(startColor);
 }
 
 PacMan::~PacMan()
@@ -152,6 +157,18 @@ void PacMan::update(float deltaTime, const sf::Vector2u &screenres)
     if (what == 1 && world && world->playerRef) {
         playerPosition = world->playerRef->getPosition();
         updateDirectionToPlayer(playerPosition, deltaTime);
+        
+        // Update color transition
+        float progress = lifeTimer / lifeDuration;  // Value between 0 and 1
+        
+        // Interpolate between yellow and purple
+        sf::Color currentColor(
+            startColor.r + (endColor.r - startColor.r) * progress,
+            startColor.g + (endColor.g - startColor.g) * progress,
+            startColor.b + (endColor.b - startColor.b) * progress
+        );
+        
+        sprite.setColor(currentColor);
     }
     else {
         // Original behavior

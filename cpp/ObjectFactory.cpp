@@ -113,8 +113,15 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
     case "sign1"_hash:
         obj = new sign1(transform.getPosition());
         break;
+    case "sign2"_hash:
+        obj = new sign2(transform.getPosition());
+        break;
     case "TableFall"_hash:{
         obj = new TableFall(transform.getPosition());
+        break;
+    }
+    case "croww"_hash:{
+        obj = new crow(transform.getPosition());
         break;
     }
     }
@@ -134,6 +141,8 @@ std::vector<PropertyDescriptor> ObjectFactory::getPropertyDescriptors(const std:
         return Idk::getPropertyDescriptors();
     case "capybaraa"_hash:
         return Capybara::getPropertyDescriptors();
+    case "croww"_hash:
+        return crow::getPropertyDescriptors();
     case "pengu"_hash:
         return Penguin::getPropertyDescriptors();
     case "HorusBrogans"_hash:
@@ -156,6 +165,8 @@ std::vector<PropertyDescriptor> ObjectFactory::getPropertyDescriptors(const std:
         return AK::getPropertyDescriptors();
     case "Terrain"_hash:
         return Terrain::getPropertyDescriptors();
+    case "sign1"_hash:
+        return sign1::getPropertyDescriptors();
     case "spawn"_hash:
         return SpawnPoint::getPropertyDescriptors();
         case "bloodParticles"_hash:

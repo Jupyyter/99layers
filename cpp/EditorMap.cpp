@@ -11,12 +11,12 @@ EditorMap::EditorMap(sf::RenderWindow& window)
             "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png",
             "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",
             "../imgs/poketIkeaman.png", "../imgs/spawn.png","../imgs/bloodParticles.png","../imgs/hedgehog1.png",
-            "../imgs/woodSign.png","../imgs/sign0.png","../imgs/sign1.png"},
+            "../imgs/woodSign.png","../imgs/sign0.png","../imgs/sign1.png","../imgs/sign2.png", "../imgs/croww.png"},
            {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png",
             "../imgs/brick.png", "../imgs/brick1.png", "../imgs/brick2.png",
             "../imgs/texture0.png","../imgs/texture1.png","../imgs/texture2.png"
             , "../imgs/dirt0.png", "../imgs/dirt1.png"},
-           {"../imgs/background.png","../imgs/background4.png"},
+           {"../imgs/background.png","../imgs/background4.png","../imgs/background5.png"},
            window)
 {
     view.setSize(window.getSize().x, window.getSize().y);

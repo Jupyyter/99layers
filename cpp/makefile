@@ -11,7 +11,7 @@ FREETYPE_INCLUDE = D:\ikeaBattle\freeType\freetype-2.13.3\include
 FREETYPE_LIB = D:\path\to\freetype\lib
 
 # Source Files
-SRC = Camera.cpp Object.cpp laserEnd.cpp Terrain.cpp GameMap.cpp HappyEnd.cpp EditorMap.cpp Boss.cpp npc.cpp Menu.cpp item.cpp inventory.cpp attack.cpp idk.cpp Animation.cpp GameOverScreen.cpp TextBox.cpp PacMan.cpp hedgehog.cpp CollisionDetector.cpp player.cpp woodSign.cpp staticObjects.cpp CutScene.cpp bloodParticle.cpp ObjectFactory.cpp penguin.cpp sprite.cpp ak47.cpp Background.cpp Capybara.cpp SpawnPoint.cpp bloodParticles.cpp main.cpp
+SRC = Camera.cpp Object.cpp laserEnd.cpp Terrain.cpp GameMap.cpp HappyEnd.cpp EditorMap.cpp Boss.cpp npc.cpp npcs.cpp Menu.cpp item.cpp inventory.cpp attack.cpp idk.cpp Animation.cpp GameOverScreen.cpp TextBox.cpp PacMan.cpp hedgehog.cpp CollisionDetector.cpp player.cpp staticObjects.cpp CutScene.cpp bloodParticle.cpp ObjectFactory.cpp penguin.cpp sprite.cpp ak47.cpp Background.cpp SpawnPoint.cpp bloodParticles.cpp main.cpp
 
 # Object Files
 OBJ = $(SRC:.cpp=.o)

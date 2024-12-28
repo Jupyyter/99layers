@@ -37,4 +37,7 @@ private:
     float minSpeed = 50.0f;
     float maxSpeed = 300.0f;
     float rotationSpeed = 180.0f;  // degrees per second
+
+    sf::Color startColor;  // Starting color (yellow)
+    sf::Color endColor;    // End color (purple)
 };

@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetector(), inventory(new Inventory()), isJump(false)
+Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetector(), inventory(new Inventory()), isJump(false),wasUpPressed(false)
 {
        priorityLayer = 4;
        world->spawn(inventory);
@@ -9,7 +9,7 @@ Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetec
        loadShaders();
 
        gravity = 980.0f;
-       jumpForce = -489.0f;
+       jumpForce = -484.0f;
        moveSpeed = 170.0f;
        isGrounded = false;
        onehitinvin = false;
@@ -50,11 +50,17 @@ void Player::handleInput()
        {
               velocity.x = 0;
        }
-       if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && isGrounded && isJump)
-       {
-              velocity.y = jumpForce;
-              isMoving = true;
-       }
+       // Check if Up/W is currently pressed
+        bool isUpPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+        
+        if (isUpPressed && !wasUpPressed && isGrounded && isJump)
+        {
+            velocity.y = jumpForce;
+            isMoving = true;
+        }
+
+        // Update the previous key state for the next frame
+        wasUpPressed = isUpPressed;
 }
 
 void Player::updateAnimation()
@@ -119,7 +125,7 @@ void Player::onCollision(Sprite *other)
        {
               *(world->gameOver) = true;
               this->shouldBeDead = true;
-              inventory->shouldBeDead=true;
+              //inventory->shouldBeDead=true;
               world->isPlayerValid=false;
               world->spawn("bloodParticles", position.x, position.y);
        }

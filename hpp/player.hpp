@@ -16,6 +16,7 @@ public:
     void onCollision(Sprite* other) override;
     bool isMoving;
     bool isJump;
+    bool wasUpPressed;
 void checkBounds(const sf::Vector2u& screenres);
 Inventory *inventory;
 private:
