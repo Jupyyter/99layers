@@ -35,4 +35,9 @@ bool *gameover;
     //some item and attack related that has something to do with the items
     bool onehitinvin, gothitinv, isStasis;
     sf::Shader stasishad;
+
+    bool isPushed;
+    float pushTimer;
+    sf::Vector2f pushVelocity;
+    const float PUSH_FORCE = 400.0f;  // Strength of push
 };

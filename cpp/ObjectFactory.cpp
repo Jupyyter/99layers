@@ -124,6 +124,10 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
         obj = new crow(transform.getPosition());
         break;
     }
+    case "boomerangg"_hash:{
+        obj = new Boomerang(transform.getPosition());
+        break;
+    }
     }
     if(obj){
         obj->setName(type);

@@ -36,13 +36,14 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
             return;
         }
     }
-    if(!world->isPlayerValid){
+    if (!world->isPlayerValid)
+    {
         return;
     }
 
     // Get player position for targeting
     sf::Vector2f playerCenter(world->playerRef->getBounds().left + world->playerRef->getBounds().width / 2.0f,
-                            world->playerRef->getBounds().top + world->playerRef->getBounds().height / 2.0f);
+                              world->playerRef->getBounds().top + world->playerRef->getBounds().height / 2.0f);
     sf::Vector2f direction = playerCenter - position;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -91,49 +92,46 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
     }
 
     // Create Attacks based on current phase
-    if (isOnScreen())
+    switch (currentPhase)
     {
-        switch (currentPhase)
+    case 1: // First phase
+        if (ltimer.getElapsedTime().asSeconds() >= 10.0f)
         {
-            case 1: // First phase
-                if (ltimer.getElapsedTime().asSeconds() >= 10.0f)
-                {
-                    world->spawn("laser", position.x, position.y, sprite.getRotation());
-                    ltimer.restart();
-                }
-                break;
-
-            case 2: // Second phase
-                if (ltimer.getElapsedTime().asSeconds() >= 5.0f)
-                {
-                    world->spawn("laser", position.x, position.y, sprite.getRotation());
-                    ltimer.restart();
-                }
-                if (ttimer.getElapsedTime().asSeconds() >= 10.0f)
-                {
-                    world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
-                    ttimer.restart();
-                }
-                break;
-
-            case 3: // Final phase
-                if (ltimer.getElapsedTime().asSeconds() >= 0.05f)
-                {
-                    world->spawn("laser", position.x, position.y, sprite.getRotation());
-                    ltimer.restart();
-                }
-                if (ttimer.getElapsedTime().asSeconds() >= 5.0f)
-                {
-                    world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
-                    ttimer.restart();
-                }
-                /*if (ptimer.getElapsedTime().asSeconds() >= 7.0f)
-                {
-                    world->spawn("plank", position.x, position.y, 0);
-                    ptimer.restart();
-                }*/
-                break;
+            world->spawn("laser", position.x, position.y, sprite.getRotation());
+            ltimer.restart();
         }
+        break;
+
+    case 2: // Second phase
+        if (ltimer.getElapsedTime().asSeconds() >= 5.0f)
+        {
+            world->spawn("laser", position.x, position.y, sprite.getRotation());
+            ltimer.restart();
+        }
+        if (ttimer.getElapsedTime().asSeconds() >= 10.0f)
+        {
+            world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
+            ttimer.restart();
+        }
+        break;
+
+    case 3: // Final phase
+        if (ltimer.getElapsedTime().asSeconds() >= 0.05f)
+        {
+            world->spawn("laser", position.x, position.y, sprite.getRotation());
+            ltimer.restart();
+        }
+        if (ttimer.getElapsedTime().asSeconds() >= 5.0f)
+        {
+            world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
+            ttimer.restart();
+        }
+        /*if (ptimer.getElapsedTime().asSeconds() >= 7.0f)
+        {
+            world->spawn("plank", position.x, position.y, 0);
+            ptimer.restart();
+        }*/
+        break;
     }
 }
 
@@ -154,25 +152,25 @@ void Boss::resetTimers()
 void Boss::updateEyePosition()
 {
     eyeSprite.setPosition(position.x - eyeSprite.getGlobalBounds().width / 2.0f,
-                         position.y - eyeSprite.getGlobalBounds().height / 2.0f);
+                          position.y - eyeSprite.getGlobalBounds().height / 2.0f);
 }
 
 void Boss::onCollision(Sprite *other)
 {
-    akBullet* attack = dynamic_cast<akBullet*>(other);
-    
+    akBullet *attack = dynamic_cast<akBullet *>(other);
+
     if (attack)
     {
         sf::Color color = sprite.getColor();
-        
+
         // Subtract 2 from each component
         color.r = std::max(0, color.r - 2);
         color.g = std::max(0, color.g - 2);
         color.b = std::max(0, color.b - 2);
-        
+
         // Set the new color
         sprite.setColor(color);
-        
+
         // Check if all components are 0
         if (color.r == 0 && color.g == 0 && color.b == 0)
         {

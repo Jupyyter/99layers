@@ -124,3 +124,72 @@ void TableFall::update(float deltaTime, const sf::Vector2u &screenres) {
     position += velocity;
 
 }
+Boomerang::Boomerang(sf::Vector2f sp) : Attack(sp), rotationSpeed(360.0f), timeElapsed(0.0f), 
+                                returningPhase(false) {
+        loadTexture("../imgs/boomerangg.png");
+        this->sprite.scale(32.0f / texture.getSize().x, 32.0f / texture.getSize().y);
+        sprite.setOrigin(16,16);
+        
+        // Calculate initial direction towards player
+        sf::Vector2f toPlayer = sf::Vector2f(
+            world->playerRef->getBounds().left + world->playerRef->getBounds().width / 2.0f,
+            world->playerRef->getBounds().top + world->playerRef->getBounds().height / 2.0f
+        ) - position;
+        // Normalize the direction vector
+        float length = std::sqrt(toPlayer.x * toPlayer.x + toPlayer.y * toPlayer.y);
+        toPlayer /= length;
+        
+        // Set initial velocity
+        velocity = toPlayer * 300.0f;
+        initialVelocity = velocity;
+    }
+
+    void Boomerang::update(float deltaTime, const sf::Vector2u &screenres) {
+        Attack::update(deltaTime, screenres);
+        
+        timeElapsed += deltaTime;
+        
+        // Rotate the sprite
+        sprite.rotate(rotationSpeed * deltaTime);
+        
+        if (timeElapsed < 1.0f) {
+            // Gradually curve the velocity to the right/left
+            float perpX = -velocity.y;
+            float perpY = velocity.x;
+            float perpMagnitude = std::sqrt(perpX * perpX + perpY * perpY);
+            perpX /= perpMagnitude;
+            perpY /= perpMagnitude;
+            
+            // Add perpendicular component to create curve
+            velocity.x += perpX * 500.0f * deltaTime;
+            velocity.y += perpY * 500.0f * deltaTime;
+        }
+        else if (timeElapsed < 2.0f && !returningPhase) {
+            // Start return phase
+            returningPhase = true;
+            
+            // Calculate return velocity
+            sf::Vector2f returnDir = -velocity;
+            float returnSpeed = std::sqrt(returnDir.x * returnDir.x + returnDir.y * returnDir.y);
+            returnDir /= returnSpeed;
+            
+            velocity = returnDir * 300.0f;
+        }
+        else if (timeElapsed >= 2.0f) {
+            // Maintain a somewhat straight path back
+            sf::Vector2f currentDir = velocity;
+            float currentSpeed = std::sqrt(currentDir.x * currentDir.x + currentDir.y * currentDir.y);
+            currentDir /= currentSpeed;
+            
+            // Slightly adjust velocity to maintain speed
+            velocity = currentDir * 300.0f;
+        }
+        
+        // Normalize velocity to maintain consistent speed
+        float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+        velocity = (velocity / speed) * 300.0f;
+        
+        if (timeElapsed >= 4.0f) {
+            shouldBeDead = true;
+        }
+    }

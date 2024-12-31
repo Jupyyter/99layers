@@ -71,3 +71,15 @@ private:
     sf::Clock timer;
     bool fc;
 };
+class Boomerang : public Attack {
+private:
+    float rotationSpeed;
+    float timeElapsed;
+    sf::Vector2f initialVelocity;
+    bool returningPhase;
+
+public:
+    Boomerang(sf::Vector2f sp) ;
+
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
+};

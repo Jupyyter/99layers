@@ -1,7 +1,7 @@
 #include "../hpp/libs.hpp"
 #include <iostream>
 
-Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetector(), inventory(new Inventory()), isJump(false),wasUpPressed(false)
+Player::Player(sf::Vector2f position) : Animation(position, 0.1), CollisionDetector(), inventory(new Inventory()), isJump(false),wasUpPressed(false),isPushed(false), pushTimer(0.0f)
 {
        priorityLayer = 4;
        world->spawn(inventory);
@@ -34,33 +34,36 @@ void Player::loadShaders()
 
 void Player::handleInput()
 {
-       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-       {
-              velocity.x = -moveSpeed;
-              flipped = false;
-              isMoving = true;
-       }
-       else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-       {
-              velocity.x = moveSpeed;
-              flipped = true;
-              isMoving = true;
-       }
-       else
-       {
-              velocity.x = 0;
-       }
-       // Check if Up/W is currently pressed
-        bool isUpPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-        
-        if (isUpPressed && !wasUpPressed && isGrounded && isJump)
+        // Only handle horizontal input if not being pushed or if grounded
+        if (!isPushed || isGrounded)
         {
-            velocity.y = jumpForce;
-            isMoving = true;
-        }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            {
+                velocity.x = -moveSpeed;
+                flipped = false;
+                isMoving = true;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+            {
+                velocity.x = moveSpeed;
+                flipped = true;
+                isMoving = true;
+            }
+            else
+            {
+                velocity.x = 0;
+            }
+            
+            bool isUpPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+            
+            if (isUpPressed && !wasUpPressed && isGrounded && isJump)
+            {
+                velocity.y = jumpForce;
+                isMoving = true;
+            }
 
-        // Update the previous key state for the next frame
-        wasUpPressed = isUpPressed;
+            wasUpPressed = isUpPressed;
+        }
 }
 
 void Player::updateAnimation()
@@ -96,39 +99,68 @@ void Player::updateAnimation()
 
 void Player::update(float deltaTime, const sf::Vector2u &screenres)
 {
-       isMoving = false;
-       if (sf::Keyboard::isKeyPressed(sf::Keyboard::T))
-       {
-              *(world->gameOver) = true;
-       }
-       if (!isStasis)
-       {
-              
-              if (velocity.y > 2777)
-              {
-                     *(world->gameOver) = true;
-              }
-              updateAnimation();
-              handleInput();
-              if (isOnScreen())
-              {
-                     velocity.y += gravity * deltaTime;
-              }
+        isMoving = false;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::T))
+        {
+            *(world->gameOver) = true;
+        }
+        
+        if (!isStasis)
+        {
+            if (velocity.y > 2777)
+            {
+                *(world->gameOver) = true;
+            }
 
-              Animation::update(deltaTime, screenres);
-              isGrounded = false;
-       }
+            updateAnimation();
+            handleInput();
+            
+            if (isOnScreen())
+            {
+                velocity.y += gravity * deltaTime;
+            }
+
+            Animation::update(deltaTime, screenres);
+
+            // If we hit the ground while being pushed, regain control
+            if (isGrounded && isPushed)
+            {
+                isPushed = false;
+            }
+            
+            isGrounded = false;
+        }
 }
 void Player::onCollision(Sprite *other)
 {
-       if (typeid(*other) == typeid(PacMan)||typeid(*other) == typeid(TableFall)||typeid(*other) == typeid(LaserBeam)||typeid(*other) == typeid(hedgehog))
-       {
-              *(world->gameOver) = true;
-              this->shouldBeDead = true;
-              //inventory->shouldBeDead=true;
-              world->isPlayerValid=false;
-              world->spawn("bloodParticles", position.x, position.y);
-       }
+        if (typeid(*other) == typeid(PacMan) || typeid(*other) == typeid(TableFall) || 
+            typeid(*other) == typeid(LaserBeam) || typeid(*other) == typeid(hedgehog)|| typeid(*other) == typeid(Boomerang))
+        {
+            *(world->gameOver) = true;
+            this->shouldBeDead = true;
+            world->isPlayerValid = false;
+            world->spawn("bloodParticles", position.x, position.y);
+        }
+        else if(typeid(*other) == typeid(Penguin))
+        {
+            // Calculate direction vector from penguin to player
+            sf::Vector2f penguinPos = other->getPosition();
+            sf::Vector2f direction = position - penguinPos;
+            
+            // Normalize the direction vector
+            float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+            if (length > 0) {
+                direction.x /= length;
+                direction.y /= length;
+            }
+            
+            // Apply impulse force
+            isPushed = true;
+            velocity = direction * PUSH_FORCE;
+            
+            // Small position adjustment to prevent sticking
+            position += direction * 5.0f;
+        }
 }
 void Player::draw(sf::RenderWindow &window) const
 {
