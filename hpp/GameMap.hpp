@@ -17,7 +17,7 @@ public:
     ~GameMap() = default;
 
     // Object Management
-    void spawn(const std::string& objectName, float x = 0, float y = 0, float rotation = 0);
+    void spawn(const std::string& objectName, float x = 0, float y = 0, float rotation = 0,sf::Vector2f vel=sf::Vector2f(0,0));
     void spawn(Object* object);
     void removeDeadObjects();
 

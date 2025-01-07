@@ -115,7 +115,6 @@ void GameMap::stopAllSounds()
     {
         sound.stop();
     }
-    // If you have any music playing, stop it too
     // gameMusic.stop();
 }
 void GameMap::changePart(int x, int y, bool teleport)
@@ -250,7 +249,7 @@ void GameMap::clearCaches()
 void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 {
     const float MAX_SPEED_THRESHOLD = 200.0f; // pixels per second
-    const int MAX_SUBSTEPS = 10;              // Prevent excessive subdivision
+    const int MAX_SUBSTEPS = 15;              // Prevent excessive subdivision
 
     // Update camera and apply view
     m_camera.update(deltaTime);
@@ -270,7 +269,6 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
     {
         float objectSpeed = std::sqrt(object->getVelocity().x * object->getVelocity().x +
                                       object->getVelocity().y * object->getVelocity().y);
-
         if (objectSpeed > MAX_SPEED_THRESHOLD)
         {
             // Break movement into smaller substeps
@@ -408,7 +406,7 @@ void GameMap::drawObjects(sf::RenderWindow &window) const
     }
 }
 
-void GameMap::spawn(const std::string &objectName, float x, float y, float rotation)
+void GameMap::spawn(const std::string &objectName, float x, float y, float rotation,sf::Vector2f vel)
 {
     sf::Transformable transform;
     transform.setPosition(x, y);
@@ -416,6 +414,9 @@ void GameMap::spawn(const std::string &objectName, float x, float y, float rotat
     Object *object = ObjectFactory::createObject(objectName, transform);
     if (object)
     {
+        if(vel!=sf::Vector2f(0,0)){
+            object->velocity=vel;
+        }
         spawn(object);
     }
 }

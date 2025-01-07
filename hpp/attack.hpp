@@ -16,7 +16,6 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
 
 private:
-    sf::Vector2f velocity;
     bool fc;
 };
 
@@ -30,7 +29,6 @@ public:
 
 private:
     sf::Sprite secondSprite;
-    sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;
 };
@@ -43,7 +41,6 @@ public:
     void onCollision(Sprite *other) override;
 
 private:
-    sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;
 };
@@ -56,7 +53,6 @@ void onCollision(Sprite *other) override;
     void draw(sf::RenderWindow& window) const override;
 
 private:
-    sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;
 };
@@ -67,7 +63,6 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
 
 private:
-    sf::Vector2f velocity;
     sf::Clock timer;
     bool fc;
 };
@@ -81,5 +76,15 @@ private:
 public:
     Boomerang(sf::Vector2f sp) ;
 
+    void update(float deltaTime, const sf::Vector2u &screenres) override;
+};
+class Boomerang2 : public Attack {
+private:
+    float timeElapsed;
+    float timeSinceLastRedirect;
+    float rotationSpeed;
+    void updateDirectionToPlayer();
+public:
+    Boomerang2(sf::Vector2f sp);
     void update(float deltaTime, const sf::Vector2u &screenres) override;
 };

@@ -11,9 +11,10 @@ EditorMap::EditorMap(sf::RenderWindow& window)
             "../imgs/arrow.png", "../imgs/pengu.png", "../imgs/HorusBrogans.png",
             "../imgs/chronostimepiece.png", "../imgs/groundbreaker.png", "../imgs/runnerspact.png",
             "../imgs/poketIkeaman.png", "../imgs/spawn.png","../imgs/bloodParticles.png","../imgs/hedgehog1.png",
-            "../imgs/woodSign.png","../imgs/sign0.png","../imgs/sign1.png","../imgs/sign2.png", "../imgs/croww.png"},
+            "../imgs/woodSign.png","../imgs/sign0.png","../imgs/sign1.png","../imgs/sign2.png", "../imgs/croww.png",
+            "../imgs/crowMann.png","../imgs/duckk.png","../imgs/chickenn.png"},
            {"../imgs/wow.png", "../imgs/woow.png", "../imgs/wooow.png", "../imgs/woooow.png",
-            "../imgs/brick.png", "../imgs/brick1.png", "../imgs/brick2.png",
+            "../imgs/brick.png", "../imgs/brick1.png", "../imgs/brick2.png","../imgs/brick3.png","../imgs/brick4.png","../imgs/brick5.png","../imgs/brick6.png",
             "../imgs/texture0.png","../imgs/texture1.png","../imgs/texture2.png"
             , "../imgs/dirt0.png", "../imgs/dirt1.png"},
            {"../imgs/background.png","../imgs/background4.png","../imgs/background5.png"},
@@ -156,8 +157,8 @@ void EditorMap::removeObject(int index) {
 }
 
 void EditorMap::addObject(int x, int y, int w, int h, const std::string& type) {
-    w = std::max(w, 10);
-    h = std::max(h, 10);
+    w = std::max(w, 16);
+    h = std::max(h, 16);
 
     sf::Vector2u windowSize = window.getSize();
     int adjustedX = x + (mx * windowSize.x);

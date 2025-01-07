@@ -1,11 +1,8 @@
 #include "../hpp/libs.hpp"
-
 Npc::Npc(sf::Vector2f position, float frameInterval, const std::string &imgPath)
     : Animation(position, frameInterval), 
-      CollisionDetector(), 
+      InteractiveObject(imgPath),
       gravity(980.0f),
-      textBox(new TextBox(sf::Vector2f(world->wndref.getPosition().x/2, 657), "", 0.007f, imgPath)), 
-      isInteracting(false),
       wasKeyPressed(false)
 {
     priorityLayer = 1;
@@ -18,20 +15,23 @@ void Npc::update(float deltaTime, const sf::Vector2u& screenres)
     {
         velocity.y += gravity * deltaTime;
         Animation::update(deltaTime, screenres);
-
+        InteractiveObject::update(deltaTime, screenres);
         handleTextBoxInput();
-        
-        if (isInteracting&&world->isPlayerValid)
-        {
-            sf::FloatRect npcBounds = getBounds();
-            sf::FloatRect playerBounds = world->playerRef->getBounds();
-            if (!npcBounds.intersects(playerBounds))
-            {
-                isInteracting = false;
-                textBox->setString("");
-            }
-        }
     }
+}
+
+void Npc::updateInteraction(float deltaTime)
+{
+    // Any continuous interaction logic can go here
+}
+
+bool Npc::shouldEndInteraction() const
+{
+    if (!world->isPlayerValid) return true;
+    
+    sf::FloatRect npcBounds = getBounds();
+    sf::FloatRect playerBounds = world->playerRef->getBounds();
+    return !npcBounds.intersects(playerBounds);
 }
 
 void Npc::handleTextBoxInput()
@@ -52,19 +52,6 @@ void Npc::draw(sf::RenderWindow& window) const
 {
     Animation::draw(window);
     textBox->draw(window);
-}
-
-void Npc::onCollision(Sprite* other)
-{
-    if (typeid(*other) == typeid(Player))
-    {
-        if (!isInteracting)
-        {
-            textBox->resetState();
-            textBox->setString(text);
-            isInteracting = true;
-        }
-    }
 }
 
 std::vector<PropertyDescriptor> Npc::getPropertyDescriptors() {

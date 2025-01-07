@@ -35,7 +35,7 @@ private:
     sf::Vector2f playerPosition;
     float baseSpeed = 100.0f;
     float minSpeed = 50.0f;
-    float maxSpeed = 300.0f;
+    float maxSpeed = 225.0f;
     float rotationSpeed = 180.0f;  // degrees per second
 
     sf::Color startColor;  // Starting color (yellow)

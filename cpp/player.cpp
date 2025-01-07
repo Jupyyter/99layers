@@ -130,11 +130,14 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
             
             isGrounded = false;
         }
+        else{
+              velocity=sf::Vector2f(0,0);
+        }
 }
 void Player::onCollision(Sprite *other)
 {
-        if (typeid(*other) == typeid(PacMan) || typeid(*other) == typeid(TableFall) || 
-            typeid(*other) == typeid(LaserBeam) || typeid(*other) == typeid(hedgehog)|| typeid(*other) == typeid(Boomerang))
+        if (!isStasis&&(typeid(*other) == typeid(PacMan) || typeid(*other) == typeid(TableFall) || 
+            typeid(*other) == typeid(LaserBeam) || typeid(*other) == typeid(hedgehog)|| typeid(*other) == typeid(Boomerang)|| typeid(*other) == typeid(Boomerang2)))
         {
             *(world->gameOver) = true;
             this->shouldBeDead = true;

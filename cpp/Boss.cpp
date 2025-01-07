@@ -53,13 +53,21 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
         direction /= distance;
     }
 
-    // Only move when player is moving
+    // Base movement speed when player is not moving
+    float baseSpeed = 40.0f;
+    // Additional speed when player is moving
+    float chaseSpeed = 50.0f;
+    
+    // Calculate final movement speed
+    float movementSpeed = baseSpeed;
     if (world->playerRef->isMoving)
     {
-        float movementSpeed = 70.0f;
-        move(direction * movementSpeed * deltaTime);
-        position += direction * movementSpeed * deltaTime;
+        movementSpeed += chaseSpeed;
     }
+
+    // Apply movement
+    move(direction * movementSpeed * deltaTime);
+    position += direction * movementSpeed * deltaTime;
 
     updateEyePosition();
 
@@ -95,7 +103,7 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
     switch (currentPhase)
     {
     case 1: // First phase
-        if (ltimer.getElapsedTime().asSeconds() >= 10.0f)
+        if (ltimer.getElapsedTime().asSeconds() >= 5.0f)
         {
             world->spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
@@ -103,12 +111,12 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
         break;
 
     case 2: // Second phase
-        if (ltimer.getElapsedTime().asSeconds() >= 5.0f)
+        if (ltimer.getElapsedTime().asSeconds() >= 1.0f)
         {
             world->spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
         }
-        if (ttimer.getElapsedTime().asSeconds() >= 10.0f)
+        if (ttimer.getElapsedTime().asSeconds() >= 70.0f)
         {
             world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
             ttimer.restart();
@@ -116,7 +124,7 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
         break;
 
     case 3: // Final phase
-        if (ltimer.getElapsedTime().asSeconds() >= 0.05f)
+        if (ltimer.getElapsedTime().asSeconds() >= 0.5f)
         {
             world->spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();

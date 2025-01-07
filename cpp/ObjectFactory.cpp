@@ -55,7 +55,9 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
     case "plank"_hash:
         obj = new Plank(transform.getPosition());
         break;
-    case "table"_hash:
+    case "table"_hash:{
+        
+    }
         obj = new TableFall(transform.getPosition());
         break;
     case "adidas"_hash:
@@ -116,16 +118,28 @@ Object *ObjectFactory::createObject(const std::string &type, sf::Transformable t
     case "sign2"_hash:
         obj = new sign2(transform.getPosition());
         break;
-    case "TableFall"_hash:{
-        obj = new TableFall(transform.getPosition());
-        break;
-    }
     case "croww"_hash:{
         obj = new crow(transform.getPosition());
         break;
     }
+    case "crowMann"_hash:{
+        obj = new crowMan(transform.getPosition());
+        break;
+    }
+    case "duckk"_hash:{
+        obj = new duck(transform.getPosition());
+        break;
+    }
+    case "chickenn"_hash:{
+        obj = new chicken(transform.getPosition());
+        break;
+    }
     case "boomerangg"_hash:{
         obj = new Boomerang(transform.getPosition());
+        break;
+    }
+    case "boomerangg2"_hash:{
+        obj = new Boomerang2(transform.getPosition());
         break;
     }
     }
@@ -173,7 +187,13 @@ std::vector<PropertyDescriptor> ObjectFactory::getPropertyDescriptors(const std:
         return sign1::getPropertyDescriptors();
     case "spawn"_hash:
         return SpawnPoint::getPropertyDescriptors();
-        case "bloodParticles"_hash:
+    case "crowMann"_hash:
+        return crowMan::getPropertyDescriptors();
+    case "duckk"_hash:
+        return duck::getPropertyDescriptors();
+    case "chickenn"_hash:
+        return chicken::getPropertyDescriptors();
+    case "bloodParticles"_hash:
     return bloodParticles::getPropertyDescriptors();
 case "bloodParticle"_hash:
         return bloodParticle::getPropertyDescriptors();

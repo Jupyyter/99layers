@@ -46,6 +46,7 @@
 #include "bloodParticle.hpp"
 #include "laserEnd.hpp"
 #include "TextBox.hpp"
+#include "InteractiveObject.hpp"
 #include "idk.hpp"
 #include "attack.hpp"
 #include "Boss.hpp"

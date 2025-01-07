@@ -19,3 +19,24 @@ public:
 private:
     void loadSprite();
 };
+
+class crowMan : public Npc{
+public:
+    crowMan(sf::Vector2f position);
+private:
+    void loadSprite();
+};
+
+class duck : public Npc{
+public:
+    duck(sf::Vector2f position);
+private:
+    void loadSprite();
+};
+
+class chicken : public Npc{
+public:
+    chicken(sf::Vector2f position);
+private:
+    void loadSprite();
+};
