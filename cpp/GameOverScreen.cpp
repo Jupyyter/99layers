@@ -26,7 +26,7 @@ void GameOverScreen::initializeText() {
     gameOverText.setFillColor(sf::Color::White);
     
     returnToMenuText.setFont(font);
-    returnToMenuText.setString("Return to Menu");
+    returnToMenuText.setString("try again");
     returnToMenuText.setCharacterSize(30);
     returnToMenuText.setFillColor(sf::Color::Black);
 }

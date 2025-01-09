@@ -292,7 +292,12 @@ void GameMap::handleResize(const sf::Vector2u& newSize)
 {
     updateViewport();
 }
-
+void GameMap::handleResize(){
+    if (world->playerRef->inventory)
+        {
+            world->playerRef->inventory->updateScale();
+        }
+}
 void GameMap::updateViewBounds()
 {
     sf::Vector2f viewCenter = m_camera.getPosition();

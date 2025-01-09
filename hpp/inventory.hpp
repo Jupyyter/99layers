@@ -15,10 +15,19 @@ public:
     void moveItemToActiveSlot(int itemIndex, int slotIndex);
     void saveItems();
 
+void updateItemScaling();
+    void updateTextScaling();
+    float m_currentScale;
     sf::RectangleShape borderHighlight;
     std::vector<int> activeSlots;
-
+void updateScale();
+void handleScaling();
 private:
+    sf::Vector2u m_lastWindowSize;
+sf::Vector2f m_originalScale;
+    sf::Vector2f m_baseResolution;
+    void centerPanel();
+    float getScaleFactor() const;
     void loadResources();
     void setupUI();
     void setupTexts();

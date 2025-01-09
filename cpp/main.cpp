@@ -24,12 +24,12 @@ int main()
     GameOverScreen gameOverScreen(window);
     Menu menu(window);
     GameState currentState = GameState::Menu;
-    GameState previousState = GameState::Menu;  // Track previous state for transitions
+    GameState previousState = GameState::Menu;
 
     sf::Clock frameClock;
     sf::Clock updateClock;
-    sf::Clock gameOverTransitionClock;  // New clock for game over transition
-    bool inGameOverTransition = false;  // Flag to track if we're in transition
+    sf::Clock gameOverTransitionClock;
+    bool inGameOverTransition = false;
     const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
     const float maxDeltaTime = 1.0f / 30.0f;
 
@@ -40,24 +40,30 @@ int main()
 
         sf::Event event;
         while (window.pollEvent(event))
-{
-    if (event.type == sf::Event::Closed)
-    {
-        window.close();
-    }
-    else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F1)
-    {
-        world->toggleFullscreen();
-    }
-    else if (event.type == sf::Event::Resized)
-    {
-        world->handleResize(window.getSize());
-    }
-}
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                window.close();
+            }
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F1)
+            {
+                world->toggleFullscreen();
+                // Force inventory to update its scaling on next open
+                if (world->playerRef->inventory)
+                {
+                    world->playerRef->inventory->handleScaling();
+                }
+            }
+            else if (event.type == sf::Event::Resized)
+            {
+                world->handleResize(window.getSize());
+                // Add this line to handle inventory scaling
+                world->handleResize();
+            }
+        }
 
         window.clear(sf::Color::Black);
 
-        // Handle state transitions and music
         if (currentState != previousState)
         {
             if (previousState == GameState::GameOver)
@@ -69,65 +75,67 @@ int main()
 
         switch (currentState)
         {
-            case GameState::Menu:
-                menu.updateButtonColor();
-                if (event.type == sf::Event::MouseButtonPressed && 
-                    event.mouseButton.button == sf::Mouse::Left && 
-                    menu.isPlayButtonClicked())
-                {
-                    world->spawnObjects();
-                    gameOver = false;
-                    currentState = GameState::CutScene;
-                    updateClock.restart();
-                }
-                menu.draw();
-                break;
+        case GameState::Menu:
+            menu.updateButtonColor();
+            if (event.type == sf::Event::MouseButtonPressed &&
+                event.mouseButton.button == sf::Mouse::Left &&
+                menu.isPlayButtonClicked())
+            {
+                world->spawnObjects();
+                gameOver = false;
+                currentState = GameState::CutScene;
+                updateClock.restart();
+            }
+            menu.draw();
+            break;
 
-            case GameState::CutScene:
-                if (cutScene.update(deltaTime))
-                {
-                    currentState = GameState::Playing;
-                }
-                cutScene.draw(window);
-                break;
+        case GameState::CutScene:
+            if (cutScene.update(deltaTime))
+            {
+                currentState = GameState::Playing;
+            }
+            cutScene.draw(window);
+            break;
 
-            case GameState::Playing:
-                if (gameOver && !inGameOverTransition)
-                {
-                    // Start the transition period
-                    inGameOverTransition = true;
-                    gameOverTransitionClock.restart();
-                }
+        case GameState::Playing:
+            if (gameOver && !inGameOverTransition)
+            {
+                inGameOverTransition = true;
+                gameOverTransitionClock.restart();
+            }
 
-                if (inGameOverTransition && gameOverTransitionClock.getElapsedTime().asSeconds() >= 2.0f)
-                {
-                    // Transition period is over, move to game over state
-                    world->stopAllSounds();
-                    currentState = GameState::GameOver;
-                    inGameOverTransition = false;
-                }
+            if (inGameOverTransition && gameOverTransitionClock.getElapsedTime().asSeconds() >= 2.0f)
+            {
+                world->stopAllSounds();
+                currentState = GameState::GameOver;
+                inGameOverTransition = false;
+            }
 
-                // Continue updating and drawing the game
-                if(world->isPlayerValid){
-                    world->playerRef->checkBounds( window.getSize()); // this is literally a skill issue
-                }
-                world->updateObjects(deltaTime, window.getSize());
-                world->removeDeadObjects();
-                world->drawObjects(window);
-                break;
+            if (world->isPlayerValid)
+            {
+                world->playerRef->checkBounds(window.getSize());
+            }
+            world->updateObjects(deltaTime, window.getSize());
+            world->removeDeadObjects();
+            world->drawObjects(window);
+            break;
 
-            case GameState::GameOver:
-                if (gameOverScreen.handleEvent(event))
-                {
-                    currentState = GameState::Menu;
-                }
-                if (!gameOverScreen.isPlayingMusic())
-                {
-                    gameOverScreen.playMusic();
-                    world->deleteObjects();
-                }
-                gameOverScreen.draw();
-                break;
+        case GameState::GameOver:
+            if (gameOverScreen.handleEvent(event))
+            {
+                // Reset game state for new gameplay
+                world->deleteObjects();
+                world->spawnObjects();
+                gameOver = false;
+                currentState = GameState::Playing; // Changed from Menu to Playing
+                gameOverScreen.stopMusic();
+            }
+            if (!gameOverScreen.isPlayingMusic())
+            {
+                gameOverScreen.playMusic();
+            }
+            gameOverScreen.draw();
+            break;
         }
 
         window.display();

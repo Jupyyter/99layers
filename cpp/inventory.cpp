@@ -1,16 +1,18 @@
 #include "../hpp/libs.hpp"
 
-Inventory::Inventory() : Sprite(sf::Vector2f(world->getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
-                         world->getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f)), 
-                         pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), 
-                         movingItem(false), activeSlots(3, -1) {
+Inventory::Inventory() : Sprite(sf::Vector2f(0, 0)), 
+    pgcount(1), selectedItem(-1), shouldDraw(false), fc(true), 
+    movingItem(false), activeSlots(3, -1),
+    m_baseResolution(1024, 768),
+    m_lastWindowSize(1024, 768)  // Initialize with default window size
+{
     priorityLayer = 777;
-    // Initialize active array
     for (int i = 0; i < 3; i++) {
         active[i] = nullptr;
     }
     loadResources();
 }
+
 
 void Inventory::loadResources() {
     font.loadFromFile("../fonts/font.ttf");
@@ -70,6 +72,7 @@ void Inventory::setupTexts() {
 void Inventory::update(float deltaTime, const sf::Vector2u &screenres) {
     handleInventoryToggle();
     if (shouldDraw) {
+        handleScaling();  // Check for window size changes while inventory is open
         handleItemSelection();
         handleItemMovement();
     }
@@ -84,10 +87,20 @@ void Inventory::handleInventoryToggle() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !movingItem) {
         if (fc) {
             shouldDraw = !shouldDraw;
+            if (shouldDraw) {
+                handleScaling(); // Add scaling update when opening inventory
+            }
             updateItemVisibility();
             fc = false;
         }
     } else fc = true;
+}
+void Inventory::handleScaling() {
+    sf::Vector2u currentSize = world->wndref.getSize();
+    if (currentSize != m_lastWindowSize) {
+        updateScale();
+        m_lastWindowSize = currentSize;
+    }
 }
 void Inventory::updateItemVisibility() {
     for (auto &item : allItems) {
@@ -267,7 +280,162 @@ void Inventory::moveItemToActiveSlot(int itemIndex, int slotIndex) {
         }
     }
 }
+void Inventory::updateItemScaling() {
+    float scaleFactor = getScaleFactor();
+    float cellWidth = cellSprite[0].getGlobalBounds().width;
+    float cellHeight = cellSprite[0].getGlobalBounds().height;
 
+    // Scale all items in inventory
+    for (size_t i = 0; i < ownedItems.size(); i++) {
+        Item* item = allItems[ownedItems[i]];
+        float scaleX = cellWidth / item->texture.getSize().x;
+        float scaleY = cellHeight / item->texture.getSize().y;
+        item->sprite.setScale(scaleX, scaleY);
+    }
+
+    // Scale active items
+    for (int i = 0; i < 3; i++) {
+        if (activeSlots[i] != -1) {
+            Item* item = allItems[activeSlots[i]];
+            float scaleX = cellWidth / item->texture.getSize().x;
+            float scaleY = cellHeight / item->texture.getSize().y;
+            item->sprite.setScale(scaleX, scaleY);
+        }
+    }
+
+    // Update selected item scaling if one is selected
+    if (selectedItem != -1) {
+        selectedItemS.setScale(
+            cellWidth / allItems[selectedItem]->texture.getSize().x,
+            cellHeight / allItems[selectedItem]->texture.getSize().y
+        );
+    }
+}
+
+void Inventory::updateTextScaling() {
+    float scaleFactor = getScaleFactor();
+    
+    // Base text sizes
+    const float BASE_HEADER_SIZE = 20.0f;
+    const float BASE_SUBHEADER_SIZE = 16.0f;
+    const float BASE_INFO_SIZE = 14.0f;
+    
+    // Update header texts
+    infoText.setCharacterSize(static_cast<unsigned int>(BASE_HEADER_SIZE * scaleFactor));
+    itemsText.setCharacterSize(static_cast<unsigned int>(BASE_HEADER_SIZE * scaleFactor));
+    activeItemsText.setCharacterSize(static_cast<unsigned int>(BASE_HEADER_SIZE * scaleFactor));
+    
+    // Update shortcut texts
+    zText.setCharacterSize(static_cast<unsigned int>(BASE_SUBHEADER_SIZE * scaleFactor));
+    xText.setCharacterSize(static_cast<unsigned int>(BASE_SUBHEADER_SIZE * scaleFactor));
+    cText.setCharacterSize(static_cast<unsigned int>(BASE_SUBHEADER_SIZE * scaleFactor));
+    
+    // Update item info text
+    text.setCharacterSize(static_cast<unsigned int>(BASE_INFO_SIZE * scaleFactor));
+    
+    // Adjust text positions after scaling
+    float infoSectionX = cellSprite[4].getPosition().x + cellSprite[4].getGlobalBounds().width + (40 * scaleFactor);
+    
+    // Reposition texts
+    infoText.setPosition(infoSectionX, selectedSquare.getPosition().y - infoText.getGlobalBounds().height - 10);
+    itemsText.setPosition(cellSprite[0].getPosition().x, cellSprite[0].getPosition().y - itemsText.getGlobalBounds().height - 10);
+    activeItemsText.setPosition(activeCellS[0].getPosition().x, activeCellS[0].getPosition().y - activeItemsText.getGlobalBounds().height - 10);
+    
+    // Position shortcut texts
+    for (int i = 0; i < 3; i++) {
+        sf::Text* shortcutText = (i == 0) ? &zText : (i == 1) ? &xText : &cText;
+        shortcutText->setPosition(
+            activeCellS[i].getPosition().x + activeCellS[i].getGlobalBounds().width / 2 - shortcutText->getGlobalBounds().width / 2,
+            activeCellS[i].getPosition().y + activeCellS[i].getGlobalBounds().height + 5 * scaleFactor
+        );
+    }
+    
+    // Update info text position if an item is selected
+    if (selectedItem != -1) {
+        text.setPosition(
+            selectedSquare.getPosition().x,
+            selectedSquare.getPosition().y + selectedSquare.getGlobalBounds().height + 10 * scaleFactor
+        );
+    }
+}
+void Inventory::updateScale() {
+    float scaleFactor = getScaleFactor();
+    m_currentScale = scaleFactor;  // Store current scale factor
+    
+    // Scale the UI elements first
+    bpSprite.setScale(scaleFactor, scaleFactor);
+    for (int i = 0; i < 40; i++) {
+        cellSprite[i].setScale(scaleFactor, scaleFactor);
+    }
+    for (int i = 0; i < 3; i++) {
+        activeCellS[i].setScale(scaleFactor, scaleFactor);
+    }
+    selectedSquare.setScale(scaleFactor, scaleFactor);
+    
+    // Update positions
+    centerPanel();
+    
+    // Update item scaling
+    updateItemScaling();
+    
+    // Update text scaling and positions
+    updateTextScaling();
+    
+    // Update border highlight
+    borderHighlight.setSize(sf::Vector2f(
+        cellTex.getSize().x * scaleFactor,
+        cellTex.getSize().y * scaleFactor
+    ));
+}
+void Inventory::centerPanel()
+{
+    sf::Vector2f viewSize = static_cast<sf::Vector2f>(world->wndref.getSize());
+    sf::Vector2f viewCenter = viewSize / 2.0f;
+    
+    // Center the main panel
+    bpSprite.setPosition(
+        viewCenter.x - bpSprite.getGlobalBounds().width / 2.0f,
+        viewCenter.y - bpSprite.getGlobalBounds().height / 2.0f
+    );
+    
+    // Update cell positions relative to panel
+    float scaleFactor = getScaleFactor();
+    for (int i = 0; i < 40; i++) {
+        cellSprite[i].setPosition(
+            bpSprite.getPosition().x + (40 * scaleFactor) + (i % 5) * (cellTex.getSize().x * scaleFactor),
+            bpSprite.getPosition().y + (40 * scaleFactor) + (i / 5) * (cellTex.getSize().y * scaleFactor)
+        );
+    }
+    
+    // Update active cells positions
+    float infoSectionX = cellSprite[4].getPosition().x + cellSprite[4].getGlobalBounds().width + (40 * scaleFactor);
+    selectedSquare.setPosition(infoSectionX, bpSprite.getPosition().y + (80 * scaleFactor));
+    selectedItemS.setPosition(selectedSquare.getPosition());
+    
+    for (int i = 0; i < 3; i++) {
+        activeCellS[i].setPosition(
+            cellSprite[35].getPosition().x + i * activeCellS[i].getGlobalBounds().width,
+            cellSprite[39].getPosition().y + cellSprite[39].getGlobalBounds().height + (40 * scaleFactor)
+        );
+    }
+    
+    // Update text positions
+    setupTexts(); // This will reposition all text elements
+    
+    // Update item positions
+    updateItemPositions();
+}
+float Inventory::getScaleFactor() const
+{
+    sf::Vector2f currentSize = static_cast<sf::Vector2f>(world->wndref.getSize());
+    sf::Vector2f baseSize = m_baseResolution;
+    
+    float scaleX = currentSize.x / baseSize.x;
+    float scaleY = currentSize.y / baseSize.y;
+    
+    // Use the smaller scale to maintain aspect ratio
+    return std::min(scaleX, scaleY);
+}
 void Inventory::updateItemPositions() {
     for (size_t i = 0; i < ownedItems.size(); i++)
         allItems[ownedItems[i]]->position=(cellSprite[i].getPosition());
@@ -281,12 +449,21 @@ void Inventory::selectItem(int i, bool isActiveSlot) {
     if (selectedItem != -1) {
         Item *item = allItems[selectedItem];
         selectedItemS.setTexture(item->texture, true);
-        selectedItemS.setScale(item->sprite.getScale());
+        
+        float cellWidth = cellSprite[0].getGlobalBounds().width;
+        float cellHeight = cellSprite[0].getGlobalBounds().height;
+        
+        selectedItemS.setScale(
+            cellWidth / item->texture.getSize().x,
+            cellHeight / item->texture.getSize().y
+        );
+        
         borderHighlight.setPosition(isActiveSlot ? activeCellS[i].getPosition() : cellSprite[i].getPosition());
 
+        // Update text content and scaling
         std::stringstream ss;
         ss << item->name << "\n\n";
-        
+
         int fds = std::round((item->speedb - 1.0f) * 100);
         int fdj = std::round((item->jumpb - 1.0f) * 100);
         int fdsi = std::round((item->sizet - 1.0f) * 100);
@@ -296,12 +473,14 @@ void Inventory::selectItem(int i, bool isActiveSlot) {
         if (fdsi != 0) ss << fdsi << "% size\n";
 
         ss << "\n" << item->description << "\n\n" << item->customText();
-        
+
         text.setString(ss.str());
-        text.setPosition(selectedSquare.getPosition().x, 
-                         selectedSquare.getPosition().y + selectedSquare.getGlobalBounds().height + 10);
-        text.setCharacterSize(14);
+        text.setCharacterSize(static_cast<unsigned int>(14 * m_currentScale));
         text.setFont(font);
+        
+        float infoSectionX = selectedSquare.getPosition().x;
+        float infoSectionY = selectedSquare.getPosition().y + selectedSquare.getGlobalBounds().height + 10 * m_currentScale;
+        text.setPosition(infoSectionX, infoSectionY);
     }
 }
 
