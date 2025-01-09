@@ -40,12 +40,20 @@ int main()
 
         sf::Event event;
         while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }
-        }
+{
+    if (event.type == sf::Event::Closed)
+    {
+        window.close();
+    }
+    else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F1)
+    {
+        world->toggleFullscreen();
+    }
+    else if (event.type == sf::Event::Resized)
+    {
+        world->handleResize(window.getSize());
+    }
+}
 
         window.clear(sf::Color::Black);
 

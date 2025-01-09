@@ -55,7 +55,18 @@ void setItemRespawnOff(int id);
 void spawnObjects();
     void deleteObjects();
     sf::Vector2f playerSpawnPosition;
+
+    void toggleFullscreen();
+    void handleResize(const sf::Vector2u& newSize);
 private:
+
+sf::Vector2f m_originalResolution;
+    sf::Vector2f m_viewportPosition;
+    sf::Vector2f m_viewportSize;
+    bool m_isFullscreen;
+
+    void updateViewport();
+
     // Internal Object Management
     struct ObjectCompare {
         bool operator()(const std::unique_ptr<Object>& a, const std::unique_ptr<Object>& b) const {

@@ -53,6 +53,9 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
         direction /= distance;
     }
 
+    // Reduce Y movement by half
+    direction.y *= 0.5f;
+
     // Base movement speed when player is not moving
     float baseSpeed = 40.0f;
     // Additional speed when player is moving
@@ -111,12 +114,12 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
         break;
 
     case 2: // Second phase
-        if (ltimer.getElapsedTime().asSeconds() >= 1.0f)
+        if (ltimer.getElapsedTime().asSeconds() >= 0.7f)
         {
             world->spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
         }
-        if (ttimer.getElapsedTime().asSeconds() >= 70.0f)
+        if (ttimer.getElapsedTime().asSeconds() >= 1.0f)
         {
             world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
             ttimer.restart();
@@ -124,25 +127,19 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
         break;
 
     case 3: // Final phase
-        if (ltimer.getElapsedTime().asSeconds() >= 0.5f)
+        if (ltimer.getElapsedTime().asSeconds() >= 0.2f)
         {
             world->spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
         }
-        if (ttimer.getElapsedTime().asSeconds() >= 5.0f)
+        if (ttimer.getElapsedTime().asSeconds() >= 0.5f)
         {
             world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
             ttimer.restart();
         }
-        /*if (ptimer.getElapsedTime().asSeconds() >= 7.0f)
-        {
-            world->spawn("plank", position.x, position.y, 0);
-            ptimer.restart();
-        }*/
         break;
     }
 }
-
 void Boss::draw(sf::RenderWindow &window) const
 {
     Sprite::draw(window);

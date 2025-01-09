@@ -18,6 +18,8 @@ public:
     void moveToNextPart(int dx, int dy, bool teleport = false);
     bool isMoving() const;
 
+    sf::View& getView() { return m_view; }
+
 private:
     sf::View m_view;
     sf::Vector2f m_position;

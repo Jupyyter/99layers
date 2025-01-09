@@ -2,27 +2,36 @@
 class EditorMap;
 
 GameMap::GameMap(sf::RenderWindow &wndref, bool &gameover)
-    : wndref(wndref), gameOver(&gameover), m_camera(wndref), m_currentPartX(0), m_currentPartY(0), playerRef(nullptr), isPlayerValid(true), playerSpawnPosition(sf::Vector2f(0, 0))
+    : wndref(wndref), gameOver(&gameover), m_camera(wndref),
+      m_currentPartX(0), m_currentPartY(0), playerRef(nullptr),
+      isPlayerValid(true), playerSpawnPosition(sf::Vector2f(0, 0)),
+      m_originalResolution(wndref.getSize()),
+      m_isFullscreen(false)
 {
-    // Initialize the camera
     m_camera.setSize(sf::Vector2f(wndref.getSize()));
     m_camera.setPosition(sf::Vector2f(wndref.getSize().x / 2.f, wndref.getSize().y / 2.f));
     m_camera.setZoom(1.0f);
-    m_camera.setSmoothness(25); // smoothness
+    m_camera.setSmoothness(25);
+    updateViewport();
 
-    // Other initializations
     collisionObjects.clear();
     allObjects.clear();
 }
 
 GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover)
-    : wndref(wndref), gameOver(&gameover), m_camera(wndref), m_currentPartX(0), m_currentPartY(0), playerRef(nullptr)
+    : wndref(wndref), gameOver(&gameover), m_camera(wndref),
+      m_currentPartX(0), m_currentPartY(0), playerRef(nullptr),
+      m_originalResolution(wndref.getSize()),
+      m_isFullscreen(false)
 {
     // Initialize the camera
     m_camera.setSize(sf::Vector2f(wndref.getSize()));
     m_camera.setPosition(sf::Vector2f(wndref.getSize().x / 2.f, wndref.getSize().y / 2.f));
     m_camera.setZoom(1.0f);
     m_camera.setSmoothness(25.0f); // smoothness
+
+    // Initialize viewport
+    updateViewport();
 
     // Load map from file
     loadFromFile(fname);
@@ -224,6 +233,66 @@ void GameMap::spawnObjects()
         q++;
     }
 }
+void GameMap::updateViewport()
+{
+    sf::Vector2u windowSize = wndref.getSize();
+    float windowRatio = windowSize.x / static_cast<float>(windowSize.y);
+    float gameRatio = m_originalResolution.x / m_originalResolution.y;
+    
+    if (windowRatio > gameRatio)
+    {
+        // Window is wider than game ratio - bars on sides
+        float viewHeight = windowSize.y;
+        float viewWidth = viewHeight * gameRatio;
+        m_viewportPosition.x = (windowSize.x - viewWidth) / 2.0f;
+        m_viewportPosition.y = 0;
+        m_viewportSize.x = viewWidth;
+        m_viewportSize.y = viewHeight;
+    }
+    else
+    {
+        // Window is taller than game ratio - bars on top/bottom
+        float viewWidth = windowSize.x;
+        float viewHeight = viewWidth / gameRatio;
+        m_viewportPosition.x = 0;
+        m_viewportPosition.y = (windowSize.y - viewHeight) / 2.0f;
+        m_viewportSize.x = viewWidth;
+        m_viewportSize.y = viewHeight;
+    }
+
+    // Update the view's viewport
+    sf::View& view = m_camera.getView(); // You'll need to add a getter for m_view in Camera class
+    view.setViewport(sf::FloatRect(
+        m_viewportPosition.x / windowSize.x,
+        m_viewportPosition.y / windowSize.y,
+        m_viewportSize.x / windowSize.x,
+        m_viewportSize.y / windowSize.y
+    ));
+}
+void GameMap::toggleFullscreen()
+{
+    m_isFullscreen = !m_isFullscreen;
+    
+    if (m_isFullscreen)
+    {
+        wndref.create(sf::VideoMode::getDesktopMode(), "traiasca georgescu", sf::Style::Fullscreen);
+    }
+    else
+    {
+        wndref.create(sf::VideoMode(m_originalResolution.x, m_originalResolution.y), 
+                     "traiasca georgescu", 
+                     sf::Style::Titlebar | sf::Style::Close);
+    }
+    
+    wndref.setVerticalSyncEnabled(true);
+    updateViewport();
+}
+
+void GameMap::handleResize(const sf::Vector2u& newSize)
+{
+    updateViewport();
+}
+
 void GameMap::updateViewBounds()
 {
     sf::Vector2f viewCenter = m_camera.getPosition();
@@ -249,7 +318,7 @@ void GameMap::clearCaches()
 void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
 {
     const float MAX_SPEED_THRESHOLD = 200.0f; // pixels per second
-    const int MAX_SUBSTEPS = 15;              // Prevent excessive subdivision
+    const int MAX_SUBSTEPS = 10;              // Prevent excessive subdivision
 
     // Update camera and apply view
     m_camera.update(deltaTime);
