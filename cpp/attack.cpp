@@ -108,7 +108,7 @@ akBullet::akBullet(sf::Vector2f sp, float rotangle) : Attack(sp)
     // Calculate the velocity based on the rotation angle
     float radians = rotangle * 3.14159f / 180.f;
     velocity = sf::Vector2f(std::cos(radians), std::sin(radians));
-    velocity *= 787.0f;
+    velocity *= 797.0f;
 }
 void akBullet::onCollision(Sprite *other)
 {

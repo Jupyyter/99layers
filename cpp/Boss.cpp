@@ -127,12 +127,12 @@ void Boss::update(float deltaTime, const sf::Vector2u &screenres)
         break;
 
     case 3: // Final phase
-        if (ltimer.getElapsedTime().asSeconds() >= 0.2f)
+        if (ltimer.getElapsedTime().asSeconds() >= 0.22f)
         {
             world->spawn("laser", position.x, position.y, sprite.getRotation());
             ltimer.restart();
         }
-        if (ttimer.getElapsedTime().asSeconds() >= 0.5f)
+        if (ttimer.getElapsedTime().asSeconds() >= 0.7f)
         {
             world->spawn("table", playerCenter.x, world->getPartBounds().top, sprite.getRotation());
             ttimer.restart();

@@ -3,7 +3,7 @@ class TextBox : public Sprite {
 public:
     TextBox(sf::Vector2f pos, const std::string& text, float letterDelay = 0.05f, const std::string& imgPath="../imgs/hammer.jpg");
     void update(float deltaTime, const sf::Vector2u& screenres) override;
-    void draw(sf::RenderWindow& window) const  override;
+    void draw(sf::RenderWindow& window) const override;
 
     bool isOnScreen() const override { return visible; }
     
@@ -20,21 +20,35 @@ public:
     void resetState();
 
 private:
+    // UI Elements
     const Object* parent;
     mutable sf::RectangleShape background;
     std::string textContent;
     mutable sf::Text visibleContent;
     sf::Font font;
+    
+    // Character image elements
+    sf::Texture characterTexture;
+    mutable sf::Sprite characterSprite;
+    bool hasCharacterImage;
+    
+    // Audio elements
+    sf::SoundBuffer completeBuffer;
+    mutable sf::Sound completeSound;
+    
+    // State variables
     float letterDelay;
     float elapsedTime;
     int currentLetter;
     bool visible;
     bool highlighted;
-
-    sf::Texture characterTexture;
-    mutable sf::Sprite characterSprite;
-    bool hasCharacterImage;
-
-    sf::SoundBuffer completeBuffer;
-    mutable sf::Sound completeSound;
+    
+    // Scaling and positioning
+    sf::Vector2f m_originalResolution;
+    float m_baseTextSize;
+    
+    // Helper methods
+    void updateTextBoxPosition(const sf::RenderWindow& window) const;
+    void updateTextBoxScale(const sf::RenderWindow& window) const;
+    static std::string processEscapeSequences(const std::string& input);
 };

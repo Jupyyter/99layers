@@ -43,6 +43,7 @@ int main()
         {
             if (event.type == sf::Event::Closed)
             {
+                
                 window.close();
             }
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F1)
@@ -121,13 +122,13 @@ int main()
             break;
 
         case GameState::GameOver:
+            world->deleteObjects();
             if (gameOverScreen.handleEvent(event))
             {
                 // Reset game state for new gameplay
-                world->deleteObjects();
                 world->spawnObjects();
                 gameOver = false;
-                currentState = GameState::Playing; // Changed from Menu to Playing
+                currentState = GameState::Playing;
                 gameOverScreen.stopMusic();
             }
             if (!gameOverScreen.isPlayingMusic())

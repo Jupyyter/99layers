@@ -148,7 +148,7 @@ sf::FloatRect GameMap::getPartBounds() const
 }
 void GameMap::deleteObjects()
 {
-    resetCamera();
+    //resetCamera();
     collisionObjects.clear();
     visibleObjects.clear();
     allObjects.clear();
