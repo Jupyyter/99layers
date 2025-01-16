@@ -17,7 +17,8 @@ EditorMap::EditorMap(sf::RenderWindow& window)
             "../imgs/brick.png", "../imgs/brick1.png", "../imgs/brick2.png","../imgs/brick3.png","../imgs/brick4.png","../imgs/brick5.png","../imgs/brick6.png",
             "../imgs/texture0.png","../imgs/texture1.png","../imgs/texture2.png"
             , "../imgs/dirt0.png", "../imgs/dirt1.png"},
-           {"../imgs/background.png","../imgs/background4.png","../imgs/background5.png"},
+           {"../imgs/background.png","../imgs/background4.png","../imgs/cave.png","../imgs/ikea0.png","../imgs/ikea1.png","../imgs/ikea2.png","../imgs/ikea3.png",
+           "../imgs/ikea4.png","../imgs/ikea5.png","../imgs/mountainTop.png","../imgs/redForest.png"},
            window)
 {
     view.setSize(window.getSize().x, window.getSize().y);

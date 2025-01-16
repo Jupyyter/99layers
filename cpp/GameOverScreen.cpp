@@ -1,11 +1,10 @@
 #include "../hpp/libs.hpp"
 
-GameOverScreen::GameOverScreen(sf::RenderWindow & window) : windowr(window) {
+GameOverScreen::GameOverScreen(sf::RenderWindow & window) : windowr(window), isButtonHovered(false) {
     if (!font.loadFromFile("../fonts//ARIAL.TTF")) {
         // Handle font loading error
     }
     
-    // Load the music file
     if (!gameOverMusic.openFromFile("../audio//gameOverMusic.wav")) {
         // Handle music loading error
     }
@@ -15,7 +14,6 @@ GameOverScreen::GameOverScreen(sf::RenderWindow & window) : windowr(window) {
 }
 
 GameOverScreen::~GameOverScreen() {
-    // Stop the music when the screen is destroyed
     gameOverMusic.stop();
 }
 
@@ -26,7 +24,7 @@ void GameOverScreen::initializeText() {
     gameOverText.setFillColor(sf::Color::White);
     
     returnToMenuText.setFont(font);
-    returnToMenuText.setString("try again");
+    returnToMenuText.setString("die again later");
     returnToMenuText.setCharacterSize(30);
     returnToMenuText.setFillColor(sf::Color::Black);
 }
@@ -36,25 +34,29 @@ void GameOverScreen::initializeButton() {
     returnToMenuButton.setFillColor(sf::Color::White);
 }
 
+void GameOverScreen::updateButtonColor() {
+    returnToMenuButton.setFillColor(isButtonHovered ? sf::Color::Red : sf::Color::White);
+}
+
 void GameOverScreen::draw() {
-    // Save the current view
     sf::View originalView = windowr.getView();
-    // Reset the view to the default (window coordinates)
     windowr.setView(windowr.getDefaultView());
     
-    // Center the game over text
+    // Update button hover state
+    sf::Vector2i mousePos = sf::Mouse::getPosition(windowr);
+    isButtonHovered = returnToMenuButton.getGlobalBounds().contains(mousePos.x, mousePos.y);
+    updateButtonColor();
+    
     gameOverText.setPosition(
         windowr.getSize().x / 2 - gameOverText.getGlobalBounds().width / 2,
         windowr.getSize().y / 3 - gameOverText.getGlobalBounds().height / 2
     );
     
-    // Position the button
     returnToMenuButton.setPosition(
         windowr.getSize().x / 2 - returnToMenuButton.getSize().x / 2,
         windowr.getSize().y * 2 / 3 - returnToMenuButton.getSize().y / 2
     );
     
-    // Center the text on the button
     returnToMenuText.setPosition(
         returnToMenuButton.getPosition().x + (returnToMenuButton.getSize().x - returnToMenuText.getGlobalBounds().width) / 2,
         returnToMenuButton.getPosition().y + (returnToMenuButton.getSize().y - returnToMenuText.getGlobalBounds().height) / 2 - 5
@@ -64,35 +66,32 @@ void GameOverScreen::draw() {
     windowr.draw(returnToMenuButton);
     windowr.draw(returnToMenuText);
     
-    // Restore the original view
     windowr.setView(originalView);
 }
 
 bool GameOverScreen::handleEvent(const sf::Event& event) {
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        // Convert mouse position to window coordinates
         sf::Vector2i mousePosition = sf::Mouse::getPosition(windowr);
         sf::Vector2f worldPos = windowr.mapPixelToCoords(mousePosition);
         
         if (returnToMenuButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
-            // Stop the music when returning to menu
             gameOverMusic.stop();
-            return true;  // Return true to indicate that the button was clicked
+            return true;
         }
     }
+    
     return false;
 }
-void GameOverScreen::playMusic(){
-    // Set the music to loop
+
+void GameOverScreen::playMusic() {
     gameOverMusic.setLoop(true);
-    
-    // Start playing the music
     gameOverMusic.play();
 }
-void GameOverScreen::stopMusic(){
-    
+
+void GameOverScreen::stopMusic() {
     gameOverMusic.stop();
 }
+
 bool GameOverScreen::isPlayingMusic() {
-        return gameOverMusic.getStatus() == sf::Music::Playing;
-    }
+    return gameOverMusic.getStatus() == sf::Music::Playing;
+}

@@ -1,20 +1,23 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 
 class Menu {
-public:
-    Menu(sf::RenderWindow& window);
-    void draw();
-    bool handleEvent(const sf::Event& event);
-    bool isPlayButtonClicked();
-    void updateButtonColor();
-    
 private:
-    sf::RenderWindow& windowr;
-    sf::RectangleShape playButton;
-    sf::Text playText;
+    sf::RenderWindow& window;
     sf::Font font;
-    
-    void initializeText();
-    void initializeButton();
+    sf::RectangleShape background;
+    sf::Text settingText;
+    sf::RectangleShape musicButton;
+    sf::Text musicButtonText;
+    bool isVisible;
+    std::vector<std::string> musicFiles;
+    size_t currentMusicIndex;
+    sf::Music& gameplayMusic;
+
+public:
+    Menu(sf::RenderWindow& window, sf::Music& gameplayMusic);
+    void toggleVisibility();
+    void draw();
+    void handleEvent(const sf::Event& event);
+    bool isMenuVisible() const { return isVisible; }
+    void updateButtonPosition();
 };

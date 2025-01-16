@@ -19,6 +19,9 @@ void Inventory::loadResources() {
     bpTex.loadFromFile("../imgs/BigPanel.jpg");
     cellTex.loadFromFile("../imgs/Cell.png");
 
+    // Initialize with base resolution scale
+    m_currentScale = getScaleFactor();
+
     bpSprite.setTexture(bpTex);
     bpSprite.setPosition(world->getPartBounds().width / 2.0f - bpSprite.getGlobalBounds().width / 2.0f,
                          world->getPartBounds().height / 2.0f - bpSprite.getGlobalBounds().height / 2.0f);
@@ -31,6 +34,10 @@ void Inventory::loadResources() {
 
     setupUI();
     setupTexts();
+    
+    // Apply initial scaling
+    updateScale();
+    centerPanel();
 }
 
 void Inventory::setupUI() {
@@ -55,18 +62,21 @@ void Inventory::setupTexts() {
     std::vector<sf::Text*> texts = {&infoText, &itemsText, &activeItemsText, &zText, &xText, &cText};
     std::vector<std::string> strings = {"Info", "Items", "Active Items", "Z/1", "X/2", "C/3"};
     std::vector<sf::Vector2f> positions = {
-        sf::Vector2f(cellSprite[4].getPosition().x + cellSprite[4].getGlobalBounds().width + 40, selectedSquare.getPosition().y - 30),
-        sf::Vector2f(cellSprite[0].getPosition().x, cellSprite[0].getPosition().y - 30),
-        sf::Vector2f(activeCellS[0].getPosition().x, activeCellS[0].getPosition().y - 30)
+        sf::Vector2f(cellSprite[4].getPosition().x + cellSprite[4].getGlobalBounds().width + 40 * m_currentScale, 
+                     selectedSquare.getPosition().y - 30 * m_currentScale),
+        sf::Vector2f(cellSprite[0].getPosition().x, 
+                     cellSprite[0].getPosition().y - 30 * m_currentScale),
+        sf::Vector2f(activeCellS[0].getPosition().x, 
+                     activeCellS[0].getPosition().y - 30 * m_currentScale)
     };
 
     for (size_t i = 0; i < texts.size(); i++) {
         texts[i]->setFont(font);
-        texts[i]->setCharacterSize(i < 3 ? 20 : 16);
+        texts[i]->setCharacterSize(static_cast<unsigned int>((i < 3 ? 20 : 16) * m_currentScale));
         texts[i]->setString(strings[i]);
         texts[i]->setPosition(i < 3 ? positions[i] : 
             sf::Vector2f(activeCellS[i-3].getPosition().x + activeCellS[i-3].getGlobalBounds().width / 2 - texts[i]->getGlobalBounds().width / 2,
-                         activeCellS[i-3].getPosition().y + activeCellS[i-3].getGlobalBounds().height + 5));
+                         activeCellS[i-3].getPosition().y + activeCellS[i-3].getGlobalBounds().height + 5 * m_currentScale));
     }
 }
 void Inventory::update(float deltaTime, const sf::Vector2u &screenres) {
@@ -460,7 +470,7 @@ void Inventory::selectItem(int i, bool isActiveSlot) {
         
         borderHighlight.setPosition(isActiveSlot ? activeCellS[i].getPosition() : cellSprite[i].getPosition());
 
-        // Update text content and scaling
+        // Update text content with proper scaling
         std::stringstream ss;
         ss << item->name << "\n\n";
 

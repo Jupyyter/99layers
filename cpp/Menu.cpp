@@ -1,85 +1,102 @@
 #include "../hpp/libs.hpp"
+Menu::Menu(sf::RenderWindow& window, sf::Music& gameplayMusic) 
+    : window(window), gameplayMusic(gameplayMusic), isVisible(false), currentMusicIndex(0) {
+    // Load available music files
+    musicFiles = {
+        "../audio/marijuana cocaina eroina crack.wav",
+        "../audio/FoochTrax - Rat King.wav"
+        // Add more music files as needed
+    };
 
-Menu::Menu(sf::RenderWindow& window) : windowr(window) 
-{
-    if (!font.loadFromFile("../fonts/ARIAL.TTF"))
-    {
+    // Load font
+    if (!font.loadFromFile("../fonts/ARIAL.TTF")) {
         // Handle font loading error
     }
-    
-    initializeText();
-    initializeButton();
+
+    // Initialize background
+    background.setSize(sf::Vector2f(700, 300));
+    background.setFillColor(sf::Color(0, 0, 0, 200));
+
+    // Initialize setting text
+    settingText.setFont(font);
+    settingText.setString("Music:");
+    settingText.setCharacterSize(24);
+    settingText.setFillColor(sf::Color::White);
+
+    // Initialize music button
+    musicButton.setSize(sf::Vector2f(500, 40));
+    musicButton.setFillColor(sf::Color::White);
+
+    // Initialize music button text
+    musicButtonText.setFont(font);
+    musicButtonText.setString(musicFiles[currentMusicIndex].substr(musicFiles[currentMusicIndex].find_last_of('/') + 1));
+    musicButtonText.setCharacterSize(20);
+    musicButtonText.setFillColor(sf::Color::Black);
+
+    updateButtonPosition();
 }
 
-void Menu::initializeText()
-{
-    playText.setFont(font);
-    playText.setString("Play");
-    playText.setCharacterSize(24);
-    playText.setFillColor(sf::Color::Black);
+void Menu::toggleVisibility() {
+    isVisible = !isVisible;
+    updateButtonPosition();
 }
 
-void Menu::initializeButton()
-{
-    playButton.setSize(sf::Vector2f(200, 50));
-    playButton.setFillColor(sf::Color::Yellow);
-}
-
-void Menu::draw()
-{
-    // Save the current view
-    sf::View originalView = windowr.getView();
-    // Reset the view to the default (window coordinates)
-    windowr.setView(windowr.getDefaultView());
-    
-    // Center the button
-    playButton.setPosition(
-        windowr.getSize().x / 2 - playButton.getSize().x / 2,
-        windowr.getSize().y / 2 - playButton.getSize().y / 2
+void Menu::updateButtonPosition() {
+    // Center the menu
+    background.setPosition(
+        (window.getSize().x - background.getSize().x) / 2,
+        (window.getSize().y - background.getSize().y) / 2
     );
-    
-    // Center the text within the button
-    playText.setPosition(
-        playButton.getPosition().x + (playButton.getSize().x - playText.getGlobalBounds().width) / 2,
-        playButton.getPosition().y + (playButton.getSize().y - playText.getGlobalBounds().height) / 2 - 5
+
+    // Position setting text
+    settingText.setPosition(
+        background.getPosition().x + 20,
+        background.getPosition().y + 50
     );
-    
-    windowr.draw(playButton);
-    windowr.draw(playText);
-    
-    // Restore the original view
-    windowr.setView(originalView);
+
+    // Position music button
+    musicButton.setPosition(
+        background.getPosition().x + 150,
+        background.getPosition().y + 45
+    );
+
+    // Position music button text
+    musicButtonText.setPosition(
+        musicButton.getPosition().x + 10,
+        musicButton.getPosition().y + 5
+    );
 }
 
-bool Menu::handleEvent(const sf::Event& event)
-{
-    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
-    {
-        sf::Vector2i mousePosition = sf::Mouse::getPosition(windowr);
-        
-        if (playButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
-        {
-            return true;  // Button was clicked
+void Menu::handleEvent(const sf::Event& event) {
+    if (!isVisible) return;
+
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        if (musicButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+            // Change to next music file
+            currentMusicIndex = (currentMusicIndex + 1) % musicFiles.size();
+            musicButtonText.setString(musicFiles[currentMusicIndex].substr(musicFiles[currentMusicIndex].find_last_of('/') + 1));
+            
+            // Stop current music and play new selection
+            gameplayMusic.stop();
+            if (gameplayMusic.openFromFile(musicFiles[currentMusicIndex])) {
+                gameplayMusic.play();
+                gameplayMusic.setLoop(true);
+            }
         }
     }
-    return false;
 }
 
-bool Menu::isPlayButtonClicked()
-{
-    sf::Vector2i mousePosition = sf::Mouse::getPosition(windowr);
-    return playButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y);
-}
+void Menu::draw() {
+    if (!isVisible) return;
 
-void Menu::updateButtonColor()
-{
-    sf::Vector2i mousePosition = sf::Mouse::getPosition(windowr);
-    if (playButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
-    {
-        playButton.setFillColor(sf::Color::Red);
-    }
-    else
-    {
-        playButton.setFillColor(sf::Color::Yellow);
-    }
+    sf::View originalView = window.getView();
+    window.setView(window.getDefaultView());
+
+    window.draw(background);
+    window.draw(settingText);
+    window.draw(musicButton);
+    window.draw(musicButtonText);
+
+    window.setView(originalView);
 }
