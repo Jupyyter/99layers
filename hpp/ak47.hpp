@@ -6,8 +6,6 @@ public:
     void update(float deltaTime,  const sf::Vector2u &screenres) override;
 
 private:
-sf::SoundBuffer shootBuffer;
-    sf::Sound shootSound;
     Player *playerRef;
     void updatePosition();
     static constexpr float PI = 3.14159265358979323846f;

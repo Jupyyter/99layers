@@ -7,14 +7,6 @@ AK47::AK47() : Sprite(sf::Vector2f(0, 0)), playerRef(world->playerRef)
     // Set the origin to the center of the sprite
     sf::FloatRect bounds = sprite.getLocalBounds();
     sprite.setOrigin(bounds.width / 2, bounds.height / 2);
-
-    // Load the sound file
-    if (!shootBuffer.loadFromFile("../audio/ak47fire.wav"))
-    {
-        // Handle error - unable to load sound file
-        std::cerr << "Error loading ak47fire.wav" << std::endl;
-    }
-    shootSound.setBuffer(shootBuffer);
 }
 void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
     if(!world->isPlayerValid){
@@ -45,8 +37,6 @@ void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
                 if (shootCooldown.getElapsedTime().asSeconds() >= shootCooldownTime) {
                     // Spawn a bullet
                     world->spawn("akBullet", gunCenter.x, gunCenter.y, sprite.getRotation());
-                    // Play the shooting sound
-                    shootSound.play();
                     // Reset the cooldown timer
                     shootCooldown.restart();
                 }
