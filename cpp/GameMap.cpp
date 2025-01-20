@@ -383,6 +383,7 @@ void GameMap::updateObjects(float deltaTime, const sf::Vector2u &windowSize)
             en1->updateSprite();
         }
     }
+    removeDeadObjects();
 }
 void GameMap::performCollisionChecks(Object *object, bool lastCheck)
 {
@@ -521,35 +522,6 @@ void GameMap::spawn(Object *object)
         std::cerr << "\nMemory allocation failed: " << e.what();
         delete object;
     }
-}
-std::vector<Sprite *> GameMap::getNearbySprites(const Sprite *sprite) const
-{
-    std::vector<Sprite *> nearby;
-    sf::FloatRect bounds = sprite->getBounds();
-
-    // Calculate grid cells to check
-    int startX = std::max(0, static_cast<int>(bounds.left / GRID_SIZE));
-    int startY = std::max(0, static_cast<int>(bounds.top / GRID_SIZE));
-    int endX = std::min(gridDimensions.x - 1, static_cast<int>((bounds.left + bounds.width) / GRID_SIZE));
-    int endY = std::min(gridDimensions.y - 1, static_cast<int>((bounds.top + bounds.height) / GRID_SIZE));
-
-    // Get sprites from relevant cells
-    std::unordered_set<Sprite *> uniqueSprites;
-    for (int x = startX; x <= endX; ++x)
-    {
-        for (int y = startY; y <= endY; ++y)
-        {
-            for (Sprite *other : spatialGrid[x][y])
-            {
-                if (other != sprite && uniqueSprites.insert(other).second)
-                {
-                    nearby.push_back(other);
-                }
-            }
-        }
-    }
-
-    return nearby;
 }
 
 std::vector<sf::Vector2f> GameMap::getTransformedBounds(const sf::Sprite &sprite) const

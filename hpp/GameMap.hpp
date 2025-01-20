@@ -126,7 +126,6 @@ private:
 
     // Add helper methods
     void updateViewBounds();
-    std::vector<Sprite *> getNearbySprites(const Sprite *sprite) const;
     bool isInView(const Sprite *sprite) const;
     void clearCaches();
 };
