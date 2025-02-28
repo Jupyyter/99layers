@@ -49,7 +49,7 @@ public:
 
     // Public References
     Player *playerRef;
-    bool *gameOver;
+    bool *gameOver,*win;
     sf::RenderWindow &wndref;
     bool isPlayerValid; // im sorry, i cant find a better/faster way than this
     std::vector<sf::Sound> gameSounds;

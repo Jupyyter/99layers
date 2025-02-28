@@ -28,10 +28,11 @@ void Player::loadAnimations()
 
 void Player::loadShaders()
 {
-       assert(this->stasishad.loadFromFile("../shaders/stasis.frag", sf::Shader::Fragment));
-       this->stasishad.setUniform("texture", sf::Shader::CurrentTexture);
+    if (!this->stasishad.loadFromFile("../shaders/stasis.frag", sf::Shader::Fragment)) {
+        std::cerr << "Failed to load stasis shader!" << std::endl;
+    }
+    this->stasishad.setUniform("texture", sf::Shader::CurrentTexture);
 }
-
 void Player::handleInput()
 {
         // Only handle horizontal input if not being pushed or if grounded
@@ -135,7 +136,7 @@ void Player::update(float deltaTime, const sf::Vector2u &screenres)
         }
 }
 void Player::onCollision(Sprite *other)
-{
+{//s
         if (!isStasis&&(typeid(*other) == typeid(PacMan) || typeid(*other) == typeid(TableFall) || 
             typeid(*other) == typeid(LaserBeam) || typeid(*other) == typeid(hedgehog)|| typeid(*other) == typeid(Boomerang)|| typeid(*other) == typeid(Boomerang2)))
         {
@@ -167,14 +168,16 @@ void Player::onCollision(Sprite *other)
 }
 void Player::draw(sf::RenderWindow &window) const
 {
-       if (isStasis)
-       {
-              window.draw(sprite, &stasishad);
-       }
-       else
-       {
-              window.draw(sprite);
-       }
+    if (isStasis)
+    {
+        sf::RenderStates states;
+        states.shader = &stasishad;
+        window.draw(sprite, states);
+    }
+    else
+    {
+        window.draw(sprite);
+    }
 }
 void Player::checkBounds(const sf::Vector2u &screenres)
 {

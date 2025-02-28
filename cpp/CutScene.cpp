@@ -1,9 +1,9 @@
-// CutScene.cpp
 #include "../hpp/libs.hpp"
 #include <algorithm>
 
 CutScene::CutScene(const std::vector<std::string>& imagePaths, const sf::Vector2u& windowSize)
-    : currentFrame(0), fadeTime(0), frameDuration(0.0f), pauseDuration(0.0f), 
+    : currentFrame(0), fadeTime(0), frameDuration(8.0f), // Total duration for each frame (fade in + stay visible + fade out)
+      fadeInDuration(2.0f), stayVisibleDuration(4.0f), fadeOutDuration(2.0f), // Durations for each phase
       isFinished(false), isPaused(false), cutSceneFinished(false), windowSize(windowSize) {
     loadTextures(imagePaths);
     if (!textures.empty()) {
@@ -17,6 +17,8 @@ void CutScene::loadTextures(const std::vector<std::string>& imagePaths) {
         sf::Texture texture;
         if (texture.loadFromFile(path)) {
             textures.push_back(texture);
+        } else {
+            std::cerr << "Failed to load cutscene image: " << path << std::endl;
         }
     }
 }
@@ -43,33 +45,27 @@ bool CutScene::update(float deltaTime) {
 
     fadeTime += deltaTime;
 
-    if (isPaused) {
-        if (fadeTime >= pauseDuration) {
-            isPaused = false;
-            fadeTime = 0;
-            currentFrame++;
-            if (currentFrame >= textures.size()) {
-                isFinished = true;
-                return true;
-            }
-            updateSpriteForCurrentFrame();
-            currentSprite.setColor(sf::Color(255, 255, 255, 0)); // Start fully transparent
-        }
+    if (fadeTime < fadeInDuration) {
+        // Fading in
+        float alpha = (fadeTime / fadeInDuration) * 255;
+        currentSprite.setColor(sf::Color(255, 255, 255, static_cast<sf::Uint8>(alpha)));
+    } else if (fadeTime < fadeInDuration + stayVisibleDuration) {
+        // Fully visible - no changes needed
+        currentSprite.setColor(sf::Color(255, 255, 255, 255)); // Ensure fully opaque
+    } else if (fadeTime < frameDuration) {
+        // Fading out
+        float alpha = (1 - (fadeTime - (fadeInDuration + stayVisibleDuration)) / fadeOutDuration) * 255;
+        currentSprite.setColor(sf::Color(255, 255, 255, static_cast<sf::Uint8>(alpha)));
     } else {
-        float halfDuration = frameDuration / 2;
-        if (fadeTime < halfDuration) {
-            // Fading in
-            float alpha = (fadeTime / halfDuration) * 255;
-            currentSprite.setColor(sf::Color(255, 255, 255, static_cast<sf::Uint8>(alpha)));
-        } else if (fadeTime < frameDuration) {
-            // Fading out
-            float alpha = (1 - (fadeTime - halfDuration) / halfDuration) * 255;
-            currentSprite.setColor(sf::Color(255, 255, 255, static_cast<sf::Uint8>(alpha)));
-        } else {
-            // Frame finished, start pause
-            isPaused = true;
-            fadeTime = 0;
+        // Frame finished, move to the next frame
+        fadeTime = 0; // Reset fadeTime for the next frame
+        currentFrame++;
+        if (currentFrame >= textures.size()) {
+            isFinished = true;
+            return true;
         }
+        updateSpriteForCurrentFrame();
+        currentSprite.setColor(sf::Color(255, 255, 255, 0)); // Start fully transparent for the next frame
     }
 
     return false;

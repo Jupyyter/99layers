@@ -15,8 +15,10 @@ private:
     sf::Sprite currentSprite;
     size_t currentFrame;
     float fadeTime;
-    float frameDuration;
-    float pauseDuration;
+    float frameDuration;       // Total duration for each frame (fade in + stay visible + fade out)
+    float fadeInDuration;      // Duration of the fade-in phase
+    float stayVisibleDuration; // Duration the image stays fully visible
+    float fadeOutDuration;    // Duration of the fade-out phase
     bool isFinished;
     bool isPaused;
     sf::Vector2u windowSize;
