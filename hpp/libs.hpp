@@ -31,6 +31,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include "Win.hpp"
 #include "ObjectFactory.hpp"
 #include "Camera.hpp"
 #include "Object.hpp"

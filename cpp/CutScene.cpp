@@ -39,7 +39,24 @@ void CutScene::updateSpriteForCurrentFrame() {
         currentSprite.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
     }
 }
+void CutScene::handleResize(const sf::Vector2u& newWindowSize) {
+    // Update the stored window size
+    windowSize = newWindowSize;
+    
+    // Recalculate the scale and position for the current image
+    if (currentFrame < textures.size()) {
+        sf::Vector2u textureSize = textures[currentFrame].getSize();
+        float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+        float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+        float scale = std::min(scaleX, scaleY);
 
+        currentSprite.setScale(scale, scale);
+
+        sf::FloatRect bounds = currentSprite.getLocalBounds();
+        currentSprite.setOrigin(bounds.width / 2, bounds.height / 2);
+        currentSprite.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
+    }
+}
 bool CutScene::update(float deltaTime) {
     if (isFinished) return true;
 

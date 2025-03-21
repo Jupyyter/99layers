@@ -9,7 +9,7 @@ public:
     bool update(float deltaTime);
     void draw(sf::RenderWindow& window);
     bool cutSceneFinished;
-
+void handleResize(const sf::Vector2u& newWindowSize);
 private:
     std::vector<sf::Texture> textures;
     sf::Sprite currentSprite;

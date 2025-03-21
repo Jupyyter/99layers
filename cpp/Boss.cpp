@@ -155,6 +155,7 @@ void Boss::onCollision(Sprite* other) {
         // Check if all components are 0 using bitwise operations
         if (!(color.r | color.g | color.b)) {
             shouldBeDead = true;
+            (*world->win)=true;
         }
     }
 }

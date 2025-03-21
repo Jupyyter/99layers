@@ -13,8 +13,8 @@ class GameMap
 
 public:
     // Constructors & Destructors
-    GameMap(sf::RenderWindow &wndref, bool &gameover);
-    GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover);
+    GameMap(sf::RenderWindow &wndref, bool &gameover,bool &playerWon);
+    GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover,bool &playerWon);
     GameMap(const GameMap &) = delete;            // Prevent copying
     GameMap &operator=(const GameMap &) = delete; // Prevent assignment
     ~GameMap() = default;
@@ -62,14 +62,12 @@ public:
     void toggleFullscreen();
     void handleResize(const sf::Vector2u &newSize);
     void handleResize();
-
+void updateViewport();
 private:
     sf::Vector2f m_originalResolution;
     sf::Vector2f m_viewportPosition;
     sf::Vector2f m_viewportSize;
     bool m_isFullscreen;
-
-    void updateViewport();
 
     // Internal Object Management
     struct ObjectCompare

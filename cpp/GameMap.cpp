@@ -1,8 +1,8 @@
 #include "../hpp/libs.hpp"
 class EditorMap;
 
-GameMap::GameMap(sf::RenderWindow &wndref, bool &gameover)
-    : wndref(wndref), gameOver(&gameover), m_camera(wndref),
+GameMap::GameMap(sf::RenderWindow &wndref, bool &gameover,bool &playerWon)
+    : wndref(wndref), gameOver(&gameover),win(&playerWon), m_camera(wndref),
       m_currentPartX(0), m_currentPartY(0), playerRef(nullptr),
       isPlayerValid(true), playerSpawnPosition(sf::Vector2f(0, 0)),
       m_originalResolution(wndref.getSize()),
@@ -18,8 +18,8 @@ GameMap::GameMap(sf::RenderWindow &wndref, bool &gameover)
     allObjects.clear();
 }
 
-GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover)
-    : wndref(wndref), gameOver(&gameover), m_camera(wndref),
+GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover,bool &playerWon)
+    : wndref(wndref), gameOver(&gameover),win(&playerWon), m_camera(wndref),
       m_currentPartX(0), m_currentPartY(0), playerRef(nullptr),
       m_originalResolution(wndref.getSize()),
       m_isFullscreen(false)
