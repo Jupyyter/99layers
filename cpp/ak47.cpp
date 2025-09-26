@@ -16,7 +16,6 @@ void AK47::update(float deltaTime, const sf::Vector2u &screenres) {
         sf::Vector2i mousePosition = sf::Mouse::getPosition(world->wndref);
         updatePosition();
         if (playerRef) {
-            // Get the current view
             sf::View currentView = world->wndref.getView();
             
             // Convert mouse position to world coordinates

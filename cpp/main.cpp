@@ -99,7 +99,6 @@ int main()
                         world->playerRef->inventory->handleScaling();
                     }
 
-                    // Add this line to update cutscene when toggling fullscreen
                     if (currentState == GameState::CutScene)
                     {
                         cutScene.handleResize(window.getSize());
@@ -130,13 +129,11 @@ int main()
                 world->handleResize();
                 settingsMenu.updateButtonPosition();
 
-                // Add this line to update cutscene positions when window is resized
                 if (currentState == GameState::CutScene)
                 {
                     cutScene.handleResize(window.getSize());
                 }
 
-                // Add this line to update Win screen positions when window is resized
                 winScreen.updatePositions();
             }
 
@@ -287,7 +284,7 @@ int main()
             break;
 
         case GameState::Win:
-            // Make sure we're drawing something by forcing a solid color background
+            // Drawing something by forcing a solid color background
             window.clear(sf::Color(30, 150, 30)); // Dark green as base color
 
             winScreen.updateButtonColor();
@@ -325,7 +322,7 @@ int main()
             }
             else if (currentState == GameState::Playing && previousState == GameState::CutScene)
             {
-                // Don't do anything here since we handled music in the cutscene transition
+                // Don't do anything here since music is handled in the cutscene transition
                 // This ensures an immediate transition
             }
             else if (currentState == GameState::Playing && previousState == GameState::mainMenu)

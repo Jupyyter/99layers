@@ -15,5 +15,5 @@ public:
     void draw();
     void updateButtonColor();
     bool isExitButtonClicked();
-    void updatePositions();  // New method to handle resizing
+    void updatePositions();
 };

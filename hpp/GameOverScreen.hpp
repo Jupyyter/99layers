@@ -7,11 +7,11 @@ private:
     sf::Text returnToMenuText;
     sf::RectangleShape returnToMenuButton;
     sf::Music gameOverMusic;
-    bool isButtonHovered;  // New variable to track hover state
+    bool isButtonHovered;
     
     void initializeText();
     void initializeButton();
-    void updateButtonColor();  // New helper function
+    void updateButtonColor();
     
 public:
     GameOverScreen(sf::RenderWindow& window);

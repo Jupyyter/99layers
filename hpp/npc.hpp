@@ -16,6 +16,5 @@ protected:
     void updateInteraction(float deltaTime) override;
     bool shouldEndInteraction() const override;
 
-    // Virtual so derived classes can override the behavior
     virtual void handleTextBoxInput();
 };

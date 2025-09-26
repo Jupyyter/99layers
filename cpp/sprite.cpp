@@ -14,9 +14,6 @@ void Sprite::loadTexture(const std::string &filename)
 
 void Sprite::update(float deltaTime, const sf::Vector2u &screenres)
 {
-    // Basic update for sprite (e.g., updating position based on velocity)
-    // position += velocity * deltaTime;
-    // sprite.setPosition(position);
 }
 void Sprite::scale(float scaleX, float scaleY)
 {

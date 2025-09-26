@@ -252,7 +252,7 @@ EditorMap::Menu::Menu(const std::vector<std::string>& objectPaths, const std::ve
                 textures.push_back(texture);
                 std::string name = getFileNameWithoutExtension(path);
                 names.push_back(name);
-                EditorMap::objectTextures[name] = texture;  // Add this line
+                EditorMap::objectTextures[name] = texture;
             }
         }
     };
@@ -333,7 +333,6 @@ void EditorMap::Menu::draw() {
     window.setView(originalView);
 }
 
-// PropertyEditor implementation
 void EditorMap::PropertyEditor::setup(sf::Font& loadedFont) {
     font = &loadedFont;
     background.setFillColor(sf::Color(200, 200, 200));

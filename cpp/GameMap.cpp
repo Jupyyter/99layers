@@ -30,13 +30,10 @@ GameMap::GameMap(std::string fname, sf::RenderWindow &wndref, bool &gameover,boo
     m_camera.setZoom(1.0f);
     m_camera.setSmoothness(25.0f); // smoothness
 
-    // Initialize viewport
     updateViewport();
 
-    // Load map from file
     loadFromFile(fname);
 
-    // Other initializations
     collisionObjects.clear();
     allObjects.clear();
 }
@@ -261,7 +258,7 @@ void GameMap::updateViewport()
     }
 
     // Update the view's viewport
-    sf::View& view = m_camera.getView(); // You'll need to add a getter for m_view in Camera class
+    sf::View& view = m_camera.getView();
     view.setViewport(sf::FloatRect(
         m_viewportPosition.x / windowSize.x,
         m_viewportPosition.y / windowSize.y,
@@ -445,7 +442,6 @@ void GameMap::removeDeadObjects()
         }
     }
 
-    // Rest of the removal code remains the same...
     for (auto it = allObjects.begin(); it != allObjects.end();)
     {
         if ((*it)->shouldBeDead)

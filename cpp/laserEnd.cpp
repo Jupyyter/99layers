@@ -12,7 +12,7 @@ LaserEnd::LaserEnd(const sf::Vector2f &initialPosition) : Animation(initialPosit
     std::uniform_int_distribution<> dis(0, 2);
     int randomRow = dis(gen);
 
-    // Add a single animation, using the randomly chosen row
+    // Single animation, using the randomly chosen row
     addAnimation("go", randomRow, 6);
     setAnimation("go");
     sprite.setOrigin(16, 16);

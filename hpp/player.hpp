@@ -39,5 +39,5 @@ bool *gameover;
     bool isPushed;
     float pushTimer;
     sf::Vector2f pushVelocity;
-    const float PUSH_FORCE = 400.0f;  // Strength of push
+    const float PUSH_FORCE = 400.0f;
 };

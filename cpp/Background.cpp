@@ -35,5 +35,5 @@ void Background::draw(sf::RenderWindow& window) const
 
 bool Background::isOnScreen() const
 {
-    return true; // Backgrounds are always considered on screen, or implement your own logic
+    return true; // Backgrounds are always considered on screen
 }

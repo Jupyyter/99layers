@@ -103,12 +103,12 @@ private:
     bool checkSATCollision(const std::vector<sf::Vector2f> &vertices1,
                            const std::vector<sf::Vector2f> &vertices2);
 
-    // Add spatial partitioning grid
+    // Spatial partitioning grid
     static const int GRID_SIZE = 128; // Size of each grid cell
     std::vector<std::vector<std::vector<Sprite *>>> spatialGrid;
     sf::Vector2i gridDimensions;
 
-    // Add view frustum for culling
+    // View frustum for culling
     sf::FloatRect viewBounds;
 
     // Cache transformed bounds
@@ -119,10 +119,10 @@ private:
     };
     mutable std::unordered_map<const Sprite *, TransformedBounds> boundsCache;
 
-    // Add clock for cache timing
+    // Clock for cache timing
     mutable sf::Clock transformClock;
 
-    // Add helper methods
+    // Helper methods
     void updateViewBounds();
     bool isInView(const Sprite *sprite) const;
     void clearCaches();

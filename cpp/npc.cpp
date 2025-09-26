@@ -22,7 +22,6 @@ void Npc::update(float deltaTime, const sf::Vector2u& screenres)
 
 void Npc::updateInteraction(float deltaTime)
 {
-    // Any continuous interaction logic can go here
 }
 
 bool Npc::shouldEndInteraction() const

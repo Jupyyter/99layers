@@ -7,8 +7,6 @@ public:
     void update(float deltaTime, const sf::Vector2u& screenres) override;
     void draw(sf::RenderWindow& window) const  override;
 
-
-    // New methods specific to Penguin
     void setSpeed(float newSpeed) { speed = newSpeed; }
     float getSpeed() const { return speed; }
 

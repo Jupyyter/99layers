@@ -2,11 +2,9 @@
 
 GameOverScreen::GameOverScreen(sf::RenderWindow & window) : windowr(window), isButtonHovered(false) {
     if (!font.loadFromFile("../fonts//ARIAL.TTF")) {
-        // Handle font loading error
     }
     
     if (!gameOverMusic.openFromFile("../audio//gameOverMusic.wav")) {
-        // Handle music loading error
     }
     stopMusic();
     initializeText();

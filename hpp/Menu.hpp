@@ -4,8 +4,8 @@ class Menu {
 private:
     sf::RenderWindow& window;
     sf::Font font;
-    sf::RectangleShape background;
-    sf::Text titleText;      // Added title text
+    sf::RectangleShape backgr    sf    sf::Text titleText;
+
     sf::Text settingText;
     sf::RectangleShape musicButton;
     sf::Text musicButtonText;
